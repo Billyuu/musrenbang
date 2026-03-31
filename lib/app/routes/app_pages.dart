@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/admin/bindings/admin_binding.dart';
+import '../modules/admin/views/admin_view.dart';
 import '../modules/hasil_musrenbang/bindings/hasil_musrenbang_binding.dart';
 import '../modules/hasil_musrenbang/views/hasil_musrenbang_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -24,7 +26,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.HOME;
+  static const INITIAL = Routes.ADMIN;
 
   static final routes = [
     GetPage(
@@ -71,6 +73,11 @@ class AppPages {
       name: _Paths.HASIL_MUSRENBANG,
       page: () => const HasilMusrenbangView(),
       binding: HasilMusrenbangBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADMIN,
+      page: () => const AdminView(),
+      binding: AdminBinding(),
     ),
   ];
 }

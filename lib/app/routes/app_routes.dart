@@ -12,6 +12,7 @@ abstract class Routes {
   static const USULAN = _Paths.USULAN;
   static const STATUS_USULAN = _Paths.STATUS_USULAN;
   static const HASIL_MUSRENBANG = _Paths.HASIL_MUSRENBANG;
+  static const ADMIN = _Paths.ADMIN;
 }
 
 abstract class _Paths {
@@ -25,4 +26,5 @@ abstract class _Paths {
   static const USULAN = '/usulan';
   static const STATUS_USULAN = '/status-usulan';
   static const HASIL_MUSRENBANG = '/hasil-musrenbang';
+  static const ADMIN = '/admin';
 }
