@@ -18,6 +18,7 @@ class UsulanView extends GetView<UsulanController> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -1,14 +1,14 @@
 import 'package:get/get.dart';
 
 class AdminController extends GetxController {
+  
 
-  /// 🔥 STATUS AKTIF
   var selectedStatus = "diproses".obs;
 
-  /// 🔥 GANTI STATUS
-  void changeStatus(String status) {
-    selectedStatus.value = status;
-  }
+void changeStatus(String status) {
+  selectedStatus.value = status;
+}
+
 
   /// 🔥 LOGOUT
   void logout() {

@@ -112,7 +112,7 @@ class AdminView extends GetView<AdminController> {
             child: const Text(
               'Selamat Datang, Admin!',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 17,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
@@ -121,133 +121,200 @@ class AdminView extends GetView<AdminController> {
 
           const SizedBox(height: 15),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      controller.changeStatus("diproses");
-                    },
-                    child: Container(
-                      height: 110,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFA726),
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "12",
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+          Obx(
+            () => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Row(
+                children: [
+                  /// ================= DIPROSES =================
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        controller.changeStatus("diproses");
+                      },
+                      child: Container(
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFA726),
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            "Diproses",
-                            style: TextStyle(fontSize: 15, color: Colors.white),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "12",
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            const Text(
+                              "Diproses",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Center(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.fastOutSlowIn,
+                                height: 4,
+                                width:
+                                    controller.selectedStatus.value ==
+                                        "diproses"
+                                    ? 40
+                                    : 0,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                const SizedBox(width: 10),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      controller.changeStatus("diterima");
-                    },
-                    child: Container(
-                      height: 110,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF66BB6A),
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "3",
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                  const SizedBox(width: 10),
+
+                  /// ================= DITERIMA =================
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        controller.changeStatus("diterima");
+                      },
+                      child: Container(
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF66BB6A),
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            "Diterima",
-                            style: TextStyle(fontSize: 15, color: Colors.white),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "3",
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            const Text(
+                              "Diterima",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white,
+                              ),
+                            ),
+
+                            /// 🔥 GARIS ANIMASI HALUS
+                            const SizedBox(height: 8),
+                            Center(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.fastOutSlowIn,
+                                height: 4,
+                                width:
+                                    controller.selectedStatus.value ==
+                                        "diterima"
+                                    ? 40
+                                    : 0,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                const SizedBox(width: 10),
+                  const SizedBox(width: 10),
 
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      controller.changeStatus("ditolak");
-                    },
-                    child: Container(
-                      height: 110,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEF5350),
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "5", // 🔥 angka di atas
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                  /// ================= DITOLAK =================
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        controller.changeStatus("ditolak");
+                      },
+                      child: Container(
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF5350),
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            "Ditolak",
-                            style: TextStyle(fontSize: 15, color: Colors.white),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "5",
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            const Text(
+                              "Ditolak",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Center(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.fastOutSlowIn,
+                                height: 4,
+                                width:
+                                    controller.selectedStatus.value == "ditolak"
+                                    ? 40
+                                    : 0,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
@@ -262,26 +329,49 @@ class AdminView extends GetView<AdminController> {
             ),
           ),
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.all(15),
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// 🔹 JUDUL
-                  const Text(
-                    "Usulan Diproses:",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+            child: Obx(() {
+              String title = "";
 
-                  const SizedBox(height: 15),
-                ],
-              ),
-            ),
+              if (controller.selectedStatus.value == "diproses") {
+                title = "Usulan Diproses:";
+              } else if (controller.selectedStatus.value == "diterima") {
+                title = "Usulan Diterima:";
+              } else {
+                title = "Usulan Ditolak:";
+              }
+
+              return Container(
+                margin: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 3,
+                      child: const ListTile(
+                        leading: Icon(Icons.description),
+                        title: Text("Saluran air mampet"),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),
