@@ -20,130 +20,485 @@ class UsulanView extends GetView<UsulanController> {
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// Dusun
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
 
-            Padding(
-  padding: const EdgeInsets.only(bottom: 15),
-  child: DropdownButtonFormField2<String>(
-    isExpanded: true,
-    alignment: Alignment.centerLeft,
+            DropdownButtonFormField2<String>(
+              isExpanded: true,
 
-    decoration: InputDecoration(
-      hintText: "Dusun",
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey.shade300,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 18,
+                ),
 
-      filled: true,
-      fillColor: Colors.grey.shade300,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              hint: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Icon(Icons.home, size: 20, color: Colors.black54),
+                  SizedBox(width: 15),
+                  Text(
+                    "Dusun",
+                    style: TextStyle(fontSize: 15, color: Colors.black54),
+                  ),
+                ],
+              ),
 
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 18, // ⬅️ bikin lebih tinggi & lega
-      ),
+              iconStyleData: const IconStyleData(
+                icon: Icon(Icons.keyboard_arrow_down),
+                iconSize: 24,
+              ),
+              dropdownStyleData: DropdownStyleData(
+                elevation: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
 
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20), // ⬅️ lebih smooth
-        borderSide: BorderSide.none,
-      ),
-    ),
+              menuItemStyleData: const MenuItemStyleData(
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+              ),
 
-    iconStyleData: const IconStyleData(
-      icon: Icon(Icons.keyboard_arrow_down),
-      iconSize: 24,
-    ),
+              items: ["Dusun Suko", "Dusun Duyo", "Dusun Rujak Sente"]
+                  .map(
+                    (item) => DropdownMenuItem<String>(
+                      value: item,
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.home,
+                            size: 20,
+                            color: Colors.black54,
+                          ),
+                          const SizedBox(width: 15),
+                          Text(
+                            item,
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
 
-    dropdownStyleData: DropdownStyleData(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(15),
-      ),
-    ),
-
-    items: ["Dusun Suko", "Dusun Duyo", "Dusun Rujak Sente"]
-        .map(
-          (item) => DropdownMenuItem<String>(
-            value: item,
-            child: Text(
-              item,
-              style: const TextStyle(fontSize: 14),
+              onChanged: (value) {},
             ),
-          ),
-        )
-        .toList(),
-
-    onChanged: (value) {},
-  ),
-),
-            const SizedBox(height: 16),
+            const SizedBox(height: 15),
 
             /// Judul Usulan
-            const Text("Judul Usulan"),
-            TextFormField(
-              decoration: const InputDecoration(
-                hintText: "Masukkan judul usulan",
-                border: OutlineInputBorder(),
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  cursorColor: Colors.black54,
+
+                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                  decoration: InputDecoration(
+                    hintText: "Masukkan judul usulan",
+                    hintStyle: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 16,
+                    ),
+
+                    filled: true,
+                    fillColor: Colors.grey.shade300,
+
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 18,
+                    ),
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
+                    ),
+
+                    prefixIcon: const Icon(
+                      Icons.edit_note,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 15),
 
             /// Permasalahan
-            const Text("Permasalahan"),
-            TextFormField(
-              maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: "Jelaskan permasalahan",
-                border: OutlineInputBorder(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  cursorColor: Colors.black54,
+                  maxLines: 4,
+
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+
+                  decoration: InputDecoration(
+                    hintText: "Masukkan permasalahan",
+                    hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
+
+                    filled: true,
+                    fillColor: Colors.grey.shade300,
+
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 12,
+                    ),
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+
+            ///Urgensi
+            Row(
+              children: [
+                SizedBox(width: 8),
+                const Text(
+                  "Urgensi",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8, width: 10),
+            DropdownButtonFormField2(
+              isExpanded: true,
+              value: null,
+
+              hint: Row(
+                children: const [
+                  Icon(Icons.flag, size: 20, color: Colors.black54),
+                  SizedBox(width: 10),
+                  Text(
+                    "Pilih tingkat urgensi",
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ],
+              ),
+
+              items:
+                  [
+                        "Sangat Mendesak",
+                        "Mendesak",
+                        "Cukup Mendesak",
+                        "Kurang Mendesak",
+                        "Tidak Mendesak",
+                      ]
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.circle,
+                                size: 10,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                e,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+
+              onChanged: (value) {},
+              iconStyleData: const IconStyleData(
+                icon: Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+                iconSize: 24,
+              ),
+
+              dropdownStyleData: DropdownStyleData(
+                elevation: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey.shade300,
+
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 18,
+                ),
+
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 15),
 
-            /// Urgensi
-            const Text("Urgensi"),
-            DropdownButtonFormField<String>(
-              items: [
-                "5 - Sangat Mendesak",
-                "4 - Mendesak",
-                "3 - Cukup Mendesak",
-                "2 - Kurang Mendesak",
-                "1 - Tidak Mendesak",
-              ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-              onChanged: (value) {},
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+            ///Masyarakat Terdampak
+            Row(
+              children: [
+                SizedBox(width: 8),
+                const Text(
+                  "Masyarakat Terdampak",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 8, width: 10),
+            DropdownButtonFormField2(
+              isExpanded: true,
+              value: null,
 
-            /// Masyarakat Terdampak
-            const Text("Masyarakat Terdampak"),
-            DropdownButtonFormField<String>(
-              items: [
-                "5 - Desa",
-                "4 - Dusun",
-                "3 - RW",
-                "2 - RT",
-                "1 - Kelompok",
-              ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-              onChanged: (value) {},
-              decoration: const InputDecoration(border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 16),
+              hint: Row(
+                children: const [
+                  Icon(Icons.groups, size: 20, color: Colors.black54),
+                  SizedBox(width: 10),
+                  Text(
+                    "Pilih Masyarakat Terdampak",
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ],
+              ),
 
-            /// Biaya
-            const Text("Biaya"),
-            DropdownButtonFormField<String>(
-              items: [
-                "5 - 0-50 Juta",
-                "4 - 50-100 Juta",
-                "3 - 100-150 Juta",
-                "2 - 150-200 Juta",
-                "1 - >200 Juta",
-              ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+              items: ["Desa", "Dusun", "RW", "RT", "Kelompok"]
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.circle,
+                            size: 10,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            e,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
+
               onChanged: (value) {},
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              iconStyleData: const IconStyleData(
+                icon: Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+                iconSize: 24,
+              ),
+
+              dropdownStyleData: DropdownStyleData(
+                elevation: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey.shade300,
+
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 18,
+                ),
+
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 15),
+
+            ///Tingkat Kerusakan
+            Row(
+              children: [
+                SizedBox(width: 8),
+                const Text(
+                  "Tingkat Kerusakan",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8, width: 10),
+            DropdownButtonFormField2(
+              isExpanded: true,
+              value: null,
+
+              hint: Row(
+                children: const [
+                  Icon(
+                    Icons.construction,
+                    size: 20,
+                    color: Colors.black54,
+                  ), // 🔥 icon lebih sesuai
+                  SizedBox(width: 10),
+                  Text(
+                    "Pilih tingkat kerusakan",
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ],
+              ),
+
+              items:
+                  [
+                        "Tidak Punya"
+                            "Rusak Berat",
+                        "Rusak Sedang",
+                        "Rusak Ringan",
+                        "Layak",
+                      ]
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.circle,
+                                size: 10,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                e,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+
+              onChanged: (value) {},
+              iconStyleData: const IconStyleData(
+                icon: Icon(Icons.keyboard_arrow_down, color: Colors.black54),
+                iconSize: 24,
+              ),
+
+              dropdownStyleData: DropdownStyleData(
+                elevation: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey.shade300,
+
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 18,
+                ),
+
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            /// BIAYA
+            Row(
+              children: [
+                SizedBox(width: 8),
+                const Text(
+                  "Biaya",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+
+            TextFormField(
+              keyboardType: TextInputType.number,
+              cursorColor: const Color(0xff1565C0),
+
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
+
+              decoration: InputDecoration(
+                hintText: "Masukkan estimasi biaya",
+                hintStyle: const TextStyle(color: Colors.black54, fontSize: 16),
+
+                filled: true,
+                fillColor: Colors.grey.shade300,
+
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 18,
+                ),
+
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+
+
+                prefixIcon: const Icon(Icons.money, color: Colors.black54),
+
+                prefixText: "Rp ",
+                prefixStyle: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
 
             /// Tingkat Kerusakan
             const Text("Tingkat Kerusakan"),
