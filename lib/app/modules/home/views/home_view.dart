@@ -11,9 +11,10 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-      Get.put(ProfilController());
+    Get.put(ProfilController());
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade200,
+      extendBody: true,
       appBar: AppBar(
         title: const Text(
           'Musrenbang Desa Sukorejo',
@@ -43,14 +44,14 @@ class HomeView extends GetView<HomeController> {
       /// ================= BOTTOM NAVIGATION =================
       bottomNavigationBar: Obx(
         () => Container(
-          height: 75,
-          margin: const EdgeInsets.all(15),
+          height: 70,
+          margin: const EdgeInsets.fromLTRB(15, 0, 15, 25),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withOpacity(0.15),
                 blurRadius: 10,
                 offset: const Offset(0, 5),
               ),

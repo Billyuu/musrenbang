@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/usulan_controller.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 class UsulanView extends GetView<UsulanController> {
   const UsulanView({super.key});
@@ -16,7 +17,12 @@ class UsulanView extends GetView<UsulanController> {
         ),
         backgroundColor: const Color(0xff1565C0),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+      leading: IconButton(
+          icon: const Icon(Iconsax.arrow_left_2_copy, color: Colors.white),
+          onPressed: () {
+            Get.back();
+          },
+        ),
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -371,11 +377,7 @@ class UsulanView extends GetView<UsulanController> {
 
               hint: Row(
                 children: const [
-                  Icon(
-                    Icons.construction,
-                    size: 20,
-                    color: Colors.black54,
-                  ), // 🔥 icon lebih sesuai
+                  Icon(Icons.construction, size: 20, color: Colors.black54),
                   SizedBox(width: 10),
                   Text(
                     "Pilih tingkat kerusakan",
@@ -487,7 +489,6 @@ class UsulanView extends GetView<UsulanController> {
                   borderSide: BorderSide.none,
                 ),
 
-
                 prefixIcon: const Icon(Icons.money, color: Colors.black54),
 
                 prefixText: "Rp ",
@@ -499,56 +500,136 @@ class UsulanView extends GetView<UsulanController> {
               ),
             ),
             const SizedBox(height: 15),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: const [
+                    SizedBox(width: 10),
+                    Text(
+                      "Lokasi",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                TextFormField(
+                  cursorColor: Colors.black54,
 
-            /// Tingkat Kerusakan
-            const Text("Tingkat Kerusakan"),
-            DropdownButtonFormField<String>(
-              items: [
-                "5 - Rusak Berat",
-                "4 - Rusak Sedang",
-                "3 - Rusak Ringan",
-                "2 - Layak",
-                "1 - Baik",
-              ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-              onChanged: (value) {},
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                  decoration: InputDecoration(
+                    hintText: "Alamat lokasi",
+                    hintStyle: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 16,
+                    ),
+
+                    filled: true,
+                    fillColor: Colors.grey.shade300,
+
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 18,
+                    ),
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
+                    ),
+
+                    prefixIcon: const Icon(
+                      Icons.location_on,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
 
-            /// Alamat Lokasi
-            const Text("Alamat Lokasi"),
-            TextFormField(
-              decoration: const InputDecoration(
-                hintText: "Masukkan alamat lokasi",
-                border: OutlineInputBorder(),
+            const SizedBox(height: 15),
+
+            /// TITIK KOORDINAT
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: const [
+                    SizedBox(width: 10),
+                    Text(
+                      "Titik Koordinat",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: TextFormField(
+                    decoration: const InputDecoration(
+                      hintText: "-7.12345, 110.12345",
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+
+            /// UPLOAD FOTO
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                onPressed: () {},
+                icon: const Icon(Icons.camera_alt, color: Colors.black54),
+                label: const Text(
+                  "Upload Foto Lokasi",
+                  style: TextStyle(color: Colors.black54),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
 
-            /// Titik Koordinat
-            const Text("Titik Koordinat (Lat, Long)"),
-            TextFormField(
-              decoration: const InputDecoration(
-                hintText: "-7.12345, 110.12345",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            /// Upload Foto (Dummy Button)
-            ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.camera_alt),
-              label: const Text("Upload Foto Lokasi"),
-            ),
             const SizedBox(height: 24),
 
-            /// Tombol Simpan
+            /// TOMBOL SIMPAN
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff1565C0),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
                 onPressed: () {},
-                child: const Text("Simpan Usulan"),
+                child: const Text(
+                  "Simpan Usulan",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
             ),
           ],

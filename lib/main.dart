@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'app/routes/app_pages.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(
@@ -20,6 +21,13 @@ void main() {
 
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
+    ),
+  );
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent, // 🔥 bikin tembus
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
 }

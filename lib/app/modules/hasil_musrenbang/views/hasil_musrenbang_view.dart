@@ -48,19 +48,14 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        
-         automaticallyImplyLeading: false,
-        title: const Text("Hasil Musrenbang"),
-        centerTitle: true,
-        backgroundColor: const Color(0xff1565C0),
-      ),
+     
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             /// REKAP ATAS
             Container(
+               
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -88,7 +83,7 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             /// LIST HASIL
             Expanded(
@@ -98,6 +93,7 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
                   final item = hasil[index];
 
                   return Card(
+                    color: Colors.white,
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),

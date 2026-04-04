@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/profil_controller.dart';
 import 'package:musrenbang/app/routes/app_pages.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 class ProfilView extends GetView<ProfilController> {
   const ProfilView({super.key});
@@ -10,17 +11,10 @@ class ProfilView extends GetView<ProfilController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF5F7FA),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Profil User'),
-        centerTitle: true,
-        backgroundColor: const Color(0xff1565C0),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            /// ================= PROFIL CARD (SEMUA DIGABUNG) =================
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -44,10 +38,20 @@ class ProfilView extends GetView<ProfilController> {
                     children: [
                       Stack(
                         children: [
-                          const CircleAvatar(
-                            radius: 50,
-                            backgroundImage: AssetImage('assets/profile.png'),
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Iconsax.user,
+                              size: 50,
+                              color: Colors.black54,
+                            ),
                           ),
+
                           Positioned(
                             bottom: 0,
                             right: 0,
@@ -99,12 +103,14 @@ class ProfilView extends GetView<ProfilController> {
                   const Divider(),
 
                   Obx(
-                    () => buildItem(
+                    () => buildItemEditable(
                       title: "Alamat",
                       value: controller.alamat.value,
                       icon: Icons.location_on,
+                      onEdit: controller.editAlamat,
                     ),
                   ),
+                  SizedBox(height: 25),
                   const Divider(),
 
                   Obx(
