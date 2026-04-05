@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl =
-      "http://192.168.0.102/api_musrenbang/public/api";
+      "http://192.168.1.108/api_musrenbang/public/api";
 
   // LOGIN
   static Future<Map<String, dynamic>> login({
@@ -11,7 +12,6 @@ class ApiService {
     required String password,
   }) async {
     final url = Uri.parse("$baseUrl/login");
-
     final response = await http.post(
       url,
       headers: {
@@ -20,7 +20,6 @@ class ApiService {
       },
       body: jsonEncode({"nik": nik, "password": password}),
     );
-
     print('ini body nya ${jsonEncode({"nik": nik, "password": password})}');
 
     return {
@@ -79,5 +78,76 @@ class ApiService {
     } else {
       throw Exception("Gagal mengambil data");
     }
+  }
+
+  //get foto
+  static Future<String?> getProfileFoto() async {
+    try {
+      var res = await http.get(Uri.parse("$baseUrl/profile"));
+
+      if (res.statusCode == 200) {
+        var data = json.decode(res.body);
+        return data['data']['foto_url'];
+      }
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  //foto profil
+  static Future<String?> uploadFoto(File file) async {
+    try {
+      var uri = Uri.parse("$baseUrl/update-foto");
+
+      var request = http.MultipartRequest("POST", uri);
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'foto', // harus sama dengan Laravel
+          file.path,
+        ),
+      );
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        var res = await response.stream.bytesToString();
+        var data = json.decode(res);
+
+        return data['data']['foto_url']; // ambil URL
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Error upload: $e");
+      return null;
+    }
+  }
+
+  // UPDATE ALAMAT
+  static Future<bool> updateAlamat(String alamat) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/update-alamat"),
+      body: {"alamat": alamat},
+    );
+
+    print("STATUS: ${response.statusCode}");
+    print("BODY: ${response.body}");
+
+    return response.statusCode == 200;
+  }
+
+  // UPDATE NO HP
+  static Future<bool> updateNoHp(String noHp) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/update-nohp"),
+      body: {"nomor_telepon": noHp},
+    );
+
+    print("STATUS: ${response.statusCode}");
+    print("BODY: ${response.body}");
+
+    return response.statusCode == 200;
   }
 }

@@ -33,59 +33,79 @@ class ProfilView extends GetView<ProfilController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   /// ===== FOTO + NAMA =====
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              shape: BoxShape.circle,
+                  Obx(
+                    () => Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Stack(
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                shape: BoxShape.circle,
+                                image: controller.selectedImage.value != null
+                                    ? DecorationImage(
+                                        image: FileImage(
+                                          controller.selectedImage.value!,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : (controller.imageUrl.value != ""
+                                          ? DecorationImage(
+                                              image: NetworkImage(
+                                                controller.imageUrl.value,
+                                              ),
+                                              fit: BoxFit.cover,
+                                            )
+                                          : null),
+                              ),
+                              child:
+                                  (controller.selectedImage.value == null &&
+                                      controller.imageUrl.value == "")
+                                  ? const Icon(
+                                      Iconsax.user,
+                                      size: 50,
+                                      color: Colors.black54,
+                                    )
+                                  : null,
                             ),
-                            child: const Icon(
-                              Iconsax.user,
-                              size: 50,
-                              color: Colors.black54,
-                            ),
-                          ),
-
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: controller.editFoto,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xff1565C0),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  size: 18,
-                                  color: Colors.white,
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: controller.editFoto,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xff1565C0),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.edit,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Obx(
-                          () => Text(
-                            controller.nama.value,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                          ],
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Obx(
+                            () => Text(
+                              controller.nama.value,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 25),
@@ -110,7 +130,6 @@ class ProfilView extends GetView<ProfilController> {
                       onEdit: controller.editAlamat,
                     ),
                   ),
-                  SizedBox(height: 25),
                   const Divider(),
 
                   Obx(
