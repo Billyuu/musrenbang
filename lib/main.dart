@@ -25,7 +25,7 @@ void main() {
   );
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.transparent, // 🔥 bikin tembus
+      systemNavigationBarColor: Colors.transparent, 
       systemNavigationBarDividerColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),

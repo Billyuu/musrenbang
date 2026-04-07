@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl =
-      "http://192.168.1.108/api_musrenbang/public/api";
+      "http://192.168.18.199/api_musrenbang/public/api";
 
   // LOGIN
   static Future<Map<String, dynamic>> login({
@@ -80,42 +80,55 @@ class ApiService {
     }
   }
 
-  //get foto
+  // 1. Ambil Foto Profil
   static Future<String?> getProfileFoto() async {
     try {
-      var res = await http.get(Uri.parse("$baseUrl/profile"));
+      var res = await http.get(
+        Uri.parse("$baseUrl/profile"),
+        headers: {"Accept": "application/json"}, // Tambahkan ini
+      );
 
       if (res.statusCode == 200) {
         var data = json.decode(res.body);
         return data['data']['foto_url'];
       }
     } catch (e) {
-      print(e);
+      print("Error getProfileFoto: $e");
     }
     return null;
   }
 
-  //foto profil
+  // 2. Upload Foto Profil (Versi Debug)
   static Future<String?> uploadFoto(File file) async {
     try {
       var uri = Uri.parse("$baseUrl/update-foto");
-
       var request = http.MultipartRequest("POST", uri);
 
+      // Header wajib agar Laravel tahu kita minta balasan JSON
+      request.headers.addAll({
+        "Accept": "application/json",
+      });
+
+      // Menambahkan file
       request.files.add(
         await http.MultipartFile.fromPath(
-          'foto', // harus sama dengan Laravel
+          'foto', // Harus sama dengan $request->file('foto') di Laravel
           file.path,
         ),
       );
 
       var response = await request.send();
+      
+      // Mengubah stream response menjadi string teks
+      var resBody = await response.stream.bytesToString();
+      
+      // LOG PENTING: Cek di Debug Console VS Code kamu!
+      print("STATUS UPLOAD: ${response.statusCode}");
+      print("RESPONSE DARI SERVER: $resBody");
 
       if (response.statusCode == 200) {
-        var res = await response.stream.bytesToString();
-        var data = json.decode(res);
-
-        return data['data']['foto_url']; // ambil URL
+        var data = json.decode(resBody);
+        return data['data']['foto_url']; 
       } else {
         return null;
       }

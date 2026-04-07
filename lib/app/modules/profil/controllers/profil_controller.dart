@@ -37,19 +37,33 @@ class ProfilController extends GetxController {
     if (selectedImage.value == null) return;
 
     try {
+      // 1. Tampilkan Loading
       isLoading(true);
 
+      // 2. Jalankan Upload
       String? url = await ApiService.uploadFoto(selectedImage.value!);
 
       if (url != null) {
         imageUrl.value = url;
-        Get.snackbar("Sukses", "Foto berhasil diupload");
+
+        // 3. Beri feedback sukses yang keren
+        Get.snackbar(
+          "Berhasil",
+          "Foto profil Anda telah diperbarui",
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.green.withOpacity(0.8),
+          colorText: Colors.white,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          margin: const EdgeInsets.all(15),
+          duration: const Duration(seconds: 2),
+        );
       } else {
-        Get.snackbar("Error", "Upload gagal");
+        Get.snackbar("Gagal", "Terjadi kesalahan saat mengupload foto");
       }
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      Get.snackbar("Error", "Koneksi terputus: $e");
     } finally {
+      // 4. Matikan Loading setelah selesai (berhasil atau gagal)
       isLoading(false);
     }
   }
@@ -135,8 +149,8 @@ class ProfilController extends GetxController {
                 );
                 if (image != null) {
                   selectedImage.value = File(image.path);
-                  // 🔥 opsional: langsung upload ke API
-                  // await uploadImage();
+                  // 🔥 PANGGIL FUNGSI INI AGAR LANGSUNG UPLOAD
+                  await uploadFotoKeServer();
                 }
               },
             ),
@@ -199,25 +213,61 @@ class ProfilController extends GetxController {
               child: ElevatedButton(
                 onPressed: () async {
                   if (alamatController.text.isEmpty) {
-                    Get.snackbar("Error", "Alamat tidak boleh kosong");
+                    Get.snackbar(
+                      "Error",
+                      "Alamat tidak boleh kosong",
+                      snackPosition: SnackPosition.TOP,
+                      backgroundColor: Colors.red.withOpacity(0.8),
+                      colorText: Colors.white,
+                      icon: const Icon(
+                        Icons.error_outline,
+                        color: Colors.white,
+                      ),
+                    );
                     return;
                   }
 
                   try {
                     isLoading(true);
 
+                    // Update value secara lokal dulu
                     alamat.value = alamatController.text;
 
                     bool success = await ApiService.updateAlamat(alamat.value);
 
                     if (success) {
-                      Get.back();
-                      Get.snackbar("Sukses", "Alamat berhasil diupdate");
+                      Get.back(); // Tutup BottomSheet
+
+                      // Snackbar Sukses Modern
+                      Get.snackbar(
+                        "Berhasil",
+                        "Alamat Anda telah diperbarui",
+                        snackPosition: SnackPosition.TOP,
+                        backgroundColor: Colors.green.withOpacity(0.8),
+                        colorText: Colors.white,
+                        icon: const Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.white,
+                        ),
+                        margin: const EdgeInsets.all(15),
+                        duration: const Duration(seconds: 2),
+                        shouldIconPulse: true,
+                      );
                     } else {
-                      Get.snackbar("Error", "Gagal update alamat");
+                      Get.snackbar(
+                        "Gagal",
+                        "Gagal memperbarui alamat ke server",
+                        backgroundColor: Colors.orange.withOpacity(0.8),
+                        colorText: Colors.white,
+                      );
                     }
                   } catch (e) {
-                    Get.snackbar("Error", "Terjadi kesalahan koneksi");
+                    Get.snackbar(
+                      "Error",
+                      "Terjadi kesalahan koneksi",
+                      backgroundColor: Colors.red.withOpacity(0.8),
+                      colorText: Colors.white,
+                    );
                   } finally {
                     isLoading(false);
                   }
@@ -308,19 +358,70 @@ class ProfilController extends GetxController {
                     child: ElevatedButton(
                       onPressed: () async {
                         if (noHpController.text.isEmpty) {
-                          Get.snackbar("Error", "Nomor HP tidak boleh kosong");
+                          Get.snackbar(
+                            "Input Kosong",
+                            "Silakan masukkan nomor telepon Anda",
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.orange.withOpacity(0.8),
+                            colorText: Colors.white,
+                            icon: const Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.white,
+                            ),
+                          );
                           return;
                         }
 
-                        noHp.value = noHpController.text;
-                        Get.back();
+                        try {
+                          isLoading(true); // Aktifkan loading overlay
 
-                        bool success = await ApiService.updateNoHp(noHp.value);
+                          // Update secara lokal
+                          noHp.value = noHpController.text;
 
-                        if (success) {
-                          Get.snackbar("Sukses", "Nomor HP berhasil diupdate");
-                        } else {
-                          Get.snackbar("Error", "Gagal update nomor HP");
+                          // Tutup bottom sheet segera agar user bisa lihat loading di layar utama
+                          Get.back();
+
+                          bool success = await ApiService.updateNoHp(
+                            noHp.value,
+                          );
+
+                          if (success) {
+                            // Snackbar Sukses Modern
+                            Get.snackbar(
+                              "Berhasil",
+                              "Nomor HP telah diperbarui",
+                              snackPosition: SnackPosition.TOP,
+                              backgroundColor: Colors.green.withOpacity(0.8),
+                              colorText: Colors.white,
+                              icon: const Icon(
+                                Icons.phone_android,
+                                color: Colors.white,
+                              ),
+                              margin: const EdgeInsets.all(15),
+                              duration: const Duration(seconds: 2),
+                              shouldIconPulse: true,
+                            );
+                          } else {
+                            Get.snackbar(
+                              "Gagal",
+                              "Gagal memperbarui nomor HP ke server",
+                              backgroundColor: Colors.red.withOpacity(0.8),
+                              colorText: Colors.white,
+                              icon: const Icon(
+                                Icons.error_outline,
+                                color: Colors.white,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          Get.snackbar(
+                            "Koneksi Bermasalah",
+                            "Tidak dapat terhubung ke server",
+                            backgroundColor: Colors.red.withOpacity(0.8),
+                            colorText: Colors.white,
+                          );
+                        } finally {
+                          isLoading(false); // Matikan loading overlay
                         }
                       },
                       style: ElevatedButton.styleFrom(

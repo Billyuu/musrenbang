@@ -15,18 +15,95 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       extendBody: true,
-      appBar: AppBar(
-        title: const Text(
-          'Musrenbang Desa Sukorejo',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xff1565C0),
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xff1565C0), width: 1),
-        ),
-        elevation: 7,
-        shadowColor: Colors.black,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Obx(() {
+          final index = controller.bottomNavIndex.value;
+
+          // ================= 1. APPBAR HALAMAN HOME (INDEX 0) =================
+          if (index == 0) {
+            return AppBar(
+              backgroundColor: const Color(0xff1565C0),
+
+              // --- 1. KEMBALIKAN ELEVATION & SHADOW ---
+              elevation: 8, // Angka lebih besar = bayangan lebih tegas
+              shadowColor: Colors.black, // Warna bayangannya hitam
+              // --- 2. TETAPKAN GARIS HITAM DI BAWAH ---
+              shape: const Border(
+                bottom: BorderSide(color: Color(0xff1565C0), width: 1.5),
+              ),
+
+              title: const Text(
+                'MUSRENBANG DIGITAL',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                  color: Colors.white,
+                ),
+              ),
+              centerTitle: true,
+              actions: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {},
+                ),
+              ],
+            );
+          }
+          // APPBAR HALAMAN HASIL (INDEX 1)
+          else if (index == 1) {
+            return AppBar(
+              backgroundColor: const Color(0xff1565C0),
+              elevation: 7,
+              shadowColor: Colors.black,
+              centerTitle: true,
+
+              title: Container(
+                height: 40,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const TextField(
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: "Cari hasil musrenbang...",
+                    hintStyle: TextStyle(color: Colors.white60, fontSize: 13),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+            );
+          }
+          // ================= 3. APPBAR HALAMAN PROFIL (INDEX 2) =================
+          else if (index == 2) {
+            return AppBar(
+              title: const Text(
+                "Profil Pengguna",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              backgroundColor: const Color(0xff1565C0),
+              centerTitle: true,
+              elevation: 0,
+            );
+          }
+
+          return const SizedBox.shrink();
+        }),
       ),
 
       /// ================= BODY =================
@@ -122,19 +199,43 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildHomeContent() {
+    // Hubungkan ke controller
+    final HomeController controller = Get.find<HomeController>();
+
     return Column(
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-          decoration: BoxDecoration(color: const Color(0xff1565C0)),
-          child: const Text(
-            'Hallo, Billy!',
-            textAlign: TextAlign.left,
-            style: TextStyle(fontSize: 18, color: Colors.white),
+          padding: const EdgeInsets.only(
+            top: 15,
+            bottom: 0,
+            left: 25,
+            right: 25,
+          ),
+          decoration: const BoxDecoration(color: Color(0xff1565C0)),
+          // Gunakan Obx agar nama terpantau secara real-time
+          child: Obx(
+            () => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Selamat Datang,',
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  controller.profilController.nama.value,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-
         const SizedBox(height: 5),
 
         Expanded(
