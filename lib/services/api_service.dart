@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl =
-      "http://192.168.18.199/api_musrenbang/public/api";
+      "http://192.168.0.191/api_musrenbang/public/api";
 
   // LOGIN
   static Future<Map<String, dynamic>> login({
@@ -105,30 +105,25 @@ class ApiService {
       var request = http.MultipartRequest("POST", uri);
 
       // Header wajib agar Laravel tahu kita minta balasan JSON
-      request.headers.addAll({
-        "Accept": "application/json",
-      });
+      request.headers.addAll({"Accept": "application/json"});
 
       // Menambahkan file
       request.files.add(
-        await http.MultipartFile.fromPath(
-          'foto', // Harus sama dengan $request->file('foto') di Laravel
-          file.path,
-        ),
+        await http.MultipartFile.fromPath('foto_usulan', file.path),
       );
 
       var response = await request.send();
-      
+
       // Mengubah stream response menjadi string teks
       var resBody = await response.stream.bytesToString();
-      
+
       // LOG PENTING: Cek di Debug Console VS Code kamu!
       print("STATUS UPLOAD: ${response.statusCode}");
       print("RESPONSE DARI SERVER: $resBody");
 
       if (response.statusCode == 200) {
         var data = json.decode(resBody);
-        return data['data']['foto_url']; 
+        return data['data']['foto_url'];
       } else {
         return null;
       }
@@ -162,5 +157,67 @@ class ApiService {
     print("BODY: ${response.body}");
 
     return response.statusCode == 200;
+  }
+
+  // SIMPAN USULAN
+  static Future<Map<String, dynamic>> simpanUsulan({
+    required Map<String, String> data,
+    File? foto,
+  }) async {
+    try {
+      // 1. Sesuaikan endpoint dengan yang ada di Laravel
+      var uri = Uri.parse("$baseUrl/usulan");
+      var request = http.MultipartRequest("POST", uri);
+
+      // 2. Tambahkan header agar server tahu kita mengirim JSON
+      request.headers.addAll({"Accept": "application/json"});
+
+      // 3. Masukkan semua data teks (judul, usulan, dll)
+      request.fields.addAll(data);
+
+      // 4. Masukkan foto jika ada
+      if (foto != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'foto_usulan', // Pastikan di Laravel namanya juga 'foto'
+            foto.path,
+          ),
+        );
+      }
+
+      // 5. Kirim dan terima respon
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      // 6. Log untuk mempermudah perbaikan jika masih error
+      print("LOG API STATUS: ${response.statusCode}");
+      print("LOG API BODY: ${response.body}");
+
+      return {
+        "statusCode": response.statusCode,
+        "body": jsonDecode(response.body),
+      };
+    } catch (e) {
+      print("Error ApiService: $e");
+      return {
+        "statusCode": 500,
+        "body": {"message": "Gagal terhubung ke server"},
+      };
+    }
+  }
+
+  //ambil data usulan
+  static Future<Map<String, dynamic>> getUsulan(int userId) async {
+    var url = Uri.parse("$baseUrl/usulan/$userId"); // ✅ FIX
+
+    var response = await http.get(url);
+
+    print("GET STATUS: ${response.statusCode}");
+    print("GET BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
   }
 }

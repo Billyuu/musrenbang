@@ -17,7 +17,7 @@ class UsulanView extends GetView<UsulanController> {
         ),
         backgroundColor: const Color(0xff1565C0),
         centerTitle: true,
-      leading: IconButton(
+        leading: IconButton(
           icon: const Icon(Iconsax.arrow_left_2_copy, color: Colors.white),
           onPressed: () {
             Get.back();
@@ -103,7 +103,9 @@ class UsulanView extends GetView<UsulanController> {
                   )
                   .toList(),
 
-              onChanged: (value) {},
+              onChanged: (val) {
+                controller.selectedDusun.value = val!;
+              },
             ),
             const SizedBox(height: 15),
 
@@ -112,6 +114,7 @@ class UsulanView extends GetView<UsulanController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
+                  controller: controller.judulController,
                   cursorColor: Colors.black54,
 
                   style: TextStyle(fontSize: 16, color: Colors.black87),
@@ -150,6 +153,7 @@ class UsulanView extends GetView<UsulanController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
+                  controller: controller.permasalahanController,
                   cursorColor: Colors.black54,
                   maxLines: 4,
 
@@ -192,10 +196,11 @@ class UsulanView extends GetView<UsulanController> {
               ],
             ),
             SizedBox(height: 8, width: 10),
-            DropdownButtonFormField2(
+            DropdownButtonFormField2<String>(
               isExpanded: true,
-              value: null,
-
+              value: controller.selectedUrgensi.value.isEmpty
+                  ? null
+                  : controller.selectedUrgensi.value,
               hint: Row(
                 children: const [
                   Icon(Icons.flag, size: 20, color: Colors.black54),
@@ -216,14 +221,14 @@ class UsulanView extends GetView<UsulanController> {
                         "Tidak Mendesak",
                       ]
                       .map(
-                        (e) => DropdownMenuItem(
+                        (e) => DropdownMenuItem<String>(
                           value: e,
                           child: Row(
                             children: [
                               const Icon(
                                 Icons.circle,
                                 size: 10,
-                                color: Colors.grey,
+                                color: Colors.blueAccent,
                               ),
                               const SizedBox(width: 10),
                               Text(
@@ -240,7 +245,9 @@ class UsulanView extends GetView<UsulanController> {
                       )
                       .toList(),
 
-              onChanged: (value) {},
+              onChanged: (value) {
+                controller.selectedUrgensi.value = value.toString();
+              },
               iconStyleData: const IconStyleData(
                 icon: Icon(Icons.keyboard_arrow_down, color: Colors.black54),
                 iconSize: 24,
@@ -285,9 +292,11 @@ class UsulanView extends GetView<UsulanController> {
               ],
             ),
             SizedBox(height: 8, width: 10),
-            DropdownButtonFormField2(
+            DropdownButtonFormField2<String>(
               isExpanded: true,
-              value: null,
+              value: controller.selectedTerdampak.value.isEmpty
+                  ? null
+                  : controller.selectedTerdampak.value,
 
               hint: Row(
                 children: const [
@@ -302,7 +311,7 @@ class UsulanView extends GetView<UsulanController> {
 
               items: ["Desa", "Dusun", "RW", "RT", "Kelompok"]
                   .map(
-                    (e) => DropdownMenuItem(
+                    (e) => DropdownMenuItem<String>(
                       value: e,
                       child: Row(
                         children: [
@@ -326,7 +335,9 @@ class UsulanView extends GetView<UsulanController> {
                   )
                   .toList(),
 
-              onChanged: (value) {},
+              onChanged: (value) {
+                controller.selectedTerdampak.value = value.toString();
+              },
               iconStyleData: const IconStyleData(
                 icon: Icon(Icons.keyboard_arrow_down, color: Colors.black54),
                 iconSize: 24,
@@ -371,9 +382,12 @@ class UsulanView extends GetView<UsulanController> {
               ],
             ),
             SizedBox(height: 8, width: 10),
-            DropdownButtonFormField2(
+            DropdownButtonFormField2<String>(
               isExpanded: true,
-              value: null,
+              // 🔥 Ambil nilai dari selectedKerusakan di controller
+              value: controller.selectedKerusakan.value.isEmpty
+                  ? null
+                  : controller.selectedKerusakan.value,
 
               hint: Row(
                 children: const [
@@ -388,14 +402,14 @@ class UsulanView extends GetView<UsulanController> {
 
               items:
                   [
-                        "Tidak Punya"
-                            "Rusak Berat",
+                        "Tidak Punya",
+                        "Rusak Berat",
                         "Rusak Sedang",
                         "Rusak Ringan",
                         "Layak",
                       ]
                       .map(
-                        (e) => DropdownMenuItem(
+                        (e) => DropdownMenuItem<String>(
                           value: e,
                           child: Row(
                             children: [
@@ -419,7 +433,9 @@ class UsulanView extends GetView<UsulanController> {
                       )
                       .toList(),
 
-              onChanged: (value) {},
+              onChanged: (value) {
+                controller.selectedKerusakan.value = value.toString();
+              },
               iconStyleData: const IconStyleData(
                 icon: Icon(Icons.keyboard_arrow_down, color: Colors.black54),
                 iconSize: 24,
@@ -467,6 +483,7 @@ class UsulanView extends GetView<UsulanController> {
             const SizedBox(height: 8),
 
             TextFormField(
+              controller: controller.biayaController,
               keyboardType: TextInputType.number,
               cursorColor: const Color(0xff1565C0),
 
@@ -498,7 +515,15 @@ class UsulanView extends GetView<UsulanController> {
                   fontSize: 16,
                 ),
               ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Mohon masukkan estimasi biaya';
+                }
+                return null;
+              },
             ),
+
+            //lokasi
             const SizedBox(height: 15),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -517,6 +542,7 @@ class UsulanView extends GetView<UsulanController> {
                   ],
                 ),
                 TextFormField(
+                  controller: controller.lokasiController,
                   cursorColor: Colors.black54,
 
                   style: TextStyle(fontSize: 16, color: Colors.black87),
@@ -545,6 +571,13 @@ class UsulanView extends GetView<UsulanController> {
                       color: Colors.black54,
                     ),
                   ),
+                  // Validator agar tidak kosong
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Alamat lokasi tidak boleh kosong';
+                    }
+                    return null;
+                  },
                 ),
               ],
             ),
@@ -576,8 +609,13 @@ class UsulanView extends GetView<UsulanController> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: TextFormField(
+                    controller: controller.koordinatController,
+                    // Ubah menjadi false atau hapus baris ini agar bisa diketik manual
+                    readOnly: false,
+                    // Menambahkan tipe keyboard agar memudahkan input angka dan simbol (koma/titik)
+                    keyboardType: TextInputType.text,
                     decoration: const InputDecoration(
-                      hintText: "-7.12345, 110.12345",
+                      hintText: "Masukkan koordinat (contoh: -7.123, 110.123)",
                       border: InputBorder.none,
                     ),
                   ),
@@ -588,27 +626,70 @@ class UsulanView extends GetView<UsulanController> {
             const SizedBox(height: 15),
 
             /// UPLOAD FOTO
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            Obx(
+              () => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      onPressed: () => controller.pickImage(),
+                      icon: Icon(
+                        controller.selectedImage.value == null
+                            ? Icons.camera_alt
+                            : Icons.check_circle,
+                        color: controller.selectedImage.value == null
+                            ? Colors.black54
+                            : Colors.green,
+                      ),
+                      label: Text(
+                        controller.selectedImage.value == null
+                            ? "Upload Foto Lokasi"
+                            : "Foto Berhasil Dipilih",
+                        style: const TextStyle(color: Colors.black54),
+                      ),
+                    ),
                   ),
-                ),
-                onPressed: () {},
-                icon: const Icon(Icons.camera_alt, color: Colors.black54),
-                label: const Text(
-                  "Upload Foto Lokasi",
-                  style: TextStyle(color: Colors.black54),
-                ),
+
+                  const SizedBox(height: 10),
+
+                  /// 🔥 PREVIEW GAMBAR
+                  if (controller.selectedImage.value != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.file(
+                        controller.selectedImage.value!,
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+
+                  /// (Opsional) Nama file
+                  if (controller.selectedImage.value != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        "File: ${controller.selectedImage.value!.path.split('/').last}",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
 
@@ -625,10 +706,17 @@ class UsulanView extends GetView<UsulanController> {
                     borderRadius: BorderRadius.circular(25),
                   ),
                 ),
-                onPressed: () {},
+                // 🔥 Panggil fungsi simpanUsulan dari controller
+                onPressed: () {
+                  controller.simpanUsulan();
+                },
                 child: const Text(
                   "Simpan Usulan",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

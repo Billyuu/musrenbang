@@ -1,23 +1,34 @@
 import 'package:get/get.dart';
+import 'package:musrenbang/services/api_service.dart';
+
 
 class StatusUsulanController extends GetxController {
-  //TODO: Implement StatusUsulanController
+  var isLoading = false.obs;
+  var dataUsulan = [].obs;
 
-  final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
+    getUsulan();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  void getUsulan() async {
+    try {
+      isLoading(true);
+
+      var userId = 1; // 🔥 sementara hardcode dulu
+
+      var result = await ApiService.getUsulan(userId);
+
+      if (result['statusCode'] == 200) {
+        dataUsulan.value = result['body']['data'];
+      }
+    } catch (e) {
+      print("Error ambil usulan: $e");
+    } finally {
+      isLoading(false);
+    }
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
+  void getDataUsulan() {}
 }
