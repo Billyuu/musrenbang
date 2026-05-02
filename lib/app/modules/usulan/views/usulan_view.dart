@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/usulan_controller.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class UsulanView extends GetView<UsulanController> {
   const UsulanView({super.key});
@@ -15,7 +16,7 @@ class UsulanView extends GetView<UsulanController> {
           'Pengajuan Usulan',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xff1565C0),
+        backgroundColor: const Color(0xFF003E79),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Iconsax.arrow_left_2_copy, color: Colors.white),
@@ -32,81 +33,89 @@ class UsulanView extends GetView<UsulanController> {
           children: [
             /// Dusun
             const SizedBox(height: 10),
+DropdownButtonFormField2<String>(
+  isExpanded: true,
 
-            DropdownButtonFormField2<String>(
-              isExpanded: true,
+  decoration: InputDecoration(
+    filled: true,
+    fillColor: Colors.white,
+    contentPadding: const EdgeInsets.symmetric(
+      horizontal: 15,
+      vertical: 18,
+    ),
 
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey.shade300,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 18,
-                ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(
+        color: Color(0xFFCCCCCC),
+        width: 1,
+      ),
+    ),
 
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              hint: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Icon(Icons.home, size: 20, color: Colors.black54),
-                  SizedBox(width: 15),
-                  Text(
-                    "Dusun",
-                    style: TextStyle(fontSize: 15, color: Colors.black54),
-                  ),
-                ],
-              ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(
+        color: Color(0xFFCCCCCC),
+        width: 1,
+      ),
+    ),
 
-              iconStyleData: const IconStyleData(
-                icon: Icon(Icons.keyboard_arrow_down),
-                iconSize: 24,
-              ),
-              dropdownStyleData: DropdownStyleData(
-                elevation: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(
+        color: Color(0xFF003E79),
+        width: 1.5,
+      ),
+    ),
+  ),
 
-              menuItemStyleData: const MenuItemStyleData(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-              ),
+  /// 🔽 HINT TANPA ICON + POPPINS
+  hint: Text(
+    "Dusun",
+    style: GoogleFonts.poppins(
+      fontSize: 15,
+      color: Colors.black54,
+    ),
+  ),
 
-              items: ["Dusun Suko", "Dusun Duyo", "Dusun Rujak Sente"]
-                  .map(
-                    (item) => DropdownMenuItem<String>(
-                      value: item,
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.home,
-                            size: 20,
-                            color: Colors.black54,
-                          ),
-                          const SizedBox(width: 15),
-                          Text(
-                            item,
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+  iconStyleData: const IconStyleData(
+    icon: Icon(Icons.keyboard_arrow_down),
+    iconSize: 24,
+  ),
 
-              onChanged: (val) {
-                controller.selectedDusun.value = val!;
-              },
+  dropdownStyleData: DropdownStyleData(
+    elevation: 4,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+    ),
+  ),
+
+  menuItemStyleData: const MenuItemStyleData(
+    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+  ),
+
+  /// 🔽 ITEM TANPA ICON + POPPINS
+  items: ["Dusun Suko", "Dusun Duyo", "Dusun Rujak Sente"]
+      .map(
+        (item) => DropdownMenuItem<String>(
+          value: item,
+          child: Text(
+            item,
+            style: GoogleFonts.poppins(
+              color: Colors.black87,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
+          ),
+        ),
+      )
+      .toList(),
+
+  onChanged: (val) {
+    controller.selectedDusun.value = val!;
+  },
+),
             const SizedBox(height: 15),
 
             /// Judul Usulan
