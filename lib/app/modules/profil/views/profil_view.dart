@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/profil_controller.dart';
-import 'package:musrenbang/app/routes/app_pages.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfilView extends GetView<ProfilController> {
   const ProfilView({super.key});
@@ -79,7 +79,7 @@ class ProfilView extends GetView<ProfilController> {
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: const BoxDecoration(
-                                    color: Color(0xff1565C0),
+                                    color: Color(0xFF003E79),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -158,12 +158,16 @@ class ProfilView extends GetView<ProfilController> {
                     child: ElevatedButton.icon(
                       onPressed: controller.logout,
                       icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text(
+                      label: Text(
                         "Logout",
-                        style: TextStyle(color: Colors.white),
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff1565C0),
+                        backgroundColor: const Color(0xFF003E79),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -187,7 +191,7 @@ class ProfilView extends GetView<ProfilController> {
     required IconData icon,
   }) {
     return ListTile(
-      leading: Icon(icon, color: const Color(0xff1565C0)),
+      leading: Icon(icon, color: const Color(0xFF003E79)),
       title: Text(
         title,
         style: const TextStyle(
@@ -206,7 +210,7 @@ class ProfilView extends GetView<ProfilController> {
     required VoidCallback onEdit,
   }) {
     return ListTile(
-      leading: Icon(icon, color: const Color(0xff1565C0)),
+      leading: Icon(icon, color: const Color(0xFF003E79)),
       title: Text(
         title,
         style: const TextStyle(
@@ -216,7 +220,7 @@ class ProfilView extends GetView<ProfilController> {
       ),
       subtitle: Text(value, style: const TextStyle(fontSize: 14)),
       trailing: IconButton(
-        icon: const Icon(Icons.edit, color: Color(0xff1565C0)),
+        icon: const Icon(Icons.edit, color: Color(0xFF003E79)),
         onPressed: onEdit,
       ),
     );

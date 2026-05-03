@@ -24,15 +24,18 @@ class HomeView extends GetView<HomeController> {
           // ================= 1. APPBAR HALAMAN HOME (INDEX 0) =================
           if (index == 0) {
             return AppBar(
-              backgroundColor: Color(0xFF003E79),
+              backgroundColor: const Color(0xFF003E79),
               title: Padding(
                 padding: const EdgeInsets.only(left: 20, top: 20),
                 child: Text(
                   'Selamat Datang,',
-                  style: GoogleFonts.poppins(fontSize: 15, color: Colors.white),
+                  style: GoogleFonts.poppins(
+                    // Sudah Poppins
+                    fontSize: 15,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-
               actions: [
                 IconButton(
                   icon: const Icon(
@@ -43,35 +46,18 @@ class HomeView extends GetView<HomeController> {
                 ),
               ],
             );
-          }
-          // APPBAR HALAMAN HASIL (INDEX 1)
-          else if (index == 1) {
+          } else if (index == 1) {
             return AppBar(
               backgroundColor: const Color(0xFF003E79),
-              elevation: 7,
-              shadowColor: Colors.black,
+              elevation: 0,
               centerTitle: true,
-
-              title: Container(
-                height: 40,
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const TextField(
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                  decoration: InputDecoration(
-                    hintText: "Cari hasil musrenbang...",
-                    hintStyle: TextStyle(color: Colors.white60, fontSize: 13),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: Colors.white70,
-                      size: 20,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
-                  ),
+              title: Text(
+                "Rekapitulasi Hasil Musrenbang 2026",
+                style: GoogleFonts.poppins(
+                  // Sudah Poppins
+                  fontSize: 15,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             );
@@ -79,16 +65,17 @@ class HomeView extends GetView<HomeController> {
           // ================= 3. APPBAR HALAMAN PROFIL (INDEX 2) =================
           else if (index == 2) {
             return AppBar(
-              title: const Text(
-                "Profil Pengguna",
-                style: TextStyle(
+              centerTitle: true,
+              title: Text(
+                'Profil Pengguna',
+                style: GoogleFonts.poppins(
+                  // Sudah Poppins
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               backgroundColor: const Color(0xFF003E79),
-              centerTitle: true,
-              elevation: 0,
             );
           }
 
@@ -128,13 +115,11 @@ class HomeView extends GetView<HomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(3, (index) {
               final isActive = controller.bottomNavIndex.value == index;
-
               final icons = [Icons.home, Icons.assignment, Icons.person];
               final labels = ["Home", "Hasil", "Profil"];
 
               return GestureDetector(
                 onTap: () {
-                  /// 🔥 CUMA GANTI INDEX (NO NAVIGASI)
                   controller.bottomNavIndex.value = index;
                 },
                 child: Column(
@@ -150,8 +135,6 @@ class HomeView extends GetView<HomeController> {
                             : Colors.transparent,
                         shape: BoxShape.circle,
                       ),
-
-                      /// 🔥 animasi scale lebih smooth
                       child: AnimatedScale(
                         scale: isActive ? 1.2 : 1.0,
                         duration: const Duration(milliseconds: 300),
@@ -163,16 +146,16 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 4),
 
                     AnimatedDefaultTextStyle(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
+                        // Teks Label BottomNav jadi Poppins
                         color: isActive ? const Color(0xFF003E79) : Colors.grey,
                         fontWeight: isActive
-                            ? FontWeight.bold
+                            ? FontWeight.w600
                             : FontWeight.normal,
                         fontSize: isActive ? 13 : 12,
                       ),
@@ -217,8 +200,8 @@ class HomeView extends GetView<HomeController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Vera Angelina',
-                      // controller.profilController.nama.value,
+                      // 'Vera Angelina',
+                      controller.profilController.nama.value,
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         color: Colors.white,
