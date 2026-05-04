@@ -95,8 +95,6 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
               ),
             ),
           ),
-
-          /// 📄 LIST HASIL
           Padding(
             padding: const EdgeInsets.only(top: 120),
             child: ListView.builder(

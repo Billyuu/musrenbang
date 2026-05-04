@@ -46,7 +46,7 @@ class UsulanView extends GetView<UsulanController> {
                 fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 15,
-                  vertical: 18,
+                  vertical: 13,
                 ),
 
                 border: OutlineInputBorder(
@@ -94,33 +94,33 @@ class UsulanView extends GetView<UsulanController> {
               ),
 
               menuItemStyleData: const MenuItemStyleData(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 13),
               ),
-             items: ["Dusun Suko", "Dusun Duyo", "Dusun Rujak Sente"]
-    .map(
-      (item) => DropdownMenuItem<String>(
-        value: item,
-        child: Row(
-          children: [
-            const Icon(
-              Icons.circle,
-              size: 10, // 🔥 kecil biar elegan
-              color:  Color(0xFF003E79), 
-            ),
-            const SizedBox(width: 10),
-            Text(
-              item,
-              style: GoogleFonts.poppins(
-                color: Colors.black87,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    )
-    .toList(),
+              items: ["Dusun Suko", "Dusun Duyo", "Dusun Rujak Sente"]
+                  .map(
+                    (item) => DropdownMenuItem<String>(
+                      value: item,
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.circle,
+                            size: 10, // 🔥 kecil biar elegan
+                            color: Color(0xFF003E79),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            item,
+                            style: GoogleFonts.poppins(
+                              color: Colors.black87,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
 
               onChanged: (val) {
                 controller.selectedDusun.value = val!;
@@ -153,7 +153,7 @@ class UsulanView extends GetView<UsulanController> {
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 15,
-                      vertical: 18,
+                      vertical: 13,
                     ),
 
                     /// 🔥 BORDER NORMAL
@@ -214,7 +214,7 @@ class UsulanView extends GetView<UsulanController> {
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 15,
-                      vertical: 14,
+                      vertical: 13,
                     ),
 
                     /// 🔥 BORDER
@@ -328,7 +328,7 @@ class UsulanView extends GetView<UsulanController> {
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 15,
-                      vertical: 18,
+                      vertical: 13,
                     ),
 
                     border: OutlineInputBorder(
@@ -429,7 +429,7 @@ class UsulanView extends GetView<UsulanController> {
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 15,
-                      vertical: 18,
+                      vertical: 13,
                     ),
 
                     border: OutlineInputBorder(
@@ -535,7 +535,7 @@ class UsulanView extends GetView<UsulanController> {
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 15,
-                      vertical: 18,
+                      vertical: 13,
                     ),
 
                     border: OutlineInputBorder(
@@ -587,7 +587,7 @@ class UsulanView extends GetView<UsulanController> {
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 15,
-                      vertical: 18,
+                      vertical: 13,
                     ),
 
                     /// 💰 PREFIX RP
@@ -655,7 +655,60 @@ class UsulanView extends GetView<UsulanController> {
 
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 15,
-                      vertical: 18,
+                      vertical: 13,
+                    ),
+
+                    /// 🔥 BORDER
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+                    ),
+
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+                    ),
+
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF003E79),
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+
+            /// Alamat lokasi
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: controller.lokasiController,
+                  keyboardType: TextInputType.text,
+                  cursorColor: const Color(0xFF003E79),
+
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.black87,
+                  ),
+
+                  decoration: InputDecoration(
+                    hintText: "Alamat Lengkap Lokasi",
+                    hintStyle: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.black54,
+                    ),
+
+                    filled: true,
+                    fillColor: Colors.white,
+
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 15,
                     ),
 
                     /// 🔥 BORDER
@@ -692,7 +745,7 @@ class UsulanView extends GetView<UsulanController> {
                     onTap: () => controller.pickImage(),
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -759,7 +812,7 @@ class UsulanView extends GetView<UsulanController> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 25),
 
             /// TOMBOL SIMPAN
             SizedBox(
@@ -767,7 +820,7 @@ class UsulanView extends GetView<UsulanController> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF003E79),
-                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),

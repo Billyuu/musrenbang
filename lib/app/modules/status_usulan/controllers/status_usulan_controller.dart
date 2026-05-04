@@ -55,4 +55,8 @@ class StatusUsulanController extends GetxController {
   // 📊 HELPER (OPTIONAL)
   // =============================
   bool get isEmpty => dataUsulan.isEmpty;
+
+  get statusAktif => null;
+
+  get filteredUsulan => null;
 }

@@ -99,7 +99,7 @@ class HomeView extends GetView<HomeController> {
       bottomNavigationBar: Obx(
         () => Container(
           height: 70,
-          margin: const EdgeInsets.fromLTRB(15, 0, 15, 25),
+          margin: const EdgeInsets.fromLTRB(15, 0, 15, 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(30),
@@ -172,10 +172,8 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildHomeContent() {
-    // Hubungkan ke controller
-    final HomeController controller = Get.find<HomeController>();
-
-    return ListView(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(
           clipBehavior: Clip.none,
@@ -284,121 +282,236 @@ class HomeView extends GetView<HomeController> {
           ],
         ),
         const SizedBox(height: 60),
-
-        ///STATUS SECTION
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.description_outlined, size: 20),
-                  const SizedBox(width: 2),
+              const Icon(Icons.description_outlined, size: 20),
+              const SizedBox(width: 2),
 
-                  Text(
-                    "Status Pengajuan Usulan",
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  GestureDetector(
-                    onTap: () {
-                      Get.toNamed(Routes.STATUS_USULAN);
-                    },
-                    child: Text(
-                      "Selengkapnya",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              /// 🔽 DESKRIPSI
               Text(
-                "Cek status dan perkembangan usulan\nAnda di sini",
-                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                "Status Pengajuan Usulan",
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
 
-              const SizedBox(height: 10),
+              const Spacer(),
 
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFFCCCCCC),
-                    width: 1, // bisa kamu atur (0.5 - 2)
+              GestureDetector(
+                onTap: () {
+                  Get.toNamed(Routes.STATUS_USULAN);
+                },
+                child: Text(
+                  "Selengkapnya",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
                   ),
-                ),
-
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(
-                          Icons.local_shipping,
-                          color: Color(0xFF003E79),
-                          size: 20,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          "Diproses",
-                          style: TextStyle(
-                            color: Color(0xFF003E79),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: const [
-                        Icon(
-                          Icons.check_circle,
-                          color: Color(0xFF0F0C10),
-                          size: 20,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          "Disetujui",
-                          style: TextStyle(
-                            color: Color(0xFF0F0C10),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: const [
-                        Icon(Icons.cancel, color: Color(0xFF0F0C10), size: 20),
-                        SizedBox(width: 5),
-                        Text(
-                          "Ditolak",
-                          style: TextStyle(
-                            color: Color(0xFF0F0C10),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
                 ),
               ),
             ],
           ),
         ),
+
+        const SizedBox(height: 10),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            "Cek status dan perkembangan usulan\nAnda di sini",
+            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+          ),
+        ),
+
+        const SizedBox(height: 10),
+        // action di proses
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFCCCCCC), width: 1),
+          ),
+
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              /// 🔵 DIPROSES
+              GestureDetector(
+                onTap: () => controller.statusAktif.value = "Diproses",
+                child: Obx(
+                  () => Row(
+                    children: [
+                      Icon(
+                        Icons.local_shipping,
+                        size: 20,
+                        color: controller.statusAktif.value == "Diproses"
+                            ? const Color(0xFF003E79)
+                            : Colors.grey,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "Diproses",
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: controller.statusAktif.value == "Diproses"
+                              ? const Color(0xFF003E79)
+                              : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              /// 🔵 DISETUJUI
+              GestureDetector(
+                onTap: () => controller.statusAktif.value = "Disetujui",
+                child: Obx(
+                  () => Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        size: 20,
+                        color: controller.statusAktif.value == "Disetujui"
+                            ? const Color(0xFF003E79)
+                            : Colors.grey,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "Disetujui",
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: controller.statusAktif.value == "Disetujui"
+                              ? const Color(0xFF003E79)
+                              : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              /// 🔵 DITOLAK
+              GestureDetector(
+                onTap: () => controller.statusAktif.value = "Ditolak",
+                child: Obx(
+                  () => Row(
+                    children: [
+                      Icon(
+                        Icons.cancel,
+                        size: 20,
+                        color: controller.statusAktif.value == "Ditolak"
+                            ? const Color(0xFF003E79)
+                            : Colors.grey,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "Ditolak",
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: controller.statusAktif.value == "Ditolak"
+                              ? const Color(0xFF003E79)
+                              : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 15),
+        Obx(() {
+        final filtered = controller.filteredUsulan;
+
+          return Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ListView.builder(
+                shrinkWrap: true,
+                // physics: const NeverScrollableScrollPhysics(),
+                itemCount: filtered.length,
+                itemBuilder: (context, index) {
+                  final item = filtered[index];
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// TANGGAL
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15),
+                        child: Text(
+                              item["tanggal"]?.toString() ?? "-",
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      /// CARD
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 15),
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: const Color(0xFFCCCCCC)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                     item["judul_usulan"]?.toString() ?? "-",
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    item["lokasi_detail"]?.toString() ?? "-",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            /// ICON PANAH
+                            Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Color(0xFF0F0C10)),
+                        ),
+                        child: const Icon(Icons.arrow_forward, size: 20),
+                      ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        }),
       ],
     );
   }
