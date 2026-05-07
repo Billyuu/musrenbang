@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:get_storage/get_storage.dart';
 
 class ApiService {
   static const String baseUrl =
-      "http://192.168.150.196/api_musrenbang/public/api";
+      "http://10.141.221.35/api_musrenbang/public/api";
 
   // LOGIN
   static Future<Map<String, dynamic>> login({
@@ -80,53 +81,65 @@ class ApiService {
     }
   }
 
-  // 1. Ambil Foto Profil
-  static Future<String?> getProfileFoto() async {
-    try {
-      var res = await http.get(
-        Uri.parse("$baseUrl/profile"),
-        headers: {"Accept": "application/json"}, // Tambahkan ini
-      );
+ static Future<String?> getProfileFoto() async {
+  try {
+    final box = GetStorage();
 
-      if (res.statusCode == 200) {
-        var data = json.decode(res.body);
-        return data['data']['foto_url'];
-      }
-    } catch (e) {
-      print("Error getProfileFoto: $e");
+    print("GET PROFILE USER ID: ${box.read("user_id")}");
+
+    var res = await http.post(
+      Uri.parse("$baseUrl/profile"),
+      headers: {"Accept": "application/json"},
+      body: {
+        "user_id": box.read("user_id").toString(),
+      },
+    );
+
+    print("GET PROFILE BODY: ${res.body}");
+
+    if (res.statusCode == 200) {
+      var data = json.decode(res.body);
+
+      return data['data']['foto_url'];
     }
-    return null;
+  } catch (e) {
+    print("Error getProfileFoto: $e");
   }
 
-  // 2. Upload Foto Profil (Versi Debug)
+  return null;
+}
+
+  // Upload Foto Profil (Versi Debug)
   static Future<String?> uploadFoto(File file) async {
     try {
+      final box = GetStorage();
+
       var uri = Uri.parse("$baseUrl/update-foto");
       var request = http.MultipartRequest("POST", uri);
 
-      // Header wajib agar Laravel tahu kita minta balasan JSON
       request.headers.addAll({"Accept": "application/json"});
 
-      // Menambahkan file
-      request.files.add(
-        await http.MultipartFile.fromPath('foto_usulan', file.path),
-      );
+      // 🔥 KIRIM USER ID
+      request.fields['user_id'] = box.read("user_id").toString();
+      print("UPLOAD USER ID: ${box.read("user_id")}");
+
+      // 🔥 KIRIM FOTO
+      request.files.add(await http.MultipartFile.fromPath('foto', file.path));
 
       var response = await request.send();
 
-      // Mengubah stream response menjadi string teks
       var resBody = await response.stream.bytesToString();
 
-      // LOG PENTING: Cek di Debug Console VS Code kamu!
       print("STATUS UPLOAD: ${response.statusCode}");
-      print("RESPONSE DARI SERVER: $resBody");
+      print("RESPONSE SERVER: $resBody");
 
       if (response.statusCode == 200) {
         var data = json.decode(resBody);
+
         return data['data']['foto_url'];
-      } else {
-        return null;
       }
+
+      return null;
     } catch (e) {
       print("Error upload: $e");
       return null;
@@ -135,22 +148,23 @@ class ApiService {
 
   // UPDATE ALAMAT
   static Future<bool> updateAlamat(String alamat) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/update-alamat"),
-      body: {"alamat": alamat},
-    );
+    final box = GetStorage();
 
-    print("STATUS: ${response.statusCode}");
-    print("BODY: ${response.body}");
+    var response = await http.post(
+      Uri.parse("$baseUrl/update-alamat"),
+      body: {"user_id": box.read("user_id").toString(), "alamat": alamat},
+    );
 
     return response.statusCode == 200;
   }
 
   // UPDATE NO HP
   static Future<bool> updateNoHp(String noHp) async {
+    final box = GetStorage();
+
     final response = await http.post(
       Uri.parse("$baseUrl/update-nohp"),
-      body: {"nomor_telepon": noHp},
+      body: {"user_id": box.read("user_id").toString(), "nomor_telepon": noHp},
     );
 
     print("STATUS: ${response.statusCode}");

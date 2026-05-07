@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:musrenbang/services/api_service.dart';
 import 'dart:io';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfilController extends GetxController {
+  final box = GetStorage();
+
   var isLoading = false.obs;
   var bottomNavIndex = 2.obs; // karena ini halaman profil
 
@@ -46,6 +49,9 @@ class ProfilController extends GetxController {
       if (url != null) {
         imageUrl.value = url;
 
+        // 🔥 refresh dari server
+        await loadProfile();
+
         // 3. Beri feedback sukses yang keren
         Get.snackbar(
           "Berhasil",
@@ -68,22 +74,32 @@ class ProfilController extends GetxController {
     }
   }
 
+  //load profil
   Future<void> loadProfile() async {
     try {
+      if (!box.hasData("user_id")) return;
+
+      isLoading(true);
+
       String? url = await ApiService.getProfileFoto();
 
-      if (url != null) {
-        imageUrl.value = url;
-      }
+      print("URL FOTO: $url");
+
+      imageUrl.value = url ?? "";
     } catch (e) {
-      print(e);
+      print("ERROR LOAD PROFILE: $e");
+    } finally {
+      isLoading(false);
     }
   }
 
   @override
   void onInit() {
     super.onInit();
-    loadProfile();
+
+    if (box.hasData("user_id")) {
+      loadProfile();
+    }
   }
 
   var imageUrl = "".obs; // URL dari server
@@ -469,7 +485,7 @@ class ProfilController extends GetxController {
               ),
             ),
 
-            const Icon(Icons.logout, size: 40, color: Colors.red),
+            const Icon(Icons.logout, size: 40, color: Color(0xFF003E79)),
 
             const SizedBox(height: 10),
 
@@ -491,11 +507,26 @@ class ProfilController extends GetxController {
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      // 🔥 reset data profile manual
+                      imageUrl.value = "";
+                      nama.value = "";
+                      nik.value = "";
+                      alamat.value = "";
+                      noHp.value = "";
+                      jenisKelamin.value = "";
+
+                      // 🔥 hapus session login
+                      await box.erase();
+
+                      // 🔥 tutup bottomsheet
+                      Get.back();
+
+                      // 🔥 pindah ke login
                       Get.offAllNamed('/login');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Color(0xFF003E79),
                     ),
                     child: const Text(
                       "Logout",

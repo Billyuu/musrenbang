@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:musrenbang/services/api_service.dart';
+import 'package:get_storage/get_storage.dart';
 
 class StatusUsulanController extends GetxController {
   // 🔄 State
@@ -7,8 +8,10 @@ class StatusUsulanController extends GetxController {
   var dataUsulan = <dynamic>[].obs;
   var errorMessage = "".obs;
 
-  // 🔥 sementara hardcode (nanti ambil dari login)
-  final int userId = 1;
+  //id_user
+  final box = GetStorage();
+
+  int get userId => box.read("user_id") ?? 0;
 
   @override
   void onInit() {
@@ -24,6 +27,8 @@ class StatusUsulanController extends GetxController {
       isLoading(true);
       errorMessage.value = "";
 
+      print("USER LOGIN ID: $userId");
+
       var result = await ApiService.getUsulan(userId);
 
       print("GET STATUS: ${result['statusCode']}");
@@ -32,7 +37,8 @@ class StatusUsulanController extends GetxController {
       if (result['statusCode'] == 200) {
         dataUsulan.value = result['body']['data'] ?? [];
       } else {
-        errorMessage.value = result['body']['message'] ?? "Gagal mengambil data";
+        errorMessage.value =
+            result['body']['message'] ?? "Gagal mengambil data";
         dataUsulan.clear();
       }
     } catch (e) {

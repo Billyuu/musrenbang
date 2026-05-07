@@ -1,136 +1,237 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../controllers/status_usulan_controller.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 class StatusUsulanView extends GetView<StatusUsulanController> {
   const StatusUsulanView({super.key});
 
-  // 🎨 Warna status
-  Color getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return Colors.orange;
-      case "disetujui":
-        return Colors.green;
-      case "ditolak":
-        return Colors.red;
-      case "diverifikasi":
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA), // Latar belakang abu muda halus
       appBar: AppBar(
-        title: const Text("Status Usulan"),
-        centerTitle: true,
-        backgroundColor: const Color(0xff1565C0),
-      ),
+        titleSpacing: 0,
+        title: Text(
+          'Status Pengajuan Usulan',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: const Color(0xFF003E79),
 
+        leading: IconButton(
+          icon: const Icon(Iconsax.arrow_left_2_copy, color: Colors.white),
+          onPressed: () {
+            Get.back();
+          },
+        ),
+      ),
       body: Obx(() {
-        // 🔄 Loading
+        // 🔄 State: Loading
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xff1565C0)),
+                  strokeWidth: 3,
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  "Memuat data...",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: const Color(0xFF003E79),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          );
         }
 
-        // ❌ Error dari API
+        // ❌ State: Error
         if (controller.errorMessage.isNotEmpty) {
           return Center(
-            child: Text(
-              controller.errorMessage.value,
-              style: const TextStyle(color: Colors.red),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                controller.errorMessage.value,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(color: Colors.red, fontSize: 14),
+              ),
             ),
           );
         }
 
-        // 📭 Kosong
-        if (controller.dataUsulan.isEmpty) {
-          return const Center(
+        // 📭 State: Kosong
+        final data = controller.dataUsulan;
+        if (data.isEmpty) {
+          return Center(
             child: Text(
               "Belum ada usulan",
-              style: TextStyle(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600]),
             ),
           );
         }
 
-        // 📋 Data
+        // 📋 State: Success dengan List View
         return RefreshIndicator(
-          onRefresh: controller.refreshData, // ✅ FIX
+          onRefresh: controller.refreshData,
+          color: Colors.white, // Warna ikon panah refresh
+          backgroundColor: const Color(
+            0xFF003E79,
+          ), // Warna latar belakang lingkaran loading (disesuaikan dengan warna AppBar)
           child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.dataUsulan.length,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            itemCount: data.length,
             itemBuilder: (context, index) {
-              final item = controller.dataUsulan[index];
+              final item = data[index];
 
               return InkWell(
-                onTap: () {
-                  Get.toNamed('/detail-usulan', arguments: item);
-                },
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  elevation: 4,
-                  margin: const EdgeInsets.only(bottom: 15),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 📝 Judul
-                        Text(
-                          item["judul_usulan"] ?? "-",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                onTap: () => Get.toNamed('/detail-usulan', arguments: item),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// TANGGAL (Di luar Card)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(
+                        item["tanggal"]?.toString() ?? "-",
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: Colors.grey[600],
                         ),
+                      ),
+                    ),
 
-                        const SizedBox(height: 8),
+                    const SizedBox(height: 8),
 
-                        // 📍 Lokasi
-                        Text("Lokasi: ${item["lokasi_detail"] ?? "-"}"),
-
-                        const SizedBox(height: 5),
-
-                        // 📊 Status text
-                        Text("Status: ${item["status"] ?? "-"}"),
-
-                        const SizedBox(height: 10),
-
-                        // 🎨 Badge status
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                    /// CARD KONTEN
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: const Color(0xFFE0E0E0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Judul Usulan
+                                Text(
+                                  item["judul_usulan"]?.toString() ?? "-",
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: const Color(0xFF2D2D2D),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                // Lokasi
+                                Text(
+                                  item["lokasi_detail"]?.toString() ?? "-",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 10),
+                                // Badge Status (Opsional: Tambahkan kembali jika ingin melihat status di list)
+                                _buildStatusBadge(
+                                  item["status"]?.toString() ?? "",
+                                ),
+                              ],
                             ),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          /// ICON PANAH
+                          Container(
+                            padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
-                              color: getStatusColor(item["status"] ?? ""),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              item["status"] ?? "-",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFF0F0C10),
+                                width: 1.5,
                               ),
                             ),
+                            child: const Icon(
+                              Icons
+                                  .arrow_forward_ios_rounded, // Pakai ios style agar lebih clean
+                              size: 14,
+                              color: Color(0xFF0F0C10),
+                            ),
                           ),
-                        )
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               );
             },
           ),
         );
       }),
+    );
+  }
+
+  /// Helper untuk membuat Badge Status yang lebih kecil di dalam card
+  Widget _buildStatusBadge(String status) {
+    Color color;
+    switch (status.toLowerCase()) {
+      case "diproses":
+        color = Colors.orange;
+        break;
+      case "disetujui":
+        color = Colors.green;
+        break;
+      case "ditolak":
+        color = Colors.red;
+        break;
+      case "diverifikasi":
+        color = Colors.blue;
+        break;
+      default:
+        color = Colors.grey;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.5)),
+      ),
+      child: Text(
+        status.toUpperCase(),
+        style: GoogleFonts.poppins(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
     );
   }
 }

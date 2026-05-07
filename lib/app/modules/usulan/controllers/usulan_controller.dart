@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:musrenbang/services/api_service.dart';
+import 'package:get_storage/get_storage.dart';
 
 class UsulanController extends GetxController {
   // 1. Controller untuk TextField
@@ -75,26 +76,29 @@ class UsulanController extends GetxController {
       barrierDismissible: false,
     );
 
-    try {
-      // Siapkan data teks dalam bentuk Map<String, String>
-      Map<String, String> body = {
-  "user_id": "1",
-  "judul_usulan": judulController.text,
-  "permasalahan": permasalahanController.text,
-  "dusun": selectedDusun.value,
-  "urgensi": selectedUrgensi.value,
-  "masyarakat_terdampak": selectedTerdampak.value,
-  "tingkat_kerusakan": selectedKerusakan.value,
-  "biaya": biayaController.text.replaceAll('.', ''),
-  "lokasi_detail": lokasiController.text,
-  "koordinat": koordinatController.text,
-};
+   try {
+  // 🔥 AMBIL USER LOGIN
+  final box = GetStorage();
 
-      // Panggil ApiService
-      var result = await ApiService.simpanUsulan(
-        data: body,
-        foto: selectedImage.value, // Kirim File jika ada, null jika tidak
-      );
+  // Siapkan data teks dalam bentuk Map<String, String>
+  Map<String, String> body = {
+    "user_id": box.read("user_id").toString(),
+    "judul_usulan": judulController.text,
+    "permasalahan": permasalahanController.text,
+    "dusun": selectedDusun.value,
+    "urgensi": selectedUrgensi.value,
+    "masyarakat_terdampak": selectedTerdampak.value,
+    "tingkat_kerusakan": selectedKerusakan.value,
+    "biaya": biayaController.text.replaceAll('.', ''),
+    "lokasi_detail": lokasiController.text,
+    "koordinat": koordinatController.text,
+  };
+
+  // Panggil ApiService
+  var result = await ApiService.simpanUsulan(
+    data: body,
+    foto: selectedImage.value,
+  );
 
       Get.back(); // Tutup loading
 

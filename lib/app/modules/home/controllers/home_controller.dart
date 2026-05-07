@@ -1,8 +1,24 @@
 import 'package:get/get.dart';
 import 'package:musrenbang/app/modules/profil/controllers/profil_controller.dart';
 import 'package:musrenbang/services/api_service.dart';
+import 'package:get_storage/get_storage.dart';
 
 class HomeController extends GetxController {
+  //usulan
+  Future<void> fetchHomeData() async {
+    try {
+      isLoading(true);
+      var result = await ApiService.getUsulan(userId);
+      if (result['statusCode'] == 200) {
+        // Ambil 3-5 data terbaru saja untuk di Home
+        var semuaData = result['body']['data'] ?? [];
+        dataUsulan.value = semuaData.take(5).toList();
+      }
+    } finally {
+      isLoading(false);
+    }
+  }
+
   /// 🔢 Bottom Navigation Index
   var bottomNavIndex = 0.obs;
 
@@ -14,8 +30,8 @@ class HomeController extends GetxController {
   var dataUsulan = <dynamic>[].obs;
   var errorMessage = "".obs;
 
-  /// 🔥 sementara (nanti dari login)
-  final int userId = 1;
+  final box = GetStorage();
+  late int userId;
 
   /// 🎯 Status aktif (UI)
   var statusAktif = "Diproses".obs;
@@ -43,8 +59,7 @@ class HomeController extends GetxController {
     final statusFilter = mapStatus(statusAktif.value).toLowerCase();
 
     return dataUsulan.where((item) {
-      final statusApi =
-          item["status"]?.toString().toLowerCase() ?? "";
+      final statusApi = item["status"]?.toString().toLowerCase() ?? "";
 
       // 🔥 DEBUG (hapus kalau sudah aman)
       print("STATUS API: $statusApi");
@@ -57,6 +72,11 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    userId = box.read("user_id");
+
+    print("USER ID HOME: $userId");
+
     getUsulan();
   }
 

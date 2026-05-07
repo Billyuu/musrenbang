@@ -431,83 +431,163 @@ class HomeView extends GetView<HomeController> {
         ),
         const SizedBox(height: 15),
         Obx(() {
-        final filtered = controller.filteredUsulan;
+          /// 🔄 LOADING
+          if (controller.isLoading.value) {
+            return Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xff1565C0),
+                      ),
+                      strokeWidth: 3,
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      "Memuat data...",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: const Color(0xFF003E79),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
 
+          /// ❌ ERROR
+          if (controller.errorMessage.isNotEmpty) {
+            return Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    controller.errorMessage.value,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(color: Colors.red, fontSize: 14),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          final filtered = controller.filteredUsulan;
+
+          /// 📭 KOSONG
+          if (filtered.isEmpty) {
+            return Expanded(
+              child: RefreshIndicator(
+                onRefresh: controller.refreshData,
+                child: ListView(
+                  children: [
+                    const SizedBox(height: 150),
+                    Center(
+                      child: Text(
+                        "Belum ada usulan",
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          /// 📋 ADA DATA
           return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView.builder(
-                shrinkWrap: true,
-                // physics: const NeverScrollableScrollPhysics(),
-                itemCount: filtered.length,
-                itemBuilder: (context, index) {
-                  final item = filtered[index];
+            child: RefreshIndicator(
+              onRefresh: controller.refreshData,
+              color: Colors.white,
+              backgroundColor: const Color(0xFF003E79),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ListView.builder(
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final item = filtered[index];
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// TANGGAL
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: Text(
-                              item["tanggal"]?.toString() ?? "-",
-                          style: GoogleFonts.poppins(
-                            fontSize: 11,
-                            color: Colors.grey,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /// 🗓️ TANGGAL
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15),
+                          child: Text(
+                            item["tanggal"]?.toString() ?? "-",
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              color: Colors.grey,
+                            ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 5),
+                        const SizedBox(height: 5),
 
-                      /// CARD
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 15),
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: const Color(0xFFCCCCCC)),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                     item["judul_usulan"]?.toString() ?? "-",
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
+                        /// 📦 CARD
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 15),
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: const Color(0xFFCCCCCC)),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    /// 📝 JUDUL
+                                    Text(
+                                      item["judul_usulan"]?.toString() ?? "-",
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    item["lokasi_detail"]?.toString() ?? "-",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      color: Colors.grey,
+
+                                    const SizedBox(height: 5),
+
+                                    /// 📍 LOKASI
+                                    Text(
+                                      item["lokasi_detail"]?.toString() ?? "-",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
 
-                            /// ICON PANAH
-                            Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Color(0xFF0F0C10)),
+                              /// ➡️ ICON PANAH
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFF0F0C10),
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_forward,
+                                  size: 20,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: const Icon(Icons.arrow_forward, size: 20),
-                      ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           );

@@ -55,7 +55,7 @@ class ProfilView extends GetView<ProfilController> {
                                     : (controller.imageUrl.value != ""
                                           ? DecorationImage(
                                               image: NetworkImage(
-                                                controller.imageUrl.value,
+                                                "${controller.imageUrl.value}?t=${DateTime.now().millisecondsSinceEpoch}",
                                               ),
                                               fit: BoxFit.cover,
                                             )
@@ -97,8 +97,9 @@ class ProfilView extends GetView<ProfilController> {
                           child: Obx(
                             () => Text(
                               controller.nama.value,
-                              style: const TextStyle(
-                                fontSize: 22,
+                              style: GoogleFonts.poppins(
+                                color: Color(0xFF003E79),
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -194,12 +195,9 @@ class ProfilView extends GetView<ProfilController> {
       leading: Icon(icon, color: const Color(0xFF003E79)),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold, // 🔥 TITLE BOLD
-        ),
+        style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600),
       ),
-      subtitle: Text(value, style: const TextStyle(fontSize: 14)),
+      subtitle: Text(value, style: GoogleFonts.poppins(fontSize: 13)),
     );
   }
 
@@ -213,12 +211,9 @@ class ProfilView extends GetView<ProfilController> {
       leading: Icon(icon, color: const Color(0xFF003E79)),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold, // 🔥 TITLE BOLD
-        ),
+        style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600),
       ),
-      subtitle: Text(value, style: const TextStyle(fontSize: 14)),
+      subtitle: Text(value, style: GoogleFonts.poppins(fontSize: 13)),
       trailing: IconButton(
         icon: const Icon(Icons.edit, color: Color(0xFF003E79)),
         onPressed: onEdit,

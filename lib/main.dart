@@ -4,30 +4,35 @@ import 'package:get/get.dart';
 
 import 'app/routes/app_pages.dart';
 import 'package:flutter/services.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await GetStorage.init();
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+
   runApp(
     GetMaterialApp(
       title: "Application",
 
-      /// 🔥 TAMBAHKAN INI
       theme: ThemeData(
         textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: Color(0xff1565C0), // garis cursor
-          selectionColor: Color(0xff1565C0), // blok teks
-          selectionHandleColor: Color(0xff1565C0), // 🔥 ubah ungu jadi biru
+          cursorColor: Color(0xff1565C0),
+          selectionColor: Color(0xff1565C0),
+          selectionHandleColor: Color(0xff1565C0),
         ),
       ),
 
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
-    ),
-  );
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.transparent, 
-      systemNavigationBarDividerColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
 }

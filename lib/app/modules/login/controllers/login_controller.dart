@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:musrenbang/app/routes/app_pages.dart';
 import 'package:musrenbang/services/api_service.dart';
 import 'package:musrenbang/app/modules/profil/controllers/profil_controller.dart';
+import 'package:get_storage/get_storage.dart';
 
 class LoginController extends GetxController {
   final nikController = TextEditingController();
@@ -42,14 +43,26 @@ class LoginController extends GetxController {
 
       if (result["statusCode"] == 200) {
         final body = result["body"];
-
-        // ✅ Pastikan ada data user dari API
         if (body != null && body["data"] != null) {
           final user = body["data"];
+          print("DATA USER LOGIN: $user");
+          print("USER ID LOGIN: ${user["id"]}");
+          final box = GetStorage();
+          await box.erase();
+
+          box.write("user_id", user["id"]);
+
+          print("USER ID TERSIMPAN: ${box.read("user_id")}");
+          box.write("nama", user["nama"]);
+
+          print("USER LOGIN ID: ${box.read("user_id")}");
 
           final profilController = Get.put(ProfilController(), permanent: true);
 
           profilController.setUserData(user);
+
+          // 🔥 LOAD FOTO PROFILE DARI SERVER
+          await profilController.loadProfile();
         }
 
         Get.snackbar(
@@ -82,8 +95,8 @@ class LoginController extends GetxController {
     }
   }
 
- @override
-void onClose() {
-  super.onClose();
-}
+  @override
+  void onClose() {
+    super.onClose();
+  }
 }
