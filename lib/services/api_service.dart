@@ -5,23 +5,25 @@ import 'package:get_storage/get_storage.dart';
 
 class ApiService {
   static const String baseUrl =
-      "http://10.141.221.35/api_musrenbang/public/api";
+      "http://192.168.0.143/api_musrenbang/public/api";
 
-  // LOGIN
-  static Future<Map<String, dynamic>> login({
-    required String nik,
-    required String password,
+  // LOGIN FIREBASE KE LARAVEL
+  static Future<Map<String, dynamic>> loginFirebase({
+    required String firebaseUid,
   }) async {
-    final url = Uri.parse("$baseUrl/login");
+    final url = Uri.parse("$baseUrl/login-firebase");
+
     final response = await http.post(
       url,
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
       },
-      body: jsonEncode({"nik": nik, "password": password}),
+      body: jsonEncode({"firebase_uid": firebaseUid}),
     );
-    print('ini body nya ${jsonEncode({"nik": nik, "password": password})}');
+
+    print("LOGIN FIREBASE STATUS: ${response.statusCode}");
+    print("LOGIN FIREBASE BODY: ${response.body}");
 
     return {
       "statusCode": response.statusCode,
@@ -32,11 +34,12 @@ class ApiService {
   // REGISTER
   static Future<Map<String, dynamic>> register({
     required String nama,
+    required String email,
+    required String firebaseUid,
     required String nik,
     required String alamat,
     required String jenisKelamin,
     required String nomorTelepon,
-    required String password,
   }) async {
     final url = Uri.parse("$baseUrl/register");
 
@@ -48,11 +51,12 @@ class ApiService {
       },
       body: jsonEncode({
         "nama": nama,
+        "email": email,
+        "firebase_uid": firebaseUid,
         "nik": nik,
         "alamat": alamat,
         "jenis_kelamin": jenisKelamin,
         "nomor_telepon": nomorTelepon,
-        "password": password,
       }),
     );
 
@@ -81,33 +85,32 @@ class ApiService {
     }
   }
 
- static Future<String?> getProfileFoto() async {
-  try {
-    final box = GetStorage();
+  // GET FOTO PROFILE
+  static Future<String?> getProfileFoto() async {
+    try {
+      final box = GetStorage();
 
-    print("GET PROFILE USER ID: ${box.read("user_id")}");
+      print("GET PROFILE USER ID: ${box.read("user_id")}");
 
-    var res = await http.post(
-      Uri.parse("$baseUrl/profile"),
-      headers: {"Accept": "application/json"},
-      body: {
-        "user_id": box.read("user_id").toString(),
-      },
-    );
+      final res = await http.post(
+        Uri.parse("$baseUrl/profile"),
+        headers: {"Accept": "application/json"},
+        body: {"user_id": box.read("user_id").toString()},
+      );
 
-    print("GET PROFILE BODY: ${res.body}");
+      print("GET PROFILE BODY: ${res.body}");
 
-    if (res.statusCode == 200) {
-      var data = json.decode(res.body);
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
 
-      return data['data']['foto_url'];
+        return data['data']['foto_url'];
+      }
+    } catch (e) {
+      print("Error getProfileFoto: $e");
     }
-  } catch (e) {
-    print("Error getProfileFoto: $e");
-  }
 
-  return null;
-}
+    return null;
+  }
 
   // Upload Foto Profil (Versi Debug)
   static Future<String?> uploadFoto(File file) async {
@@ -172,6 +175,23 @@ class ApiService {
 
     return response.statusCode == 200;
   }
+
+  static Future<Map<String, dynamic>> getProfile(int userId) async {
+  final url = Uri.parse("$baseUrl/profile");
+
+  final response = await http.post(
+    url,
+    headers: {"Accept": "application/json"},
+    body: {"user_id": userId.toString()},
+  );
+
+  print("PROFILE BODY: ${response.body}");
+
+  return {
+    "statusCode": response.statusCode,
+    "body": jsonDecode(response.body),
+  };
+}
 
   // SIMPAN USULAN
   static Future<Map<String, dynamic>> simpanUsulan({

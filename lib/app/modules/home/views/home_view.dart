@@ -482,7 +482,11 @@ class HomeView extends GetView<HomeController> {
             return Expanded(
               child: RefreshIndicator(
                 onRefresh: controller.refreshData,
+                color: Colors.white,
+                backgroundColor: const Color(0xFF003E79),
                 child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     const SizedBox(height: 150),
                     Center(

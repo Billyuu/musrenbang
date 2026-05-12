@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:musrenbang/app/routes/app_pages.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../controllers/registrasi_controller.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 
 class RegistrasiView extends GetView<RegistrasiController> {
   const RegistrasiView({super.key});
@@ -11,275 +12,487 @@ class RegistrasiView extends GetView<RegistrasiController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff1565C0),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: false,
-        backgroundColor: const Color(0xff1565C0),
-        elevation: 0,
-        title: const Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Text(
-            "REGISTRASI",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
-          ),
-        ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 5),
+      backgroundColor: const Color(0xFF003E79),
 
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25),
-            child: Text(
-              "Silahkan Daftar Sesui KTP Anda!",
-              style: TextStyle(fontSize: 15, color: Colors.white),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          /// CARD REGISTER
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(25),
-              decoration: const BoxDecoration(
-                color: Color(0xffF3F3F3),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(35),
-                  topRight: Radius.circular(35),
-                ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// HEADER
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 45,
+                left: 25,
+                right: 25,
+                bottom: 25,
               ),
-
-              child: ListView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// NAMA LENGKAP
-                  TextField(
-                    controller: controller.namaController,
-                    decoration: InputDecoration(
-                      hintText: "Nama Lengkap",
-                      prefixIcon: const Icon(Icons.person),
-                      filled: true,
-                      fillColor: Colors.grey.shade300,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
+                  Text(
+                    "Registrasi",
+                    style: GoogleFonts.poppins(
+                      fontSize: 30,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 8),
 
-                  /// NIK
-                  TextField(
-                    controller: controller.nikController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: "NIK",
-                      prefixIcon: const Icon(Icons.credit_card),
-                      filled: true,
-                      fillColor: Colors.grey.shade300,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
+                  Text(
+                    "Silahkan daftar menggunakan data sesuai KTP Anda!.",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
                     ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  /// ALAMAT
-                  TextField(
-                    controller: controller.alamatController,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      hintText: "Alamat",
-                      prefixIcon: const Icon(Icons.home),
-                      filled: true,
-                      fillColor: Colors.grey.shade300,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-                  Obx(
-                    () => DropdownButtonFormField2<String>(
-                      value: controller.selectedGender.value,
-                      isExpanded: true,
-
-                      decoration: InputDecoration(
-                        hintText: "Jenis Kelamin",
-                        prefixIcon: const Icon(Icons.people),
-
-                        filled: true,
-                        fillColor: Colors.grey.shade300,
-
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-
-                      iconStyleData: const IconStyleData(
-                        icon: Icon(Icons.keyboard_arrow_down),
-                      ),
-
-                      dropdownStyleData: DropdownStyleData(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-
-                      items: ["Laki-laki", "Perempuan"]
-                          .map(
-                            (item) => DropdownMenuItem<String>(
-                              value: item,
-                              child: Text(item),
-                            ),
-                          )
-                          .toList(),
-
-                      onChanged: (value) {
-                        controller.selectedGender.value = value!;
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 15),
-
-                  /// NOMOR TELEPON
-                  TextField(
-                    controller: controller.phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: "Nomor Telepon",
-                      prefixIcon: const Icon(Icons.phone),
-                      filled: true,
-                      fillColor: Colors.grey.shade300,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  /// PASSWORD
-                  Obx(
-                    () => TextField(
-                      controller: controller.passwordController,
-                      obscureText: !controller.isPasswordVisible.value,
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            controller.isPasswordVisible.value
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: controller.togglePasswordVisibility,
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade300,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  /// KONFIRMASI PASSWORD
-                  Obx(
-                    () => TextField(
-                      controller: controller.confirmPasswordController,
-                      obscureText: !controller.isConfirmPasswordVisible.value,
-                      decoration: InputDecoration(
-                        hintText: "Konfirmasi Password",
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            controller.isConfirmPasswordVisible.value
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: controller.toggleConfirmPasswordVisibility,
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade300,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  /// BUTTON DAFTAR
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff1565C0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: const Text(
-                        "Daftar",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onPressed: controller.register,
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  /// SUDAH PUNYA AKUN
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Sudah punya akun?"),
-                      TextButton(
-                        onPressed: () {
-                          Get.offAllNamed(Routes.LOGIN);
-                        },
-                        child: const Text(
-                          "Login",
-                          style: TextStyle(
-                            color: Color(0xff1565C0),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            /// FORM CARD
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(25),
+
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(35),
+                    topRight: Radius.circular(35),
+                  ),
+                ),
+
+                child: ListView(
+                  children: [
+                    /// NAMA
+                    TextField(
+                      controller: controller.namaController,
+                      cursorColor: const Color(0xFF003E79),
+
+                      style: GoogleFonts.poppins(fontSize: 14),
+
+                      decoration: InputDecoration(
+                        hintText: "Nama Lengkap",
+                        hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                        prefixIcon: const Icon(
+                          Icons.person_outline,
+                          color: Color(0xFF003E79),
+                          size: 22,
+                        ),
+
+                        filled: true,
+                        fillColor: const Color(0xffF5F7FA),
+
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// EMAIL
+                    TextField(
+                      controller: controller.emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      cursorColor: const Color(0xFF003E79),
+
+                      style: GoogleFonts.poppins(fontSize: 14),
+
+                      decoration: InputDecoration(
+                        hintText: "Email",
+                        hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: Color(0xFF003E79),
+                          size: 22,
+                        ),
+
+                        filled: true,
+                        fillColor: const Color(0xffF5F7FA),
+
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// NIK
+                    TextField(
+                      controller: controller.nikController,
+                      keyboardType: TextInputType.number,
+                      cursorColor: const Color(0xFF003E79),
+
+                      style: GoogleFonts.poppins(fontSize: 14),
+
+                      decoration: InputDecoration(
+                        hintText: "NIK",
+                        hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                        prefixIcon: const Icon(
+                          Icons.credit_card_outlined,
+                          color: Color(0xFF003E79),
+                          size: 22,
+                        ),
+
+                        filled: true,
+                        fillColor: const Color(0xffF5F7FA),
+
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// ALAMAT
+                    TextField(
+                      controller: controller.alamatController,
+                      maxLines: 2,
+                      cursorColor: const Color(0xFF003E79),
+
+                      style: GoogleFonts.poppins(fontSize: 14),
+
+                      decoration: InputDecoration(
+                        hintText: "Alamat",
+                        hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                        prefixIcon: const Icon(
+                          Icons.home_outlined,
+                          color: Color(0xFF003E79),
+                          size: 22,
+                        ),
+
+                        filled: true,
+                        fillColor: const Color(0xffF5F7FA),
+
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// GENDER
+                    Obx(
+                      () => DropdownButtonFormField2<String>(
+                        value: controller.selectedGender.value,
+                        isExpanded: true,
+
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+
+                        decoration: InputDecoration(
+                          hintText: "Jenis Kelamin",
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                          ),
+
+                          prefixIcon: Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                right: BorderSide(color: Color(0xffE5E7EB)),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.people_alt_outlined,
+                              color: Color(0xFF003E79),
+                              size: 22,
+                            ),
+                          ),
+
+                          filled: true,
+                          fillColor: const Color(0xffF8FAFC),
+
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 15,
+                            horizontal: 10,
+                          ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: const BorderSide(
+                              color: Color(0xffE5E7EB),
+                            ),
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF003E79),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+
+                        iconStyleData: const IconStyleData(
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF003E79),
+                            size: 25,
+                          ),
+                        ),
+
+                        dropdownStyleData: DropdownStyleData(
+                          elevation: 3,
+                          maxHeight: 200,
+
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+
+                        menuItemStyleData: const MenuItemStyleData(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                        ),
+
+                        items: ["Laki-laki", "Perempuan"]
+                            .map(
+                              (item) => DropdownMenuItem<String>(
+                                value: item,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      item == "Laki-laki"
+                                          ? Icons.male_rounded
+                                          : Icons.female_rounded,
+                                      size: 18,
+                                      color: const Color(0xFF003E79),
+                                    ),
+
+                                    const SizedBox(width: 10),
+
+                                    Text(
+                                      item,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                            .toList(),
+
+                        onChanged: (value) {
+                          controller.selectedGender.value = value!;
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// PHONE
+                    TextField(
+                      controller: controller.phoneController,
+                      keyboardType: TextInputType.phone,
+                      cursorColor: const Color(0xFF003E79),
+
+                      style: GoogleFonts.poppins(fontSize: 14),
+
+                      decoration: InputDecoration(
+                        hintText: "Nomor Telepon",
+                        hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                        prefixIcon: const Icon(
+                          Icons.phone_outlined,
+                          color: Color(0xFF003E79),
+                          size: 22,
+                        ),
+
+                        filled: true,
+                        fillColor: const Color(0xffF5F7FA),
+
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// PASSWORD
+                    Obx(
+                      () => TextField(
+                        controller: controller.passwordController,
+                        obscureText: !controller.isPasswordVisible.value,
+                        cursorColor: const Color(0xFF003E79),
+
+                        style: GoogleFonts.poppins(fontSize: 14),
+
+                        decoration: InputDecoration(
+                          hintText: "Password",
+                          hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                          prefixIcon: const Icon(
+                            Icons.lock_outline,
+                            color: Color(0xFF003E79),
+                            size: 22,
+                          ),
+
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              controller.isPasswordVisible.value
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: const Color(0xFF003E79),
+                              size: 22,
+                            ),
+                            onPressed: controller.togglePasswordVisibility,
+                          ),
+
+                          filled: true,
+                          fillColor: const Color(0xffF5F7FA),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// KONFIRMASI PASSWORD
+                    Obx(
+                      () => TextField(
+                        controller: controller.confirmPasswordController,
+                        obscureText: !controller.isConfirmPasswordVisible.value,
+                        cursorColor: const Color(0xFF003E79),
+
+                        style: GoogleFonts.poppins(fontSize: 14),
+
+                        decoration: InputDecoration(
+                          hintText: "Konfirmasi Password",
+                          hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                          prefixIcon: const Icon(
+                            Icons.lock_outline,
+                            color: Color(0xFF003E79),
+                            size: 22,
+                          ),
+
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              controller.isConfirmPasswordVisible.value
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: const Color(0xFF003E79),
+                              size: 22,
+                            ),
+                            onPressed:
+                                controller.toggleConfirmPasswordVisibility,
+                          ),
+
+                          filled: true,
+                          fillColor: const Color(0xffF5F7FA),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                   /// BUTTON
+Obx(
+  () => SizedBox(
+    width: double.infinity,
+    height: 54,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF003E79),
+        disabledBackgroundColor: const Color(0xFF003E79),
+        disabledForegroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      onPressed: controller.isLoading.value
+          ? null
+          : () {
+              FocusScope.of(context).unfocus();
+              controller.register();
+            },
+      child: controller.isLoading.value
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Text(
+              "Daftar",
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+    ),
+  ),
+),
+
+                    const SizedBox(height: 20),
+
+                    /// LOGIN
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Sudah punya akun?",
+                          style: GoogleFonts.poppins(fontSize: 13),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            FocusScope.of(context).unfocus();
+                            Get.back();
+                          },
+                          child: Text(
+                            "Login",
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              color: const Color(0xFF003E79),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

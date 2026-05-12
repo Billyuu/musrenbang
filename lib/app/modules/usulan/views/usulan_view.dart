@@ -629,6 +629,60 @@ class UsulanView extends GetView<UsulanController> {
             ),
             const SizedBox(height: 15),
 
+            /// Alamat lokasi
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: controller.lokasiController,
+                  keyboardType: TextInputType.text,
+                  cursorColor: const Color(0xFF003E79),
+
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.black87,
+                  ),
+
+                  decoration: InputDecoration(
+                    hintText: "Alamat Lengkap Lokasi",
+                    hintStyle: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.black54,
+                    ),
+
+                    filled: true,
+                    fillColor: Colors.white,
+
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 20,
+                    ),
+
+                    /// 🔥 BORDER
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+                    ),
+
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+                    ),
+
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF003E79),
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+
             /// TITIK KOORDINAT
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -680,60 +734,6 @@ class UsulanView extends GetView<UsulanController> {
                 ),
               ],
             ),
-            const SizedBox(height: 15),
-
-            /// Alamat lokasi
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: controller.lokasiController,
-                  keyboardType: TextInputType.text,
-                  cursorColor: const Color(0xFF003E79),
-
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Colors.black87,
-                  ),
-
-                  decoration: InputDecoration(
-                    hintText: "Alamat Lengkap Lokasi",
-                    hintStyle: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
-
-                    filled: true,
-                    fillColor: Colors.white,
-
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 15,
-                    ),
-
-                    /// 🔥 BORDER
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-                    ),
-
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-                    ),
-
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF003E79),
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
             const SizedBox(height: 15),
 
             /// UPLOAD FOTO
@@ -815,30 +815,47 @@ class UsulanView extends GetView<UsulanController> {
             const SizedBox(height: 25),
 
             /// TOMBOL SIMPAN
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF003E79),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                // 🔥 Panggil fungsi simpanUsulan dari controller
-                onPressed: () {
-                  controller.simpanUsulan();
-                },
-                child: Text(
-                  "Simpan Usulan",
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+           Obx(
+  () => SizedBox(
+    width: double.infinity,
+    height: 54,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF003E79),
+        disabledBackgroundColor: const Color(0xFF003E79),
+        disabledForegroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+      ),
+      onPressed: controller.isLoading.value
+          ? null
+          : () {
+              FocusScope.of(context).unfocus();
+              controller.simpanUsulan();
+            },
+      child: controller.isLoading.value
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Text(
+              "Simpan Usulan",
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
               ),
             ),
+    ),
+  ),
+),
           ],
         ),
       ),

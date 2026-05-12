@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:musrenbang/app/routes/app_pages.dart';
-import 'package:musrenbang/services/api_service.dart';
 import 'package:musrenbang/app/modules/profil/controllers/profil_controller.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:musrenbang/services/api_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginController extends GetxController {
-  final nikController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   var isPasswordVisible = false.obs;
@@ -16,79 +18,157 @@ class LoginController extends GetxController {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
 
-  Future<void> login() async {
-    final nik = nikController.text.trim();
-    final password = passwordController.text.trim();
+  void showMessage({
+    required String title,
+    required String message,
+    bool isSuccess = false,
+  }) {
+    Get.snackbar(
+      title,
+      message,
+      backgroundColor: isSuccess
+          ? const Color(0xFF1565C0).withOpacity(0.92)
+          : const Color(0xFFE53935).withOpacity(0.92),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 16,
+      duration: const Duration(seconds: 3),
+      titleText: Text(
+        title,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    );
+  }
 
-    // ✅ Validasi kosong
-    if (nik.isEmpty || password.isEmpty) {
-      Get.snackbar(
-        "Error",
-        "NIK dan Password wajib diisi",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+  bool validateForm() {
+    if (emailController.text.trim().isEmpty) {
+      showMessage(
+        title: "Email belum diisi",
+        message: "Silakan masukkan alamat email terlebih dahulu.",
       );
-      return;
+      return false;
     }
+
+    if (!GetUtils.isEmail(emailController.text.trim())) {
+      showMessage(
+        title: "Email tidak valid",
+        message: "Gunakan format email yang benar, contoh: nama@email.com.",
+      );
+      return false;
+    }
+
+    if (passwordController.text.trim().isEmpty) {
+      showMessage(
+        title: "Password belum diisi",
+        message: "Silakan masukkan password akun Anda.",
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> login() async {
+    if (!validateForm()) return;
+
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
     try {
       isLoading.value = true;
 
-      final result = await ApiService.login(nik: nik, password: password);
-      print("=== RESPONSE LOGIN ===");
-      print(result["body"]);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
 
-      print("STATUS: ${result["statusCode"]}");
-      print("BODY: ${result["body"]}");
+      User? user = userCredential.user;
 
-      if (result["statusCode"] == 200) {
-        final body = result["body"];
-        if (body != null && body["data"] != null) {
-          final user = body["data"];
-          print("DATA USER LOGIN: $user");
-          print("USER ID LOGIN: ${user["id"]}");
-          final box = GetStorage();
-          await box.erase();
+      if (user == null) {
+        showMessage(
+          title: "Login Gagal",
+          message: "Akun Firebase tidak ditemukan. Silakan coba lagi.",
+        );
+        return;
+      }
 
-          box.write("user_id", user["id"]);
+      final result = await ApiService.loginFirebase(firebaseUid: user.uid);
 
-          print("USER ID TERSIMPAN: ${box.read("user_id")}");
-          box.write("nama", user["nama"]);
+      final statusCode = result["statusCode"];
+      final body = result["body"];
 
-          print("USER LOGIN ID: ${box.read("user_id")}");
+      print("LOGIN RESPONSE: $body");
 
-          final profilController = Get.put(ProfilController(), permanent: true);
+      if (statusCode == 200 && body["data"] != null) {
+        final dataUser = body["data"];
+        final box = GetStorage();
 
-          profilController.setUserData(user);
+        await box.erase();
 
-          // 🔥 LOAD FOTO PROFILE DARI SERVER
-          await profilController.loadProfile();
-        }
+        box.write("user_id", dataUser["id"] ?? "");
+        box.write("firebase_uid", dataUser["firebase_uid"] ?? user.uid);
+        box.write("email", dataUser["email"] ?? user.email);
+        box.write("nama", dataUser["nama"] ?? "");
 
-        Get.snackbar(
-          "Berhasil",
-          "Login sukses",
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+        final profilController = Get.put(ProfilController(), permanent: true);
+        await profilController.loadProfile();
+
+        showMessage(
+          title: "Login Berhasil",
+          message: "Selamat datang kembali di Musrenbang Desa Sukorejo.",
+          isSuccess: true,
         );
 
         Get.offAllNamed(Routes.HOME);
       } else {
-        Get.snackbar(
-          "Gagal",
-          result["body"]?["message"] ?? "Login gagal",
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+        String errorMessage =
+            body["message"] ?? "Akun belum terhubung dengan data warga.";
+
+        if (errorMessage.toLowerCase().contains("not found")) {
+          errorMessage = "Data akun belum ditemukan di sistem.";
+        }
+
+        showMessage(
+          title: "Login Gagal",
+          message: errorMessage,
         );
       }
-    } catch (e) {
-      print("ERROR DEV: $e");
+    } on FirebaseAuthException catch (e) {
+      String message = "Login belum berhasil. Silakan coba lagi.";
 
-      Get.snackbar(
-        "Error",
-        "Tidak dapat terhubung ke server",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      if (e.code == 'user-not-found') {
+        message = "Email belum terdaftar. Silakan daftar terlebih dahulu.";
+      } else if (e.code == 'wrong-password') {
+        message = "Password yang Anda masukkan salah.";
+      } else if (e.code == 'invalid-email') {
+        message = "Format email tidak valid.";
+      } else if (e.code == 'invalid-credential') {
+        message = "Email atau password yang Anda masukkan salah.";
+      } else if (e.code == 'too-many-requests') {
+        message = "Terlalu banyak percobaan login. Coba lagi beberapa saat.";
+      }
+
+      showMessage(
+        title: "Login Gagal",
+        message: message,
+      );
+    } catch (e) {
+      print("ERROR LOGIN: $e");
+
+      showMessage(
+        title: "Terjadi Kesalahan",
+        message: "Koneksi atau server bermasalah. Silakan coba lagi.",
       );
     } finally {
       isLoading.value = false;
@@ -97,6 +177,8 @@ class LoginController extends GetxController {
 
   @override
   void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
     super.onClose();
   }
 }

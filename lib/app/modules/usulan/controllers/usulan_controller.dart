@@ -4,136 +4,236 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:musrenbang/services/api_service.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:musrenbang/app/routes/app_pages.dart';
 
 class UsulanController extends GetxController {
-  // 1. Controller untuk TextField
   final judulController = TextEditingController();
   final permasalahanController = TextEditingController();
   final biayaController = TextEditingController();
   final lokasiController = TextEditingController();
   final koordinatController = TextEditingController();
 
-  // 2. Variabel untuk Dropdown
   var selectedDusun = "".obs;
   var selectedUrgensi = "".obs;
   var selectedTerdampak = "".obs;
   var selectedKerusakan = "".obs;
 
-  // 3. Variabel untuk Foto
   var selectedImage = Rx<File?>(null);
   final ImagePicker _picker = ImagePicker();
 
-  // 4. Loading state
   var isLoading = false.obs;
 
-  // Fungsi ambil foto
+  void showMessage({
+    required String title,
+    required String message,
+    bool isSuccess = false,
+  }) {
+    Get.snackbar(
+      title,
+      message,
+      backgroundColor: isSuccess
+          ? const Color(0xFF1565C0).withOpacity(0.92)
+          : const Color(0xFFE53935).withOpacity(0.92),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 16,
+      duration: const Duration(seconds: 3),
+      titleText: Text(
+        title,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+
   Future<void> pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 75,
+    );
+
     if (image != null) {
       selectedImage.value = File(image.path);
     }
   }
 
-  Future<void> simpanUsulan() async {
-    // Validasi dasar
-    String errorMessage = "";
-
-    if (judulController.text.isEmpty) {
-      errorMessage = "Judul usulan wajib diisi";
-    } else if (permasalahanController.text.isEmpty) {
-      errorMessage = "Permasalahan wajib diisi";
-    } else if (selectedDusun.value.isEmpty) {
-      errorMessage = "Dusun wajib dipilih";
-    } else if (selectedUrgensi.value.isEmpty) {
-      errorMessage = "Urgensi wajib dipilih";
-    } else if (selectedTerdampak.value.isEmpty) {
-      errorMessage = "Masyarakat terdampak wajib dipilih";
-    } else if (selectedKerusakan.value.isEmpty) {
-      errorMessage = "Tingkat kerusakan wajib dipilih";
-    } else if (biayaController.text.isEmpty) {
-      errorMessage = "Biaya wajib diisi";
-    } else if (lokasiController.text.isEmpty) {
-      errorMessage = "Lokasi wajib diisi";
-    } else if (koordinatController.text.isEmpty) {
-      errorMessage = "Koordinat wajib diisi";
-    } else if (selectedImage.value == null) {
-      errorMessage = "Foto usulan wajib diupload";
-    }
-
-    if (errorMessage.isNotEmpty) {
-      Get.snackbar(
-        "Validasi",
-        errorMessage,
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
+  bool validateForm() {
+    if (judulController.text.trim().isEmpty) {
+      showMessage(
+        title: "Judul belum diisi",
+        message: "Silakan masukkan judul usulan pembangunan.",
       );
-      return;
+      return false;
     }
 
-    // Tampilkan loading
-    Get.dialog(
-      const Center(child: CircularProgressIndicator()),
-      barrierDismissible: false,
-    );
+    if (permasalahanController.text.trim().isEmpty) {
+      showMessage(
+        title: "Permasalahan belum diisi",
+        message: "Silakan jelaskan permasalahan yang terjadi.",
+      );
+      return false;
+    }
 
-   try {
-  // 🔥 AMBIL USER LOGIN
-  final box = GetStorage();
+    if (selectedDusun.value.isEmpty) {
+      showMessage(
+        title: "Dusun belum dipilih",
+        message: "Silakan pilih dusun lokasi usulan.",
+      );
+      return false;
+    }
 
-  // Siapkan data teks dalam bentuk Map<String, String>
-  Map<String, String> body = {
-    "user_id": box.read("user_id").toString(),
-    "judul_usulan": judulController.text,
-    "permasalahan": permasalahanController.text,
-    "dusun": selectedDusun.value,
-    "urgensi": selectedUrgensi.value,
-    "masyarakat_terdampak": selectedTerdampak.value,
-    "tingkat_kerusakan": selectedKerusakan.value,
-    "biaya": biayaController.text.replaceAll('.', ''),
-    "lokasi_detail": lokasiController.text,
-    "koordinat": koordinatController.text,
-  };
+    if (selectedUrgensi.value.isEmpty) {
+      showMessage(
+        title: "Urgensi belum dipilih",
+        message: "Silakan pilih tingkat urgensi usulan.",
+      );
+      return false;
+    }
 
-  // Panggil ApiService
-  var result = await ApiService.simpanUsulan(
-    data: body,
-    foto: selectedImage.value,
-  );
+    if (selectedTerdampak.value.isEmpty) {
+      showMessage(
+        title: "Data terdampak belum dipilih",
+        message: "Silakan pilih jumlah masyarakat yang terdampak.",
+      );
+      return false;
+    }
 
-      Get.back(); // Tutup loading
+    if (selectedKerusakan.value.isEmpty) {
+      showMessage(
+        title: "Kerusakan belum dipilih",
+        message: "Silakan pilih tingkat kerusakan.",
+      );
+      return false;
+    }
+
+    if (biayaController.text.trim().isEmpty) {
+      showMessage(
+        title: "Biaya belum diisi",
+        message: "Silakan masukkan perkiraan biaya usulan.",
+      );
+      return false;
+    }
+
+    if (lokasiController.text.trim().isEmpty) {
+      showMessage(
+        title: "Lokasi belum diisi",
+        message: "Silakan masukkan detail lokasi usulan.",
+      );
+      return false;
+    }
+
+    if (koordinatController.text.trim().isEmpty) {
+      showMessage(
+        title: "Koordinat belum diisi",
+        message: "Silakan masukkan titik koordinat lokasi.",
+      );
+      return false;
+    }
+
+    if (selectedImage.value == null) {
+      showMessage(
+        title: "Foto belum dipilih",
+        message: "Silakan unggah foto pendukung usulan.",
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> simpanUsulan() async {
+    if (!validateForm()) return;
+
+    try {
+      isLoading.value = true;
+
+      final box = GetStorage();
+      final userId = box.read("user_id");
+
+      if (userId == null || userId.toString().isEmpty) {
+        showMessage(
+          title: "Sesi tidak ditemukan",
+          message: "Silakan login ulang sebelum mengirim usulan.",
+        );
+        return;
+      }
+
+      Map<String, String> body = {
+        "user_id": userId.toString(),
+        "judul_usulan": judulController.text.trim(),
+        "permasalahan": permasalahanController.text.trim(),
+        "dusun": selectedDusun.value,
+        "urgensi": selectedUrgensi.value,
+        "masyarakat_terdampak": selectedTerdampak.value,
+        "tingkat_kerusakan": selectedKerusakan.value,
+        "biaya": biayaController.text.trim().replaceAll('.', ''),
+        "lokasi_detail": lokasiController.text.trim(),
+        "koordinat": koordinatController.text.trim(),
+      };
+
+      var result = await ApiService.simpanUsulan(
+        data: body,
+        foto: selectedImage.value,
+      );
 
       if (result['statusCode'] == 200 || result['statusCode'] == 201) {
-        Get.snackbar(
-          "Berhasil",
-          "Usulan berhasil disimpan",
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+        showMessage(
+          title: "Usulan Berhasil Dikirim",
+          message: "Usulan Anda berhasil disimpan dan akan diproses.",
+          isSuccess: true,
         );
+
         _bersihkanForm();
-        Get.offAllNamed('/home');
+        Get.offAllNamed(Routes.HOME);
       } else {
-        Get.snackbar("Gagal", result['body']['message'] ?? "Terjadi kesalahan");
+        showMessage(
+          title: "Usulan Gagal Dikirim",
+          message: result['body']['message'] ?? "Terjadi kesalahan pada server.",
+        );
       }
     } catch (e) {
-      Get.back();
-      Get.snackbar("Error", "Gagal mengirim data: $e");
+      showMessage(
+        title: "Terjadi Kesalahan",
+        message: "Koneksi atau server bermasalah. Silakan coba lagi.",
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 
   void _bersihkanForm() {
-    // Reset semua TextEditingController
     judulController.clear();
     permasalahanController.clear();
     biayaController.clear();
     lokasiController.clear();
     koordinatController.clear();
-    // Reset semua variabel Rx (GetX) ke nilai awal
+
     selectedDusun.value = "";
     selectedUrgensi.value = "";
     selectedTerdampak.value = "";
     selectedKerusakan.value = "";
-    selectedImage.value = null; // Reset foto
+    selectedImage.value = null;
+  }
 
-    update(); // Memastikan UI diperbarui
+  @override
+  void onClose() {
+    judulController.dispose();
+    permasalahanController.dispose();
+    biayaController.dispose();
+    lokasiController.dispose();
+    koordinatController.dispose();
+    super.onClose();
   }
 }

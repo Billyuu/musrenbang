@@ -38,48 +38,135 @@ class ProfilView extends GetView<ProfilController> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Stack(
+                          alignment: Alignment.center,
                           children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                shape: BoxShape.circle,
-                                image: controller.selectedImage.value != null
-                                    ? DecorationImage(
-                                        image: FileImage(
-                                          controller.selectedImage.value!,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : (controller.imageUrl.value != ""
-                                          ? DecorationImage(
-                                              image: NetworkImage(
-                                                "${controller.imageUrl.value}?t=${DateTime.now().millisecondsSinceEpoch}",
+                            GestureDetector(
+                              onTap: () {
+                                if (controller.selectedImage.value != null ||
+                                    controller.imageUrl.value != "") {
+                                  Get.dialog(
+                                    Dialog(
+                                      backgroundColor: Colors.transparent,
+                                      insetPadding: const EdgeInsets.all(20),
+                                      child: Stack(
+                                        alignment: Alignment.topRight,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              24,
+                                            ),
+                                            child:
+                                                controller
+                                                        .selectedImage
+                                                        .value !=
+                                                    null
+                                                ? Image.file(
+                                                    controller
+                                                        .selectedImage
+                                                        .value!,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Image.network(
+                                                    "${controller.imageUrl.value}?t=${DateTime.now().millisecondsSinceEpoch}",
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                          ),
+
+                                          Positioned(
+                                            top: 10,
+                                            right: 10,
+                                            child: GestureDetector(
+                                              onTap: () => Get.back(),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  8,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withOpacity(0.5),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  color: Colors.white,
+                                                  size: 22,
+                                                ),
                                               ),
-                                              fit: BoxFit.cover,
-                                            )
-                                          : null),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                width: 90,
+                                height: 90,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  shape: BoxShape.circle,
+                                  image: controller.selectedImage.value != null
+                                      ? DecorationImage(
+                                          image: FileImage(
+                                            controller.selectedImage.value!,
+                                          ),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : (controller.imageUrl.value != ""
+                                            ? DecorationImage(
+                                                image: NetworkImage(
+                                                  "${controller.imageUrl.value}?t=${DateTime.now().millisecondsSinceEpoch}",
+                                                ),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : null),
+                                ),
+                                child:
+                                    (controller.selectedImage.value == null &&
+                                        controller.imageUrl.value == "")
+                                    ? const Icon(
+                                        Iconsax.user,
+                                        size: 50,
+                                        color: Colors.black54,
+                                      )
+                                    : null,
                               ),
-                              child:
-                                  (controller.selectedImage.value == null &&
-                                      controller.imageUrl.value == "")
-                                  ? const Icon(
-                                      Iconsax.user,
-                                      size: 50,
-                                      color: Colors.black54,
-                                    )
-                                  : null,
                             ),
+
+                            if (controller.isUploadFotoLoading.value)
+                              Container(
+                                width: 90,
+                                height: 90,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.45),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.3,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
                             Positioned(
                               bottom: 0,
                               right: 0,
                               child: GestureDetector(
-                                onTap: controller.editFoto,
+                                onTap: controller.isUploadFotoLoading.value
+                                    ? null
+                                    : controller.editFoto,
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF003E79),
+                                  decoration: BoxDecoration(
+                                    color: controller.isUploadFotoLoading.value
+                                        ? Colors.grey
+                                        : const Color(0xFF003E79),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -92,16 +179,16 @@ class ProfilView extends GetView<ProfilController> {
                             ),
                           ],
                         ),
+
                         const SizedBox(width: 20),
+
                         Expanded(
-                          child: Obx(
-                            () => Text(
-                              controller.nama.value,
-                              style: GoogleFonts.poppins(
-                                color: Color(0xFF003E79),
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          child: Text(
+                            controller.nama.value,
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFF003E79),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -109,11 +196,19 @@ class ProfilView extends GetView<ProfilController> {
                     ),
                   ),
 
-                  const SizedBox(height: 25),
-                  const Divider(),
                   const SizedBox(height: 10),
+                  const Divider(),
+                  const SizedBox(height: 0),
 
                   /// ===== DATA USER =====
+                  Obx(
+                    () => buildItem(
+                      title: "Email",
+                      value: controller.email.value,
+                      icon: Icons.email,
+                    ),
+                  ),
+                  const Divider(),
                   Obx(
                     () => buildItem(
                       title: "NIK",
@@ -145,13 +240,15 @@ class ProfilView extends GetView<ProfilController> {
                   Obx(
                     () => buildItemEditable(
                       title: "Nomor Telepon",
-                      value: controller.noHp.value,
-                      icon: Icons.phone,
+                      value: controller.noHp.value.isNotEmpty
+                          ? "+62 ${controller.noHp.value}"
+                          : "-",
+                      icon: Icons.phone_rounded,
                       onEdit: controller.editNoHp,
                     ),
                   ),
 
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
 
                   /// ===== LOGOUT =====
                   SizedBox(
@@ -195,9 +292,9 @@ class ProfilView extends GetView<ProfilController> {
       leading: Icon(icon, color: const Color(0xFF003E79)),
       title: Text(
         title,
-        style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600),
+        style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
       ),
-      subtitle: Text(value, style: GoogleFonts.poppins(fontSize: 13)),
+      subtitle: Text(value, style: GoogleFonts.poppins(fontSize: 12)),
     );
   }
 
@@ -211,9 +308,9 @@ class ProfilView extends GetView<ProfilController> {
       leading: Icon(icon, color: const Color(0xFF003E79)),
       title: Text(
         title,
-        style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600),
+        style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
       ),
-      subtitle: Text(value, style: GoogleFonts.poppins(fontSize: 13)),
+      subtitle: Text(value, style: GoogleFonts.poppins(fontSize: 12)),
       trailing: IconButton(
         icon: const Icon(Icons.edit, color: Color(0xFF003E79)),
         onPressed: onEdit,

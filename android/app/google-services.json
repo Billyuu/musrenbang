@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "598620125308",
+    "project_id": "musrenbang-bfcaa",
+    "storage_bucket": "musrenbang-bfcaa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:598620125308:android:a4b8bd3b110b3f532031f9",
+        "android_client_info": {
+          "package_name": "com.bily.musrenbang"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkb0yyYzFJ-Q0v0OSgN6GBKUstn1ZydVI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

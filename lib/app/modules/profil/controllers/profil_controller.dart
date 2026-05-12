@@ -4,90 +4,160 @@ import 'package:musrenbang/services/api_service.dart';
 import 'dart:io';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfilController extends GetxController {
   final box = GetStorage();
-
+  var isUploadFotoLoading = false.obs;
   var isLoading = false.obs;
   var bottomNavIndex = 2.obs; // karena ini halaman profil
 
   // 🔥 Data user (kosong dulu, akan diisi saat login)
   var nama = "".obs;
+  var email = "".obs;
   var nik = "".obs;
   var alamat = "".obs;
   var noHp = "".obs;
   var jenisKelamin = "".obs;
 
   /// 🔥 Method untuk menerima data dari LoginController
-  void setUserData(Map<String, dynamic> user) {
-    nama.value = user["nama"] ?? "";
-    nik.value = user["nik"] ?? "";
-    alamat.value = user["alamat"] ?? "";
-    noHp.value = user["nomor_telepon"] ?? "";
+  // void setUserData(Map<String, dynamic> user) {
+  //   nama.value = user["nama"] ?? "";
+  //   nik.value = user["nik"] ?? "";
+  //   alamat.value = user["alamat"] ?? "";
+  //   noHp.value = user["nomor_telepon"] ?? "";
 
-    // Konversi jenis kelamin
-    if (user["jenis_kelamin"] == "L") {
-      jenisKelamin.value = "Laki-laki";
-    } else if (user["jenis_kelamin"] == "P") {
-      jenisKelamin.value = "Perempuan";
-    } else {
-      jenisKelamin.value = user["jenis_kelamin"] ?? "";
-    }
-  }
+  //   // Konversi jenis kelamin
+  //   if (user["jenis_kelamin"] == "L") {
+  //     jenisKelamin.value = "Laki-laki";
+  //   } else if (user["jenis_kelamin"] == "P") {
+  //     jenisKelamin.value = "Perempuan";
+  //   } else {
+  //     jenisKelamin.value = user["jenis_kelamin"] ?? "";
+  //   }
+  // }
 
-  //uploud foto
+  // upload foto
   Future<void> uploadFotoKeServer() async {
     if (selectedImage.value == null) return;
 
     try {
-      // 1. Tampilkan Loading
-      isLoading(true);
+      isUploadFotoLoading.value = true;
 
-      // 2. Jalankan Upload
       String? url = await ApiService.uploadFoto(selectedImage.value!);
 
       if (url != null) {
         imageUrl.value = url;
 
-        // 🔥 refresh dari server
         await loadProfile();
 
-        // 3. Beri feedback sukses yang keren
         Get.snackbar(
-          "Berhasil",
-          "Foto profil Anda telah diperbarui",
+          "Foto Berhasil Diperbarui",
+          "Foto profil Anda sudah berhasil diganti.",
           snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green.withOpacity(0.8),
+          backgroundColor: const Color(0xFF1565C0).withOpacity(0.92),
           colorText: Colors.white,
-          icon: const Icon(Icons.check_circle, color: Colors.white),
-          margin: const EdgeInsets.all(15),
+          icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 16,
           duration: const Duration(seconds: 2),
+          titleText: Text(
+            "Foto Berhasil Diperbarui",
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          messageText: Text(
+            "Foto profil Anda sudah berhasil diganti.",
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 13),
+          ),
         );
       } else {
-        Get.snackbar("Gagal", "Terjadi kesalahan saat mengupload foto");
+        Get.snackbar(
+          "Upload Gagal",
+          "Foto belum berhasil diunggah. Silakan coba lagi.",
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: const Color(0xFFE53935).withOpacity(0.92),
+          colorText: Colors.white,
+          icon: const Icon(Icons.error_rounded, color: Colors.white),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 16,
+          duration: const Duration(seconds: 3),
+          titleText: Text(
+            "Upload Gagal",
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          messageText: Text(
+            "Foto belum berhasil diunggah. Silakan coba lagi.",
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 13),
+          ),
+        );
       }
     } catch (e) {
-      Get.snackbar("Error", "Koneksi terputus: $e");
+      Get.snackbar(
+        "Terjadi Kesalahan",
+        "Koneksi atau server bermasalah. Silakan coba lagi.",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: const Color(0xFFE53935).withOpacity(0.92),
+        colorText: Colors.white,
+        icon: const Icon(Icons.wifi_off_rounded, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 16,
+        duration: const Duration(seconds: 3),
+        titleText: Text(
+          "Terjadi Kesalahan",
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        messageText: Text(
+          "Koneksi atau server bermasalah. Silakan coba lagi.",
+          style: GoogleFonts.poppins(color: Colors.white, fontSize: 13),
+        ),
+      );
     } finally {
-      // 4. Matikan Loading setelah selesai (berhasil atau gagal)
-      isLoading(false);
+      isUploadFotoLoading.value = false;
     }
   }
 
   //load profil
   Future<void> loadProfile() async {
     try {
-      if (!box.hasData("user_id")) return;
+      final userId = box.read("user_id");
+
+      if (userId == null) return;
 
       isLoading(true);
 
-      String? url = await ApiService.getProfileFoto();
+      final result = await ApiService.getProfile(userId);
 
-      print("URL FOTO: $url");
+      print("PROFILE RESPONSE: ${result["body"]}");
 
-      imageUrl.value = url ?? "";
+      if (result["statusCode"] == 200) {
+        final data = result["body"]["data"];
+
+        nama.value = data["nama"] ?? "";
+        email.value = data["email"] ?? ""; // 👈 WAJIB
+        nik.value = data["nik"] ?? "";
+        alamat.value = data["alamat"] ?? "";
+        noHp.value = data["nomor_telepon"] ?? "";
+
+        jenisKelamin.value = data["jenis_kelamin"] == "L"
+            ? "Laki-laki"
+            : "Perempuan";
+
+        imageUrl.value = data["foto_url"] ?? "";
+      }
     } catch (e) {
-      print("ERROR LOAD PROFILE: $e");
+      print("ERROR PROFILE: $e");
     } finally {
       isLoading(false);
     }
@@ -110,435 +180,872 @@ class ProfilController extends GetxController {
   void editFoto() {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40,
+              width: 42,
               height: 5,
-              margin: const EdgeInsets.only(bottom: 15),
+              margin: const EdgeInsets.only(bottom: 18),
               decoration: BoxDecoration(
-                color: Colors.grey.shade400,
+                color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
 
-            const Text(
-              "Pilih Foto",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              "Ganti Foto Profil",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF003E79),
+              ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 6),
 
-            // 📸 Ambil dari Kamera
+            Text(
+              "Pilih sumber foto yang ingin digunakan",
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
             ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text("Kamera"),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              tileColor: const Color(0xFFF5F9FF),
+              leading: const CircleAvatar(
+                backgroundColor: Color(0xFFE3F2FD),
+                child: Icon(Icons.camera_alt_rounded, color: Color(0xFF003E79)),
+              ),
+              title: Text(
+                "Ambil dari Kamera",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+
               onTap: () async {
                 Get.back();
-                final XFile? image = await picker.pickImage(
-                  source: ImageSource.camera,
-                  imageQuality: 70,
-                );
-                if (image != null) {
-                  selectedImage.value = File(image.path);
 
-                  await uploadFotoKeServer();
+                try {
+                  isUploadFotoLoading.value = true;
+
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.camera,
+                    imageQuality: 70,
+                  );
+
+                  if (image != null) {
+                    selectedImage.value = File(image.path);
+                    await uploadFotoKeServer();
+                  }
+                } finally {
+                  isUploadFotoLoading.value = false;
                 }
               },
             ),
 
-            // 🖼 Ambil dari Galeri
+            const SizedBox(height: 12),
+
             ListTile(
-              leading: const Icon(Icons.photo),
-              title: const Text("Galeri"),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              tileColor: const Color(0xFFF5F9FF),
+              leading: const CircleAvatar(
+                backgroundColor: Color(0xFFE3F2FD),
+                child: Icon(Icons.photo_rounded, color: Color(0xFF003E79)),
+              ),
+              title: Text(
+                "Pilih dari Galeri",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               onTap: () async {
                 Get.back();
-                final XFile? image = await picker.pickImage(
-                  source: ImageSource.gallery,
-                  imageQuality: 70,
-                );
-                if (image != null) {
-                  selectedImage.value = File(image.path);
-                  // 🔥 PANGGIL FUNGSI INI AGAR LANGSUNG UPLOAD
-                  await uploadFotoKeServer();
+
+                try {
+                  isUploadFotoLoading.value = true;
+
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.gallery,
+                    imageQuality: 70,
+                  );
+
+                  if (image != null) {
+                    selectedImage.value = File(image.path);
+                    await uploadFotoKeServer();
+                  }
+                } finally {
+                  isUploadFotoLoading.value = false;
                 }
               },
             ),
           ],
         ),
       ),
+      isScrollControlled: true,
     );
   }
 
-  //alamat
+  // alamat
   void editAlamat() {
     TextEditingController alamatController = TextEditingController(
       text: alamat.value,
     );
 
     Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(25), // 🔥 rounded modern
+      Obx(
+        () => Container(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 5,
-              margin: const EdgeInsets.only(bottom: 15),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade400,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            const Text(
-              "Edit Alamat",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 15),
-            TextField(
-              controller: alamatController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: "Masukkan alamat lengkap",
-                filled: true,
-                fillColor: Colors.grey.shade200,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: BorderSide.none,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 42,
+                height: 5,
+                margin: const EdgeInsets.only(bottom: 18),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (alamatController.text.isEmpty) {
-                    Get.snackbar(
-                      "Error",
-                      "Alamat tidak boleh kosong",
-                      snackPosition: SnackPosition.TOP,
-                      backgroundColor: Colors.red.withOpacity(0.8),
-                      colorText: Colors.white,
-                      icon: const Icon(
-                        Icons.error_outline,
-                        color: Colors.white,
-                      ),
-                    );
-                    return;
-                  }
+              Text(
+                "Edit Alamat",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF003E79),
+                ),
+              ),
 
-                  try {
-                    isLoading(true);
+              const SizedBox(height: 6),
 
-                    // Update value secara lokal dulu
-                    alamat.value = alamatController.text;
+              Text(
+                "Perbarui alamat lengkap tempat tinggal Anda.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                ),
+              ),
 
-                    bool success = await ApiService.updateAlamat(alamat.value);
+              const SizedBox(height: 22),
 
-                    if (success) {
-                      Get.back(); // Tutup BottomSheet
+              TextField(
+                controller: alamatController,
+                maxLines: 3,
+                style: GoogleFonts.poppins(fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: "Masukkan alamat lengkap",
+                  hintStyle: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.grey,
+                  ),
 
-                      // Snackbar Sukses Modern
-                      Get.snackbar(
-                        "Berhasil",
-                        "Alamat Anda telah diperbarui",
-                        snackPosition: SnackPosition.TOP,
-                        backgroundColor: Colors.green.withOpacity(0.8),
-                        colorText: Colors.white,
-                        icon: const Icon(
-                          Icons.check_circle_outline,
-                          color: Colors.white,
-                        ),
-                        margin: const EdgeInsets.all(15),
-                        duration: const Duration(seconds: 2),
-                        shouldIconPulse: true,
-                      );
-                    } else {
-                      Get.snackbar(
-                        "Gagal",
-                        "Gagal memperbarui alamat ke server",
-                        backgroundColor: Colors.orange.withOpacity(0.8),
-                        colorText: Colors.white,
-                      );
-                    }
-                  } catch (e) {
-                    Get.snackbar(
-                      "Error",
-                      "Terjadi kesalahan koneksi",
-                      backgroundColor: Colors.red.withOpacity(0.8),
-                      colorText: Colors.white,
-                    );
-                  } finally {
-                    isLoading(false);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff1565C0),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F9FF),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
                   ),
                 ),
-                child: const Text(
-                  "Simpan",
-                  style: TextStyle(color: Colors.white),
+              ),
+
+              const SizedBox(height: 22),
+
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: isLoading.value
+                      ? null
+                      : () async {
+                          if (alamatController.text.trim().isEmpty) {
+                            Get.snackbar(
+                              "Alamat belum diisi",
+                              "Silakan masukkan alamat lengkap terlebih dahulu.",
+                              snackPosition: SnackPosition.TOP,
+                              backgroundColor: const Color(
+                                0xFFE53935,
+                              ).withOpacity(0.92),
+                              colorText: Colors.white,
+                              icon: const Icon(
+                                Icons.error_outline_rounded,
+                                color: Colors.white,
+                              ),
+                              margin: const EdgeInsets.all(16),
+                              borderRadius: 16,
+                              titleText: Text(
+                                "Alamat belum diisi",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              messageText: Text(
+                                "Silakan masukkan alamat lengkap terlebih dahulu.",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          try {
+                            isLoading.value = true;
+
+                            alamat.value = alamatController.text.trim();
+
+                            bool success = await ApiService.updateAlamat(
+                              alamat.value,
+                            );
+
+                            if (success) {
+                              Get.back();
+
+                              Get.snackbar(
+                                "Alamat Berhasil Diperbarui",
+                                "Alamat Anda sudah berhasil disimpan.",
+                                snackPosition: SnackPosition.TOP,
+                                backgroundColor: const Color(
+                                  0xFF1565C0,
+                                ).withOpacity(0.92),
+                                colorText: Colors.white,
+                                icon: const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Colors.white,
+                                ),
+                                margin: const EdgeInsets.all(16),
+                                borderRadius: 16,
+                                duration: const Duration(seconds: 2),
+                                titleText: Text(
+                                  "Alamat Berhasil Diperbarui",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                messageText: Text(
+                                  "Alamat Anda sudah berhasil disimpan.",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              Get.snackbar(
+                                "Update Gagal",
+                                "Alamat belum berhasil diperbarui. Silakan coba lagi.",
+                                snackPosition: SnackPosition.TOP,
+                                backgroundColor: const Color(
+                                  0xFFE53935,
+                                ).withOpacity(0.92),
+                                colorText: Colors.white,
+                                icon: const Icon(
+                                  Icons.error_rounded,
+                                  color: Colors.white,
+                                ),
+                                margin: const EdgeInsets.all(16),
+                                borderRadius: 16,
+                                titleText: Text(
+                                  "Update Gagal",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                messageText: Text(
+                                  "Alamat belum berhasil diperbarui. Silakan coba lagi.",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            Get.snackbar(
+                              "Terjadi Kesalahan",
+                              "Koneksi atau server bermasalah. Silakan coba lagi.",
+                              snackPosition: SnackPosition.TOP,
+                              backgroundColor: const Color(
+                                0xFFE53935,
+                              ).withOpacity(0.92),
+                              colorText: Colors.white,
+                              icon: const Icon(
+                                Icons.wifi_off_rounded,
+                                color: Colors.white,
+                              ),
+                              margin: const EdgeInsets.all(16),
+                              borderRadius: 16,
+                              titleText: Text(
+                                "Terjadi Kesalahan",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              messageText: Text(
+                                "Koneksi atau server bermasalah. Silakan coba lagi.",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            );
+                          } finally {
+                            isLoading.value = false;
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF003E79),
+                    disabledBackgroundColor: const Color(0xFF003E79),
+                    disabledForegroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                  child: isLoading.value
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          "Simpan Alamat",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       isScrollControlled: true,
     );
   }
 
-  //No hp
+  // No HP
   void editNoHp() {
     final TextEditingController noHpController = TextEditingController(
       text: noHp.value,
     );
 
     Get.bottomSheet(
-      ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
-        child: Container(
-          color: Colors.white,
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: MediaQuery.of(Get.context!).viewInsets.bottom + 20,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  /// DRAG HANDLE
-                  Container(
-                    width: 40,
-                    height: 5,
-                    margin: const EdgeInsets.only(bottom: 15),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade400,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-
-                  /// TITLE
-                  const Text(
-                    "Edit Nomor Telepon",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  /// INPUT
-                  TextField(
-                    controller: noHpController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: "Masukkan nomor telepon",
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      prefixIcon: const Icon(Icons.phone),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// BUTTON
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (noHpController.text.isEmpty) {
-                          Get.snackbar(
-                            "Input Kosong",
-                            "Silakan masukkan nomor telepon Anda",
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.orange.withOpacity(0.8),
-                            colorText: Colors.white,
-                            icon: const Icon(
-                              Icons.warning_amber_rounded,
-                              color: Colors.white,
-                            ),
-                          );
-                          return;
-                        }
-
-                        try {
-                          isLoading(true); // Aktifkan loading overlay
-
-                          // Update secara lokal
-                          noHp.value = noHpController.text;
-
-                          // Tutup bottom sheet segera agar user bisa lihat loading di layar utama
-                          Get.back();
-
-                          bool success = await ApiService.updateNoHp(
-                            noHp.value,
-                          );
-
-                          if (success) {
-                            // Snackbar Sukses Modern
-                            Get.snackbar(
-                              "Berhasil",
-                              "Nomor HP telah diperbarui",
-                              snackPosition: SnackPosition.TOP,
-                              backgroundColor: Colors.green.withOpacity(0.8),
-                              colorText: Colors.white,
-                              icon: const Icon(
-                                Icons.phone_android,
-                                color: Colors.white,
-                              ),
-                              margin: const EdgeInsets.all(15),
-                              duration: const Duration(seconds: 2),
-                              shouldIconPulse: true,
-                            );
-                          } else {
-                            Get.snackbar(
-                              "Gagal",
-                              "Gagal memperbarui nomor HP ke server",
-                              backgroundColor: Colors.red.withOpacity(0.8),
-                              colorText: Colors.white,
-                              icon: const Icon(
-                                Icons.error_outline,
-                                color: Colors.white,
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          Get.snackbar(
-                            "Koneksi Bermasalah",
-                            "Tidak dapat terhubung ke server",
-                            backgroundColor: Colors.red.withOpacity(0.8),
-                            colorText: Colors.white,
-                          );
-                        } finally {
-                          isLoading(false); // Matikan loading overlay
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff1565C0),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+      Obx(
+        () => ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          child: Container(
+            color: Colors.white,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 14,
+                  bottom: MediaQuery.of(Get.context!).viewInsets.bottom + 24,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      /// DRAG HANDLE
+                      Container(
+                        width: 42,
+                        height: 5,
+                        margin: const EdgeInsets.only(bottom: 18),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        "Simpan",
-                        style: TextStyle(color: Colors.white),
+
+                      /// TITLE
+                      Text(
+                        "Edit Nomor Telepon",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF003E79),
+                        ),
                       ),
-                    ),
+
+                      const SizedBox(height: 6),
+
+                      Text(
+                        "Perbarui nomor telepon aktif Anda.",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 22),
+
+                      /// INPUT
+                      TextField(
+                        controller: noHpController,
+                        keyboardType: TextInputType.phone,
+                        style: GoogleFonts.poppins(fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: "81234567890",
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.grey,
+                          ),
+
+                          prefixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(width: 14),
+
+                              const Icon(
+                                Icons.phone_rounded,
+                                color: Color(0xFF003E79),
+                              ),
+
+                              const SizedBox(width: 8),
+
+                              Text(
+                                "+62",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF003E79),
+                                ),
+                              ),
+
+                              const SizedBox(width: 10),
+
+                              Container(
+                                width: 1,
+                                height: 22,
+                                color: Colors.grey.shade300,
+                              ),
+
+                              const SizedBox(width: 10),
+                            ],
+                          ),
+
+                          filled: true,
+                          fillColor: const Color(0xFFF5F9FF),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 22),
+
+                      /// BUTTON
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: isLoading.value
+                              ? null
+                              : () async {
+                                  if (noHpController.text.trim().isEmpty) {
+                                    Get.snackbar(
+                                      "Nomor belum diisi",
+                                      "Silakan masukkan nomor telepon terlebih dahulu.",
+                                      snackPosition: SnackPosition.TOP,
+                                      backgroundColor: const Color(
+                                        0xFFE53935,
+                                      ).withOpacity(0.92),
+                                      colorText: Colors.white,
+                                      icon: const Icon(
+                                        Icons.error_outline_rounded,
+                                        color: Colors.white,
+                                      ),
+                                      margin: const EdgeInsets.all(16),
+                                      borderRadius: 16,
+                                      titleText: Text(
+                                        "Nomor belum diisi",
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      messageText: Text(
+                                        "Silakan masukkan nomor telepon terlebih dahulu.",
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  try {
+                                    isLoading.value = true;
+
+                                    noHp.value = noHpController.text.trim();
+
+                                    bool success = await ApiService.updateNoHp(
+                                      noHp.value,
+                                    );
+
+                                    if (success) {
+                                      Get.back();
+
+                                      Get.snackbar(
+                                        "Nomor Berhasil Diperbarui",
+                                        "Nomor telepon Anda sudah berhasil disimpan.",
+                                        snackPosition: SnackPosition.TOP,
+                                        backgroundColor: const Color(
+                                          0xFF1565C0,
+                                        ).withOpacity(0.92),
+                                        colorText: Colors.white,
+                                        icon: const Icon(
+                                          Icons.check_circle_rounded,
+                                          color: Colors.white,
+                                        ),
+                                        margin: const EdgeInsets.all(16),
+                                        borderRadius: 16,
+                                        duration: const Duration(seconds: 2),
+
+                                        titleText: Text(
+                                          "Nomor Berhasil Diperbarui",
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        messageText: Text(
+                                          "Nomor telepon Anda sudah berhasil disimpan.",
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      Get.snackbar(
+                                        "Update Gagal",
+                                        "Nomor telepon belum berhasil diperbarui.",
+                                        snackPosition: SnackPosition.TOP,
+                                        backgroundColor: const Color(
+                                          0xFFE53935,
+                                        ).withOpacity(0.92),
+                                        colorText: Colors.white,
+                                        icon: const Icon(
+                                          Icons.error_rounded,
+                                          color: Colors.white,
+                                        ),
+                                        margin: const EdgeInsets.all(16),
+                                        borderRadius: 16,
+                                        titleText: Text(
+                                          "Update Gagal",
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        messageText: Text(
+                                          "Nomor telepon belum berhasil diperbarui.",
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    Get.snackbar(
+                                      "Terjadi Kesalahan",
+                                      "Koneksi atau server bermasalah. Silakan coba lagi.",
+                                      snackPosition: SnackPosition.TOP,
+                                      backgroundColor: const Color(
+                                        0xFFE53935,
+                                      ).withOpacity(0.92),
+                                      colorText: Colors.white,
+                                      icon: const Icon(
+                                        Icons.wifi_off_rounded,
+                                        color: Colors.white,
+                                      ),
+                                      margin: const EdgeInsets.all(16),
+                                      borderRadius: 16,
+                                      titleText: Text(
+                                        "Terjadi Kesalahan",
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      messageText: Text(
+                                        "Koneksi atau server bermasalah. Silakan coba lagi.",
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    );
+                                  } finally {
+                                    isLoading.value = false;
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF003E79),
+                            disabledBackgroundColor: const Color(0xFF003E79),
+                            disabledForegroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                          ),
+                          child: isLoading.value
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(
+                                  "Simpan Nomor",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
       isScrollControlled: true,
+      ignoreSafeArea: false,
     );
   }
 
-  //logout
+  // logout
   void logout() {
     Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 5,
-              margin: const EdgeInsets.only(bottom: 15),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade400,
-                borderRadius: BorderRadius.circular(10),
+      Obx(
+        () => Container(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 42,
+                height: 5,
+                margin: const EdgeInsets.only(bottom: 18),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-            ),
 
-            const Icon(Icons.logout, size: 40, color: Color(0xFF003E79)),
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE3F2FD),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.logout_rounded,
+                  size: 34,
+                  color: Color(0xFF003E79),
+                ),
+              ),
 
-            const SizedBox(height: 10),
+              const SizedBox(height: 18),
 
-            const Text("Yakin ingin logout?", style: TextStyle(fontSize: 16)),
+              Text(
+                "Keluar dari Akun?",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF003E79),
+                ),
+              ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 8),
 
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Get.back(),
-                    child: const Text(
-                      "Batal",
-                      style: TextStyle(color: Colors.black),
+              Text(
+                "Anda akan keluar dari akun Musrenbang Desa Sukorejo.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  height: 1.5,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 50,
+                      child: OutlinedButton(
+                        onPressed: isLoading.value ? null : () => Get.back(),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: isLoading.value
+                                ? Colors.grey.shade200
+                                : Colors.grey.shade300,
+                          ),
+                          backgroundColor: isLoading.value
+                              ? Colors.grey.shade100
+                              : Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: isLoading.value
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.grey.shade500,
+                                ),
+                              )
+                            : Text(
+                                "Batal",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // 🔥 reset data profile manual
-                      imageUrl.value = "";
-                      nama.value = "";
-                      nik.value = "";
-                      alamat.value = "";
-                      noHp.value = "";
-                      jenisKelamin.value = "";
 
-                      // 🔥 hapus session login
-                      await box.erase();
+                  const SizedBox(width: 12),
 
-                      // 🔥 tutup bottomsheet
-                      Get.back();
+                  Expanded(
+                    child: SizedBox(
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: isLoading.value
+                            ? null
+                            : () async {
+                                try {
+                                  isLoading.value = true;
 
-                      // 🔥 pindah ke login
-                      Get.offAllNamed('/login');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF003E79),
-                    ),
-                    child: const Text(
-                      "Logout",
-                      style: TextStyle(color: Colors.white),
+                                  imageUrl.value = "";
+                                  nama.value = "";
+                                  nik.value = "";
+                                  alamat.value = "";
+                                  noHp.value = "";
+                                  jenisKelamin.value = "";
+
+                                  await box.erase();
+
+                                  Get.back();
+
+                                  Get.offAllNamed('/login');
+                                } finally {
+                                  isLoading.value = false;
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF003E79),
+                          disabledBackgroundColor: const Color(0xFF003E79),
+                          disabledForegroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: isLoading.value
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                "Logout",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
+      isScrollControlled: true,
+      ignoreSafeArea: false,
     );
   }
 }
