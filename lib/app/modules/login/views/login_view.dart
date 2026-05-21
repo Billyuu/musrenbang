@@ -49,13 +49,25 @@ class LoginView extends GetView<LoginController> {
 
                               const SizedBox(height: 8),
 
-                              Text(
-                                "Silahkan Login Menggunakan Email Anda!",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 13,
-                                ),
-                              ),
+                            GestureDetector(
+  behavior: HitTestBehavior.translucent,
+  onTapDown: (_) {
+    controller.startAdminLoginTimer();
+  },
+  onTapUp: (_) {
+    controller.cancelAdminLoginTimer();
+  },
+  onTapCancel: () {
+    controller.cancelAdminLoginTimer();
+  },
+  child: Text(
+    "Silahkan Login Menggunakan Email Anda!",
+    style: GoogleFonts.poppins(
+      color: Colors.white.withOpacity(0.9),
+      fontSize: 13,
+    ),
+  ),
+),
                             ],
                           ),
                         ),
@@ -183,47 +195,49 @@ class LoginView extends GetView<LoginController> {
 
                               const SizedBox(height: 18),
 
-                             /// LOGIN BUTTON
-Obx(
-  () => SizedBox(
-    width: double.infinity,
-    height: 54,
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF003E79),
-        disabledBackgroundColor: const Color(0xFF003E79),
-        disabledForegroundColor: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-      onPressed: controller.isLoading.value
-          ? null
-          : () {
-              FocusScope.of(context).unfocus();
-              controller.login();
-            },
-      child: controller.isLoading.value
-          ? const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : Text(
-              "Masuk",
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-    ),
-  ),
-),
+                              /// LOGIN BUTTON
+                              Obx(
+                                () => SizedBox(
+                                  width: double.infinity,
+                                  height: 54,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF003E79),
+                                      disabledBackgroundColor: const Color(
+                                        0xFF003E79,
+                                      ),
+                                      disabledForegroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                    onPressed: controller.isLoading.value
+                                        ? null
+                                        : () {
+                                            FocusScope.of(context).unfocus();
+                                            controller.login();
+                                          },
+                                    child: controller.isLoading.value
+                                        ? const SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : Text(
+                                            "Masuk",
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
 
                               const SizedBox(height: 22),
 

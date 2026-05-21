@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:musrenbang/services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:async';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
@@ -13,10 +14,24 @@ class LoginController extends GetxController {
 
   var isPasswordVisible = false.obs;
   var isLoading = false.obs;
+//admin login
+  Timer? adminLoginTimer;
 
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
+  //admin login
+  void startAdminLoginTimer() {
+  adminLoginTimer?.cancel();
+
+  adminLoginTimer = Timer(const Duration(seconds: 5), () {
+    Get.toNamed('/admin-login');
+  });
+}
+
+void cancelAdminLoginTimer() {
+  adminLoginTimer?.cancel();
+}
 
   void showMessage({
     required String title,
@@ -175,10 +190,11 @@ class LoginController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.onClose();
-  }
+ @override
+void onClose() {
+  adminLoginTimer?.cancel();
+  emailController.dispose();
+  passwordController.dispose();
+  super.onClose();
+}
 }

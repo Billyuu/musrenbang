@@ -5,7 +5,7 @@ import 'package:get_storage/get_storage.dart';
 
 class ApiService {
   static const String baseUrl =
-      "http://192.168.0.143/api_musrenbang/public/api";
+      "http://192.168.18.115/api_musrenbang/public/api";
 
   // LOGIN FIREBASE KE LARAVEL
   static Future<Map<String, dynamic>> loginFirebase({
@@ -177,21 +177,21 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> getProfile(int userId) async {
-  final url = Uri.parse("$baseUrl/profile");
+    final url = Uri.parse("$baseUrl/profile");
 
-  final response = await http.post(
-    url,
-    headers: {"Accept": "application/json"},
-    body: {"user_id": userId.toString()},
-  );
+    final response = await http.post(
+      url,
+      headers: {"Accept": "application/json"},
+      body: {"user_id": userId.toString()},
+    );
 
-  print("PROFILE BODY: ${response.body}");
+    print("PROFILE BODY: ${response.body}");
 
-  return {
-    "statusCode": response.statusCode,
-    "body": jsonDecode(response.body),
-  };
-}
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
 
   // SIMPAN USULAN
   static Future<Map<String, dynamic>> simpanUsulan({
@@ -240,9 +240,9 @@ class ApiService {
     }
   }
 
-  //ambil data usulan
+  // AMBIL DATA USULAN
   static Future<Map<String, dynamic>> getUsulan(int userId) async {
-    var url = Uri.parse("$baseUrl/usulan/$userId"); // ✅ FIX
+    var url = Uri.parse("$baseUrl/usulan/$userId");
 
     var response = await http.get(url);
 
@@ -254,4 +254,140 @@ class ApiService {
       "body": jsonDecode(response.body),
     };
   }
+
+  // AMBIL DETAIL USULAN BERDASARKAN ID USULAN
+  static Future<Map<String, dynamic>> getDetailUsulan(int idUsulan) async {
+    final url = Uri.parse("$baseUrl/usulan-detail/$idUsulan");
+
+    final response = await http.get(
+      url,
+      headers: {"Accept": "application/json"},
+    );
+
+    print("DETAIL USULAN STATUS: ${response.statusCode}");
+    print("DETAIL USULAN BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  } // URL FOTO USULAN
+
+  static const String publicUrl =
+      "http://192.168.150.168/api_musrenbang/public";
+
+  static String getFotoUsulan(String fileName) {
+    return "$publicUrl/storage/usulans/$fileName";
+  }
+
+  ///ADMIN
+  // AMBIL SEMUA USULAN UNTUK ADMIN
+  static Future<Map<String, dynamic>> getAllUsulanAdmin() async {
+    final url = Uri.parse("$baseUrl/admin/usulan");
+
+    final response = await http.get(
+      url,
+      headers: {"Accept": "application/json"},
+    );
+
+    print("ADMIN USULAN STATUS: ${response.statusCode}");
+    print("ADMIN USULAN BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
+
+  //Detail Admin usulan
+  static Future<Map<String, dynamic>> getDetailUsulanAdmin(int id) async {
+  final response = await http.get(
+    Uri.parse("$baseUrl/admin/usulan/$id"),
+    headers: {"Accept": "application/json"},
+  );
+
+  print("DETAIL ADMIN STATUS: ${response.statusCode}");
+  print("DETAIL ADMIN BODY: ${response.body}");
+
+  return {
+    "statusCode": response.statusCode,
+    "body": jsonDecode(response.body),
+  };
+}
+  //terima usulan
+  static Future<Map<String, dynamic>> terimaUsulanAdmin({
+    required int id,
+    required String biayaFinal,
+    required String tahunRealisasi,
+  }) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/admin/usulan/$id/terima"),
+      headers: {"Accept": "application/json"},
+      body: {"biaya_final": biayaFinal, "tahun_realisasi": tahunRealisasi},
+    );
+
+    print("TERIMA USULAN STATUS: ${response.statusCode}");
+    print("TERIMA USULAN BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
+
+  // tolak usulan
+  static Future<Map<String, dynamic>> tolakUsulanAdmin({
+    required int id,
+    required String catatan,
+  }) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/admin/usulan/$id/tolak"),
+      headers: {"Accept": "application/json"},
+      body: {"catatan_penolakan": catatan},
+    );
+
+    print("TOLAK USULAN STATUS: ${response.statusCode}");
+    print("TOLAK USULAN BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
+
+  static Future<Map<String, dynamic>> hapusUsulanAdmin(int id) async {
+    final response = await http.delete(
+      Uri.parse("$baseUrl/admin/usulan/$id"),
+      headers: {"Accept": "application/json"},
+    );
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
+  //login admin
+  static Future<Map<String, dynamic>> loginAdmin({
+  required String email,
+  required String password,
+}) async {
+  final url = Uri.parse("$baseUrl/admin/login");
+
+  final response = await http.post(
+    url,
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode({
+      "email": email,
+      "password": password,
+    }),
+  );
+
+  return {
+    "statusCode": response.statusCode,
+    "body": jsonDecode(response.body),
+  };
+}
 }

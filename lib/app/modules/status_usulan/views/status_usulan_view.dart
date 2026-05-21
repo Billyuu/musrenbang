@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/status_usulan_controller.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:musrenbang/app/routes/app_pages.dart';
 
 class StatusUsulanView extends GetView<StatusUsulanController> {
   const StatusUsulanView({super.key});
@@ -167,21 +168,26 @@ class StatusUsulanView extends GetView<StatusUsulanController> {
 
                           const SizedBox(width: 10),
 
-                          /// ICON PANAH
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFF0F0C10),
-                                width: 1.5,
+                          /// ➡️ ICON PANAH
+                          GestureDetector(
+                            onTap: () {
+                              Get.toNamed(
+                                Routes.DETAIL,
+                                arguments: {
+                                  'id':
+                                      int.tryParse(item['id'].toString()) ?? 0,
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0xFF0F0C10),
+                                ),
                               ),
-                            ),
-                            child: const Icon(
-                              Icons
-                                  .arrow_forward_ios_rounded, // Pakai ios style agar lebih clean
-                              size: 14,
-                              color: Color(0xFF0F0C10),
+                              child: const Icon(Icons.arrow_forward, size: 20),
                             ),
                           ),
                         ],

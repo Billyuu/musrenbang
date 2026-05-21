@@ -12,30 +12,13 @@ class ProfilController extends GetxController {
   var isLoading = false.obs;
   var bottomNavIndex = 2.obs; // karena ini halaman profil
 
-  // 🔥 Data user (kosong dulu, akan diisi saat login)
+  //Data user (kosong dulu, akan diisi saat login)
   var nama = "".obs;
   var email = "".obs;
   var nik = "".obs;
   var alamat = "".obs;
   var noHp = "".obs;
   var jenisKelamin = "".obs;
-
-  /// 🔥 Method untuk menerima data dari LoginController
-  // void setUserData(Map<String, dynamic> user) {
-  //   nama.value = user["nama"] ?? "";
-  //   nik.value = user["nik"] ?? "";
-  //   alamat.value = user["alamat"] ?? "";
-  //   noHp.value = user["nomor_telepon"] ?? "";
-
-  //   // Konversi jenis kelamin
-  //   if (user["jenis_kelamin"] == "L") {
-  //     jenisKelamin.value = "Laki-laki";
-  //   } else if (user["jenis_kelamin"] == "P") {
-  //     jenisKelamin.value = "Perempuan";
-  //   } else {
-  //     jenisKelamin.value = user["jenis_kelamin"] ?? "";
-  //   }
-  // }
 
   // upload foto
   Future<void> uploadFotoKeServer() async {

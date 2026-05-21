@@ -4,6 +4,7 @@ import '../controllers/usulan_controller.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:musrenbang/app/routes/app_pages.dart';
 
 class UsulanView extends GetView<UsulanController> {
   const UsulanView({super.key});
@@ -29,6 +30,26 @@ class UsulanView extends GetView<UsulanController> {
             Get.back();
           },
         ),
+
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Stack(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Get.toNamed(Routes.NOTIF);
+                  },
+                  icon: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Colors.white,
+                    size: 25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -815,47 +836,47 @@ class UsulanView extends GetView<UsulanController> {
             const SizedBox(height: 25),
 
             /// TOMBOL SIMPAN
-           Obx(
-  () => SizedBox(
-    width: double.infinity,
-    height: 54,
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF003E79),
-        disabledBackgroundColor: const Color(0xFF003E79),
-        disabledForegroundColor: Colors.white,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
-      ),
-      onPressed: controller.isLoading.value
-          ? null
-          : () {
-              FocusScope.of(context).unfocus();
-              controller.simpanUsulan();
-            },
-      child: controller.isLoading.value
-          ? const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : Text(
-              "Simpan Usulan",
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+            Obx(
+              () => SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF003E79),
+                    disabledBackgroundColor: const Color(0xFF003E79),
+                    disabledForegroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () {
+                          FocusScope.of(context).unfocus();
+                          controller.simpanUsulan();
+                        },
+                  child: controller.isLoading.value
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          "Simpan Usulan",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
               ),
             ),
-    ),
-  ),
-),
           ],
         ),
       ),

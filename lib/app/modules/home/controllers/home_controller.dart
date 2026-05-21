@@ -36,13 +36,10 @@ class HomeController extends GetxController {
   /// 🎯 Status aktif (UI)
   var statusAktif = "Diproses".obs;
 
-  // =============================
-  // 🔄 MAPPING STATUS UI → API
-  // =============================
   String mapStatus(String statusUI) {
     switch (statusUI) {
       case "Diproses":
-        return "pending";
+        return "diproses";
       case "Disetujui":
         return "disetujui";
       case "Ditolak":
@@ -52,16 +49,13 @@ class HomeController extends GetxController {
     }
   }
 
-  // =============================
-  // 📊 FILTER DATA BERDASARKAN STATUS
-  // =============================
+  //filter data usulan
   List<dynamic> get filteredUsulan {
-    final statusFilter = mapStatus(statusAktif.value).toLowerCase();
+    final statusFilter = mapStatus(statusAktif.value);
 
     return dataUsulan.where((item) {
-      final statusApi = item["status"]?.toString().toLowerCase() ?? "";
+      final statusApi = item["status"]?.toString().toLowerCase().trim() ?? "";
 
-      // 🔥 DEBUG (hapus kalau sudah aman)
       print("STATUS API: $statusApi");
       print("STATUS FILTER: $statusFilter");
 

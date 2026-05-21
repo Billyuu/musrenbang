@@ -42,7 +42,9 @@ class HomeView extends GetView<HomeController> {
                     Icons.notifications_none_rounded,
                     color: Colors.white,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.toNamed(Routes.NOTIF);
+                  },
                 ),
               ],
             );
@@ -573,16 +575,28 @@ class HomeView extends GetView<HomeController> {
                               ),
 
                               /// ➡️ ICON PANAH
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: const Color(0xFF0F0C10),
+                              GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(
+                                    Routes.DETAIL,
+                                    arguments: {
+                                      'id':
+                                          int.tryParse(item['id'].toString()) ??
+                                          0,
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: const Color(0xFF0F0C10),
+                                    ),
                                   ),
-                                ),
-                                child: const Icon(
-                                  Icons.arrow_forward,
-                                  size: 20,
+                                  child: const Icon(
+                                    Icons.arrow_forward,
+                                    size: 20,
+                                  ),
                                 ),
                               ),
                             ],

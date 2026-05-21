@@ -2,12 +2,20 @@ import 'package:get/get.dart';
 
 import '../modules/admin/bindings/admin_binding.dart';
 import '../modules/admin/views/admin_view.dart';
+import '../modules/admin_login/bindings/admin_login_binding.dart';
+import '../modules/admin_login/views/admin_login_view.dart';
+import '../modules/detail/bindings/detail_binding.dart';
+import '../modules/detail/views/detail_view.dart';
+import '../modules/detail_admin/bindings/detail_admin_binding.dart';
+import '../modules/detail_admin/views/detail_admin_view.dart';
 import '../modules/hasil_musrenbang/bindings/hasil_musrenbang_binding.dart';
 import '../modules/hasil_musrenbang/views/hasil_musrenbang_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/notif/bindings/notif_binding.dart';
+import '../modules/notif/views/notif_view.dart';
 import '../modules/profil/bindings/profil_binding.dart';
 import '../modules/profil/views/profil_view.dart';
 import '../modules/registrasi/bindings/registrasi_binding.dart';
@@ -78,6 +86,26 @@ class AppPages {
       name: _Paths.ADMIN,
       page: () => const AdminView(),
       binding: AdminBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIF,
+      page: () => const NotifView(),
+      binding: NotifBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL,
+      page: () => const DetailView(),
+      binding: DetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_ADMIN,
+      page: () => const DetailAdminView(),
+      binding: DetailAdminBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADMIN_LOGIN,
+      page: () => const AdminLoginView(),
+      binding: AdminLoginBinding(),
     ),
   ];
 }

@@ -13,6 +13,10 @@ abstract class Routes {
   static const STATUS_USULAN = _Paths.STATUS_USULAN;
   static const HASIL_MUSRENBANG = _Paths.HASIL_MUSRENBANG;
   static const ADMIN = _Paths.ADMIN;
+  static const NOTIF = _Paths.NOTIF;
+  static const DETAIL = _Paths.DETAIL;
+  static const DETAIL_ADMIN = _Paths.DETAIL_ADMIN;
+  static const ADMIN_LOGIN = _Paths.ADMIN_LOGIN;
 }
 
 abstract class _Paths {
@@ -27,4 +31,8 @@ abstract class _Paths {
   static const STATUS_USULAN = '/status-usulan';
   static const HASIL_MUSRENBANG = '/hasil-musrenbang';
   static const ADMIN = '/admin';
+  static const NOTIF = '/notif';
+  static const DETAIL = '/detail';
+  static const DETAIL_ADMIN = '/detail-admin';
+  static const ADMIN_LOGIN = '/admin-login';
 }

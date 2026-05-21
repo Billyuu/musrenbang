@@ -196,8 +196,8 @@ class ProfilView extends GetView<ProfilController> {
                     ),
                   ),
 
-                  const SizedBox(height: 10),
-                  const Divider(),
+                  const SizedBox(height: 30),
+                  const Divider(height: 1, thickness: 0.8),
                   const SizedBox(height: 0),
 
                   /// ===== DATA USER =====
@@ -208,7 +208,7 @@ class ProfilView extends GetView<ProfilController> {
                       icon: Icons.email,
                     ),
                   ),
-                  const Divider(),
+                  const Divider(height: 1, thickness: 0.8),
                   Obx(
                     () => buildItem(
                       title: "NIK",
@@ -216,7 +216,7 @@ class ProfilView extends GetView<ProfilController> {
                       icon: Icons.credit_card,
                     ),
                   ),
-                  const Divider(),
+                  const Divider(height: 1, thickness: 0.8),
 
                   Obx(
                     () => buildItemEditable(
@@ -226,7 +226,7 @@ class ProfilView extends GetView<ProfilController> {
                       onEdit: controller.editAlamat,
                     ),
                   ),
-                  const Divider(),
+                  const Divider(height: 1, thickness: 0.8),
 
                   Obx(
                     () => buildItem(
@@ -235,7 +235,7 @@ class ProfilView extends GetView<ProfilController> {
                       icon: Icons.person,
                     ),
                   ),
-                  const Divider(),
+                  const Divider(height: 1, thickness: 0.8),
 
                   Obx(
                     () => buildItemEditable(
