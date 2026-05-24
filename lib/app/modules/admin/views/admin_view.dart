@@ -9,115 +9,307 @@ import '../controllers/admin_controller.dart';
 
 class AdminView extends GetView<AdminController> {
   const AdminView({super.key});
-//panduan
-void _showAdminMenu(BuildContext context) {
-  Get.bottomSheet(
-    Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(26),
+  //panduan
+  void _showAdminMenu(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 45,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 45,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 18),
+            const SizedBox(height: 18),
 
-          Text(
-            "Menu Admin",
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF263238),
+            Text(
+              "Menu Admin",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF263238),
+              ),
             ),
-          ),
 
-          const SizedBox(height: 4),
+            const SizedBox(height: 4),
 
-          Text(
-            "Pilih menu yang dibutuhkan untuk mengelola Musrenbang Desa.",
-            style: GoogleFonts.poppins(
-              fontSize: 12.5,
-              color: Colors.grey.shade600,
+            Text(
+              "Pilih menu yang dibutuhkan untuk mengelola Musrenbang Desa.",
+              style: GoogleFonts.poppins(
+                fontSize: 12.5,
+                color: Colors.grey.shade600,
+              ),
             ),
-          ),
 
-          const SizedBox(height: 18),
+            const SizedBox(height: 18),
 
-          _adminMenuItem(
-            icon: Icons.help_outline_rounded,
-            title: "Panduan Admin",
-            subtitle: "Lihat tata cara mengelola usulan Musrenbang",
-            onTap: () {
-              Get.back();
-              _showAdminGuide(context);
-            },
-          ),
+            _adminMenuItem(
+              icon: Icons.help_outline_rounded,
+              title: "Panduan Admin",
+              subtitle: "Lihat tata cara mengelola usulan Musrenbang",
+              onTap: () {
+                Get.back();
+                _showAdminGuide(context);
+              },
+            ),
 
-          _adminMenuItem(
-            icon: Icons.logout_rounded,
-            title: "Logout",
-            subtitle: "Keluar dari akun admin",
-            iconColor: const Color(0xFF003E79),
-            onTap: () {
-              Get.back();
-              controller.logoutAdmin();
-            },
-          ),
-        ],
+            _adminMenuItem(
+              icon: Icons.logout_rounded,
+              title: "Logout",
+              subtitle: "Keluar dari akun admin",
+              iconColor: const Color(0xFF003E79),
+              onTap: () {
+                Get.back();
+                controller.logoutAdmin();
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-    isScrollControlled: true,
-  );
-}
+      isScrollControlled: true,
+    );
+  }
 
-Widget _adminMenuItem({
-  required IconData icon,
-  required String title,
-  required String subtitle,
-  required VoidCallback onTap,
-  Color iconColor = const Color(0xFF1565C0),
-}) {
-  return InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(16),
-    child: Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F7FA),
-        borderRadius: BorderRadius.circular(16),
+  Widget _adminMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    Color iconColor = const Color(0xFF1565C0),
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F7FA),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Icon(icon, color: iconColor, size: 23),
+            ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF263238),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+          ],
+        ),
       ),
+    );
+  }
+
+  void _showAdminGuide(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        width: double.infinity,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 46,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1565C0).withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.admin_panel_settings_rounded,
+                      color: Color(0xFF1565C0),
+                      size: 26,
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Text(
+                      "Panduan Admin Musrenbang",
+                      style: GoogleFonts.poppins(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF263238),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              Text(
+                "Panduan ini membantu admin dalam mengelola usulan masyarakat, mengecek detail usulan, menentukan status, dan menjaga keamanan akses admin.",
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  color: Colors.grey.shade700,
+                  height: 1.5,
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              _guideItem(
+                icon: Icons.list_alt_rounded,
+                title: "1. Lihat Daftar Usulan",
+                desc:
+                    "Admin dapat melihat seluruh usulan pembangunan yang diajukan oleh masyarakat.",
+              ),
+
+              _guideItem(
+                icon: Icons.filter_alt_rounded,
+                title: "2. Gunakan Filter Status",
+                desc:
+                    "Gunakan menu Diproses, Disetujui, dan Ditolak untuk melihat usulan berdasarkan status pengajuan.",
+              ),
+
+              _guideItem(
+                icon: Icons.visibility_rounded,
+                title: "3. Periksa Detail Usulan",
+                desc:
+                    "Tekan ikon panah pada usulan untuk melihat detail seperti judul, lokasi, permasalahan, urgensi, biaya, dan data pendukung.",
+              ),
+
+              _guideItem(
+                icon: Icons.check_circle_rounded,
+                title: "4. Setujui Usulan",
+                desc:
+                    "Jika usulan layak diproses, admin dapat mengubah status usulan menjadi disetujui.",
+              ),
+
+              _guideItem(
+                icon: Icons.cancel_rounded,
+                title: "5. Tolak Usulan",
+                desc:
+                    "Jika usulan belum sesuai, admin dapat menolak usulan agar statusnya tercatat dengan jelas.",
+              ),
+
+              _guideItem(
+                icon: Icons.analytics_rounded,
+                title: "6. Perhatikan Skor AHP",
+                desc:
+                    "Skor AHP membantu admin melihat nilai prioritas usulan berdasarkan kriteria yang digunakan dalam sistem.",
+              ),
+
+              _guideItem(
+                icon: Icons.logout_rounded,
+                title: "7. Logout Admin",
+                desc:
+                    "Gunakan menu logout setelah selesai agar akses admin tetap aman.",
+              ),
+
+              const SizedBox(height: 18),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1565C0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                  child: Text(
+                    "Saya Mengerti",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  Widget _guideItem({
+    required IconData icon,
+    required String title,
+    required String desc,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 23,
-            ),
-          ),
+          Icon(icon, color: const Color(0xFF1565C0), size: 22),
 
           const SizedBox(width: 12),
 
@@ -133,232 +325,25 @@ Widget _adminMenuItem({
                     color: const Color(0xFF263238),
                   ),
                 ),
+
                 const SizedBox(height: 3),
+
                 Text(
-                  subtitle,
+                  desc,
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
+                    fontSize: 12.5,
+                    color: Colors.grey.shade700,
+                    height: 1.45,
                   ),
                 ),
               ],
             ),
-          ),
-
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: Colors.grey,
           ),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 
-void _showAdminGuide(BuildContext context) {
-  Get.bottomSheet(
-    Container(
-      width: double.infinity,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 46,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1565C0).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(
-                    Icons.admin_panel_settings_rounded,
-                    color: Color(0xFF1565C0),
-                    size: 26,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Text(
-                    "Panduan Admin Musrenbang",
-                    style: GoogleFonts.poppins(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF263238),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            Text(
-              "Panduan ini membantu admin dalam mengelola usulan masyarakat, mengecek detail usulan, menentukan status, dan menjaga keamanan akses admin.",
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: Colors.grey.shade700,
-                height: 1.5,
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            _guideItem(
-              icon: Icons.list_alt_rounded,
-              title: "1. Lihat Daftar Usulan",
-              desc:
-                  "Admin dapat melihat seluruh usulan pembangunan yang diajukan oleh masyarakat.",
-            ),
-
-            _guideItem(
-              icon: Icons.filter_alt_rounded,
-              title: "2. Gunakan Filter Status",
-              desc:
-                  "Gunakan menu Diproses, Disetujui, dan Ditolak untuk melihat usulan berdasarkan status pengajuan.",
-            ),
-
-            _guideItem(
-              icon: Icons.visibility_rounded,
-              title: "3. Periksa Detail Usulan",
-              desc:
-                  "Tekan ikon panah pada usulan untuk melihat detail seperti judul, lokasi, permasalahan, urgensi, biaya, dan data pendukung.",
-            ),
-
-            _guideItem(
-              icon: Icons.check_circle_rounded,
-              title: "4. Setujui Usulan",
-              desc:
-                  "Jika usulan layak diproses, admin dapat mengubah status usulan menjadi disetujui.",
-            ),
-
-            _guideItem(
-              icon: Icons.cancel_rounded,
-              title: "5. Tolak Usulan",
-              desc:
-                  "Jika usulan belum sesuai, admin dapat menolak usulan agar statusnya tercatat dengan jelas.",
-            ),
-
-            _guideItem(
-              icon: Icons.analytics_rounded,
-              title: "6. Perhatikan Skor AHP",
-              desc:
-                  "Skor AHP membantu admin melihat nilai prioritas usulan berdasarkan kriteria yang digunakan dalam sistem.",
-            ),
-
-            _guideItem(
-              icon: Icons.logout_rounded,
-              title: "7. Logout Admin",
-              desc:
-                  "Gunakan menu logout setelah selesai agar akses admin tetap aman.",
-            ),
-
-            const SizedBox(height: 18),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1565C0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                ),
-                child: Text(
-                  "Saya Mengerti",
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-    isScrollControlled: true,
-  );
-}
-
-Widget _guideItem({
-  required IconData icon,
-  required String title,
-  required String desc,
-}) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 14),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          color: const Color(0xFF1565C0),
-          size: 22,
-        ),
-
-        const SizedBox(width: 12),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF263238),
-                ),
-              ),
-
-              const SizedBox(height: 3),
-
-              Text(
-                desc,
-                style: GoogleFonts.poppins(
-                  fontSize: 12.5,
-                  color: Colors.grey.shade700,
-                  height: 1.45,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -377,17 +362,14 @@ Widget _guideItem({
           ),
         ),
         actions: [
-  IconButton(
-    tooltip: "Menu Admin",
-    icon: const Icon(
-      Icons.more_vert_rounded,
-      color: Colors.white,
-    ),
-    onPressed: () {
-      _showAdminMenu(context);
-    },
-  ),
-],
+          IconButton(
+            tooltip: "Menu Admin",
+            icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
+            onPressed: () {
+              _showAdminMenu(context);
+            },
+          ),
+        ],
       ),
 
       body: Column(
@@ -818,8 +800,8 @@ Widget _guideItem({
                                     const SizedBox(height: 8),
 
                                     GestureDetector(
-                                      onTap: () {
-                                        Get.toNamed(
+                                      onTap: () async {
+                                        final result = await Get.toNamed(
                                           Routes.DETAIL_ADMIN,
                                           arguments: {
                                             'id':
@@ -829,6 +811,10 @@ Widget _guideItem({
                                                 0,
                                           },
                                         );
+
+                                        if (result == true) {
+                                          await controller.refreshData();
+                                        }
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.all(4),
@@ -861,5 +847,4 @@ Widget _guideItem({
       ),
     );
   }
-  
 }

@@ -76,7 +76,7 @@ class StatusUsulanView extends GetView<StatusUsulanController> {
           return Center(
             child: Text(
               "Belum ada usulan",
-              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600]),
+              style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
             ),
           );
         }

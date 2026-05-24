@@ -8,6 +8,8 @@ import '../modules/detail/bindings/detail_binding.dart';
 import '../modules/detail/views/detail_view.dart';
 import '../modules/detail_admin/bindings/detail_admin_binding.dart';
 import '../modules/detail_admin/views/detail_admin_view.dart';
+import '../modules/detail_hasil_musrenbang/bindings/detail_hasil_musrenbang_binding.dart';
+import '../modules/detail_hasil_musrenbang/views/detail_hasil_musrenbang_view.dart';
 import '../modules/hasil_musrenbang/bindings/hasil_musrenbang_binding.dart';
 import '../modules/hasil_musrenbang/views/hasil_musrenbang_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -106,6 +108,11 @@ class AppPages {
       name: _Paths.ADMIN_LOGIN,
       page: () => const AdminLoginView(),
       binding: AdminLoginBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_HASIL_MUSRENBANG,
+      page: () => const DetailHasilMusrenbangView(),
+      binding: DetailHasilMusrenbangBinding(),
     ),
   ];
 }

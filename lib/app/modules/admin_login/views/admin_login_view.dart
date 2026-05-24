@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:musrenbang/app/routes/app_pages.dart';
 
 import '../controllers/admin_login_controller.dart';
 
@@ -20,10 +21,7 @@ class AdminLoginView extends GetView<AdminLoginController> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              primaryColor,
-              secondaryColor,
-            ],
+            colors: [primaryColor, secondaryColor],
           ),
         ),
         child: SafeArea(
@@ -32,19 +30,7 @@ class AdminLoginView extends GetView<AdminLoginController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
+                const SizedBox(height: 24),
                 Center(
                   child: Column(
                     children: [
@@ -221,8 +207,9 @@ class AdminLoginView extends GetView<AdminLoginController> {
                                 : controller.loginAdmin,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryColor,
-                              disabledBackgroundColor:
-                                  primaryColor.withOpacity(0.5),
+                              disabledBackgroundColor: primaryColor.withOpacity(
+                                0.5,
+                              ),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -255,12 +242,34 @@ class AdminLoginView extends GetView<AdminLoginController> {
                 const SizedBox(height: 24),
 
                 Center(
-                  child: Text(
-                    "Akses ini hanya untuk admin desa",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 12,
-                    ),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Akses ini hanya untuk admin desa",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      TextButton(
+                        onPressed: () {
+                          Get.offNamed(Routes.LOGIN);
+                        },
+                        child: Text(
+                          "Login sebagai User",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

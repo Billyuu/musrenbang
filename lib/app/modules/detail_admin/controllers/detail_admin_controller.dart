@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:musrenbang/services/api_service.dart';
 import 'package:musrenbang/app/modules/admin/controllers/admin_controller.dart';
+import 'package:musrenbang/app/utils/ahp_helper.dart';
 
 class DetailAdminController extends GetxController {
   final isLoading = false.obs;
+  final isActionLoading = false.obs;
   final data = {}.obs;
 
   late int id;
@@ -28,18 +30,23 @@ class DetailAdminController extends GetxController {
     isLoading.value = false;
   }
 
-  //terima
+  // terima usulan
   Future<bool> terima({
     required String biayaFinal,
     required String tahun,
   }) async {
     try {
-      isLoading.value = true;
+      isActionLoading.value = true;
+
+      final item = Map<String, dynamic>.from(data);
+
+      final double skorAhp = AhpHelper.hitungTotalAhp(item);
 
       final result = await ApiService.terimaUsulanAdmin(
         id: id,
         biayaFinal: biayaFinal,
         tahunRealisasi: tahun,
+        skorAhp: skorAhp,
       );
 
       if (result['statusCode'] == 200) {
@@ -49,8 +56,6 @@ class DetailAdminController extends GetxController {
           backgroundColor: const Color(0xFF003E79),
           colorText: Colors.white,
         );
-
-        await getDetail();
 
         if (Get.isRegistered<AdminController>()) {
           final adminC = Get.find<AdminController>();
@@ -71,14 +76,14 @@ class DetailAdminController extends GetxController {
       Get.snackbar("Error", e.toString());
       return false;
     } finally {
-      isLoading.value = false;
+      isActionLoading.value = false;
     }
   }
 
   //tolak usulan
   Future<bool> tolak({required String catatan}) async {
     try {
-      isLoading.value = true;
+      isActionLoading.value = true;
 
       final result = await ApiService.tolakUsulanAdmin(
         id: id,
@@ -92,8 +97,6 @@ class DetailAdminController extends GetxController {
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
-
-        await getDetail();
 
         if (Get.isRegistered<AdminController>()) {
           final adminC = Get.find<AdminController>();
@@ -114,7 +117,7 @@ class DetailAdminController extends GetxController {
       Get.snackbar("Error", e.toString());
       return false;
     } finally {
-      isLoading.value = false;
+      isActionLoading.value = false;
     }
   }
 

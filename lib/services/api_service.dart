@@ -5,7 +5,7 @@ import 'package:get_storage/get_storage.dart';
 
 class ApiService {
   static const String baseUrl =
-      "http://192.168.18.115/api_musrenbang/public/api";
+      "http://192.168.150.57/api_musrenbang/public/api";
 
   // LOGIN FIREBASE KE LARAVEL
   static Future<Map<String, dynamic>> loginFirebase({
@@ -301,39 +301,50 @@ class ApiService {
 
   //Detail Admin usulan
   static Future<Map<String, dynamic>> getDetailUsulanAdmin(int id) async {
-  final response = await http.get(
-    Uri.parse("$baseUrl/admin/usulan/$id"),
-    headers: {"Accept": "application/json"},
-  );
-
-  print("DETAIL ADMIN STATUS: ${response.statusCode}");
-  print("DETAIL ADMIN BODY: ${response.body}");
-
-  return {
-    "statusCode": response.statusCode,
-    "body": jsonDecode(response.body),
-  };
-}
-  //terima usulan
-  static Future<Map<String, dynamic>> terimaUsulanAdmin({
-    required int id,
-    required String biayaFinal,
-    required String tahunRealisasi,
-  }) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/admin/usulan/$id/terima"),
+    final response = await http.get(
+      Uri.parse("$baseUrl/admin/usulan/$id"),
       headers: {"Accept": "application/json"},
-      body: {"biaya_final": biayaFinal, "tahun_realisasi": tahunRealisasi},
     );
 
-    print("TERIMA USULAN STATUS: ${response.statusCode}");
-    print("TERIMA USULAN BODY: ${response.body}");
+    print("DETAIL ADMIN STATUS: ${response.statusCode}");
+    print("DETAIL ADMIN BODY: ${response.body}");
 
     return {
       "statusCode": response.statusCode,
       "body": jsonDecode(response.body),
     };
   }
+
+  //terima usulan
+ // TERIMA USULAN ADMIN
+static Future<Map<String, dynamic>> terimaUsulanAdmin({
+  required int id,
+  required String biayaFinal,
+  required String tahunRealisasi,
+  required double skorAhp,
+}) async {
+  final response = await http.post(
+    Uri.parse("$baseUrl/admin/usulan/$id/terima"),
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode({
+      "biaya_final": biayaFinal,
+      "tahun_realisasi": tahunRealisasi,
+      "skor_ahp": double.parse(skorAhp.toStringAsFixed(4)),
+    }),
+  );
+
+  print("TERIMA USULAN STATUS: ${response.statusCode}");
+  print("TERIMA USULAN BODY: ${response.body}");
+  print("SKOR AHP DIKIRIM: ${skorAhp.toStringAsFixed(4)}");
+
+  return {
+    "statusCode": response.statusCode,
+    "body": jsonDecode(response.body),
+  };
+}
 
   // tolak usulan
   static Future<Map<String, dynamic>> tolakUsulanAdmin({
@@ -366,28 +377,44 @@ class ApiService {
       "body": jsonDecode(response.body),
     };
   }
+
   //login admin
   static Future<Map<String, dynamic>> loginAdmin({
-  required String email,
-  required String password,
-}) async {
-  final url = Uri.parse("$baseUrl/admin/login");
+    required String email,
+    required String password,
+  }) async {
+    final url = Uri.parse("$baseUrl/admin/login");
 
-  final response = await http.post(
-    url,
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-    },
-    body: jsonEncode({
-      "email": email,
-      "password": password,
-    }),
-  );
+    final response = await http.post(
+      url,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({"email": email, "password": password}),
+    );
 
-  return {
-    "statusCode": response.statusCode,
-    "body": jsonDecode(response.body),
-  };
-}
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
+
+  // AMBIL DATA HASIL MUSRENBANG / USULAN DISETUJUI
+  static Future<Map<String, dynamic>> getHasilMusrenbang() async {
+    final url = Uri.parse("$baseUrl/hasil-musrenbang");
+
+    final response = await http.get(
+      url,
+      headers: {"Accept": "application/json"},
+    );
+
+    print("HASIL MUSRENBANG STATUS: ${response.statusCode}");
+    print("HASIL MUSRENBANG BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
 }

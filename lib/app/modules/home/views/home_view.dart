@@ -9,97 +9,73 @@ import 'package:google_fonts/google_fonts.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
-
   @override
   Widget build(BuildContext context) {
     Get.put(ProfilController());
-    return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-      extendBody: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Obx(() {
-          final index = controller.bottomNavIndex.value;
 
-          // ================= 1. APPBAR HALAMAN HOME (INDEX 0) =================
-          if (index == 0) {
-            return AppBar(
-              backgroundColor: const Color(0xFF003E79),
-              title: Padding(
-                padding: const EdgeInsets.only(left: 20, top: 20),
-                child: Text(
-                  'Selamat Datang,',
-                  style: GoogleFonts.poppins(
-                    // Sudah Poppins
-                    fontSize: 15,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.notifications_none_rounded,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Get.toNamed(Routes.NOTIF);
-                  },
-                ),
-              ],
-            );
-          } else if (index == 1) {
-            return AppBar(
-              backgroundColor: const Color(0xFF003E79),
-              elevation: 0,
-              centerTitle: true,
-              title: Text(
-                "Rekapitulasi Hasil Musrenbang 2026",
-                style: GoogleFonts.poppins(
-                  // Sudah Poppins
-                  fontSize: 15,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            );
-          }
-          // ================= 3. APPBAR HALAMAN PROFIL (INDEX 2) =================
-          else if (index == 2) {
-            return AppBar(
-              centerTitle: true,
-              title: Text(
-                'Profil Pengguna',
-                style: GoogleFonts.poppins(
-                  // Sudah Poppins
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              backgroundColor: const Color(0xFF003E79),
-            );
-          }
+    return Obx(() {
+      final index = controller.bottomNavIndex.value;
 
-          return const SizedBox.shrink();
-        }),
-      ),
+      return Scaffold(
+        backgroundColor: Colors.grey.shade200,
+        extendBody: true,
 
-      /// ================= BODY =================
-      body: Obx(() {
-        return IndexedStack(
-          index: controller.bottomNavIndex.value,
+        /// ================= APPBAR =================
+        /// Index 0 = Home
+        /// Index 1 = Hasil Musrenbang, tidak pakai AppBar dari HomeView
+        /// Index 2 = Profil
+        appBar: index == 1
+            ? null
+            : AppBar(
+                backgroundColor: const Color(0xFF003E79),
+                elevation: 0,
+                centerTitle: index == 2,
+                title: index == 0
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 20, top: 20),
+                        child: Text(
+                          'Selamat Datang,',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        'Profil Pengguna',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                actions: index == 0
+                    ? [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.notifications_none_rounded,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Get.toNamed(Routes.NOTIF);
+                          },
+                        ),
+                      ]
+                    : null,
+              ),
+
+        /// ================= BODY =================
+        body: IndexedStack(
+          index: index,
           children: [
             _buildHomeContent(),
             const HasilMusrenbangView(),
             const ProfilView(),
           ],
-        );
-      }),
+        ),
 
-      /// ================= BOTTOM NAVIGATION =================
-      bottomNavigationBar: Obx(
-        () => Container(
+        /// ================= BOTTOM NAVIGATION =================
+        bottomNavigationBar: Container(
           height: 70,
           margin: const EdgeInsets.fromLTRB(15, 0, 15, 10),
           decoration: BoxDecoration(
@@ -115,14 +91,14 @@ class HomeView extends GetView<HomeController> {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(3, (index) {
-              final isActive = controller.bottomNavIndex.value == index;
+            children: List.generate(3, (navIndex) {
+              final isActive = index == navIndex;
               final icons = [Icons.home, Icons.assignment, Icons.person];
               final labels = ["Home", "Hasil", "Profil"];
 
               return GestureDetector(
                 onTap: () {
-                  controller.bottomNavIndex.value = index;
+                  controller.bottomNavIndex.value = navIndex;
                 },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -142,26 +118,26 @@ class HomeView extends GetView<HomeController> {
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.fastOutSlowIn,
                         child: Icon(
-                          icons[index],
+                          icons[navIndex],
                           color: isActive ? Colors.white : Colors.grey,
                           size: 24,
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 4),
 
                     AnimatedDefaultTextStyle(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                       style: GoogleFonts.poppins(
-                        // Teks Label BottomNav jadi Poppins
                         color: isActive ? const Color(0xFF003E79) : Colors.grey,
                         fontWeight: isActive
                             ? FontWeight.w600
                             : FontWeight.normal,
                         fontSize: isActive ? 13 : 12,
                       ),
-                      child: Text(labels[index]),
+                      child: Text(labels[navIndex]),
                     ),
                   ],
                 ),
@@ -169,8 +145,8 @@ class HomeView extends GetView<HomeController> {
             }),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildHomeContent() {
@@ -580,6 +556,8 @@ class HomeView extends GetView<HomeController> {
                                   Get.toNamed(
                                     Routes.DETAIL,
                                     arguments: {
+
+                                      
                                       'id':
                                           int.tryParse(item['id'].toString()) ??
                                           0,

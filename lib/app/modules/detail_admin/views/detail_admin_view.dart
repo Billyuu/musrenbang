@@ -598,9 +598,19 @@ class DetailAdminView extends GetView<DetailAdminController> {
                 ? AhpHelper.formatRupiah(item["biaya_final"].toString())
                 : "-",
           ),
+
           _keputusanInfo(
             "Tahun Realisasi",
             item["tahun_realisasi"]?.toString() ?? "-",
+          ),
+          _keputusanInfo(
+            "Skor AHP",
+            item["skor_ahp"] != null
+                ? double.tryParse(
+                        item["skor_ahp"].toString(),
+                      )?.toStringAsFixed(2) ??
+                      "-"
+                : "-",
           ),
         ],
       );
@@ -730,39 +740,52 @@ class DetailAdminView extends GetView<DetailAdminController> {
           const SizedBox(height: 14),
           _inputField("Tahun Realisasi", tahunC, TextInputType.number),
           const SizedBox(height: 20),
-          _submitButton("Simpan", Colors.green, () async {
-            final biayaFinal = biayaC.text.trim();
-            final tahun = tahunC.text.trim();
 
-            if (biayaFinal.isEmpty || tahun.isEmpty) {
-              Get.snackbar(
-                "Lengkapi Data",
-                "Biaya final dan tahun realisasi wajib diisi",
-                backgroundColor: Colors.orange,
-                colorText: Colors.white,
-              );
-              return;
-            }
+          Obx(
+            () => _submitButton(
+              title: "Simpan",
+              color: const Color(0xFF003E79),
+              isLoading: controller.isActionLoading.value,
+              onTap: () async {
+                final biayaFinal = biayaC.text.trim();
+                final tahun = tahunC.text.trim();
 
-            if (tahun.length != 4) {
-              Get.snackbar(
-                "Tahun Tidak Valid",
-                "Tahun realisasi harus 4 digit, contoh: 2026",
-                backgroundColor: Colors.orange,
-                colorText: Colors.white,
-              );
-              return;
-            }
+                if (biayaFinal.isEmpty || tahun.isEmpty) {
+                  Get.snackbar(
+                    "Lengkapi Data",
+                    "Biaya final dan tahun realisasi wajib diisi",
+                    backgroundColor: Colors.orange,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
 
-            final berhasil = await controller.terima(
-              biayaFinal: biayaFinal,
-              tahun: tahun,
-            );
+                if (tahun.length != 4) {
+                  Get.snackbar(
+                    "Tahun Tidak Valid",
+                    "Tahun realisasi harus 4 digit, contoh: 2026",
+                    backgroundColor: Colors.orange,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+                final berhasil = await controller.terima(
+                  biayaFinal: biayaFinal,
+                  tahun: tahun,
+                );
 
-            if (berhasil) {
-              Get.back();
-            }
-          }),
+                if (berhasil) {
+                  Get.closeAllSnackbars();
+
+                  Get.back(closeOverlays: true);
+
+                  await Future.delayed(const Duration(milliseconds: 300));
+
+                  Get.back(result: true);
+                }
+              },
+            ),
+          ),
         ],
       ),
       isScrollControlled: true,
@@ -782,25 +805,38 @@ class DetailAdminView extends GetView<DetailAdminController> {
             decoration: _inputDecoration("Catatan Penolakan"),
           ),
           const SizedBox(height: 20),
-          _submitButton("Simpan", Colors.orange, () async {
-            if (catatanC.text.trim().isEmpty) {
-              Get.snackbar(
-                "Lengkapi Data",
-                "Catatan penolakan wajib diisi",
-                backgroundColor: Colors.orange,
-                colorText: Colors.white,
-              );
-              return;
-            }
 
-            final berhasil = await controller.tolak(
-              catatan: catatanC.text.trim(),
-            );
+          Obx(
+            () => _submitButton(
+              title: "Simpan",
+              color: const Color(0xFF003E79),
+              isLoading: controller.isActionLoading.value,
+              onTap: () async {
+                if (catatanC.text.trim().isEmpty) {
+                  Get.snackbar(
+                    "Lengkapi Data",
+                    "Catatan penolakan wajib diisi",
+                    backgroundColor: Colors.orange,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+                final berhasil = await controller.tolak(
+                  catatan: catatanC.text.trim(),
+                );
 
-            if (berhasil) {
-              Get.back();
-            }
-          }),
+                if (berhasil) {
+                  Get.closeAllSnackbars();
+
+                  Get.back(closeOverlays: true);
+
+                  await Future.delayed(const Duration(milliseconds: 300));
+
+                  Get.back(result: true);
+                }
+              },
+            ),
+          ),
         ],
       ),
       isScrollControlled: true,
@@ -891,13 +927,19 @@ class DetailAdminView extends GetView<DetailAdminController> {
     );
   }
 
-  Widget _submitButton(String title, Color color, VoidCallback onTap) {
+  Widget _submitButton({
+    required String title,
+    required Color color,
+    required bool isLoading,
+    required VoidCallback onTap,
+  }) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: onTap,
+        onPressed: isLoading ? null : onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
+          disabledBackgroundColor: color.withOpacity(0.6),
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -905,10 +947,22 @@ class DetailAdminView extends GetView<DetailAdminController> {
             borderRadius: BorderRadius.circular(18),
           ),
         ),
-        child: Text(
-          title,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
-        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
       ),
     );
   }
