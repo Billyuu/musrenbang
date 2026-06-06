@@ -68,6 +68,17 @@ class AdminView extends GetView<AdminController> {
             ),
 
             _adminMenuItem(
+              icon: Icons.assignment_rounded,
+              title: "Laporan Usulan Musrenbang",
+              subtitle: "Lihat rekap laporan seluruh usulan masyarakat",
+              iconColor: const Color(0xFF003E79),
+              onTap: () {
+                Get.back();
+                Get.toNamed(Routes.LAPORAN_USULAN_MUSRENBANG);
+              },
+            ),
+
+            _adminMenuItem(
               icon: Icons.logout_rounded,
               title: "Logout",
               subtitle: "Keluar dari akun admin",
@@ -711,8 +722,27 @@ class AdminView extends GetView<AdminController> {
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final item = filtered[index];
-                      //skor
-                      final totalSkor = AhpHelper.hitungTotalAhp(item);
+
+                      final jenisUsulan =
+                          item["jenis_usulan"]
+                              ?.toString()
+                              .toLowerCase()
+                              .trim() ??
+                          "fisik";
+
+                      final isNonFisik = jenisUsulan == "non_fisik";
+
+                      final labelJenisUsulan = isNonFisik
+                          ? "Non Fisik"
+                          : "Fisik";
+
+                      final warnaJenisUsulan = isNonFisik
+                          ? const Color(0xFF1565C0)
+                          : const Color(0xFF003E79);
+
+                      // Skor AHP sementara dihitung untuk fisik dulu
+                      // Non fisik nanti dibuat helper AHP sendiri
+                      final totalSkor = AhpHelper.hitungTotalAhp100(item);
                       final totalSkorText = totalSkor.toStringAsFixed(2);
 
                       return Column(
@@ -750,6 +780,37 @@ class AdminView extends GetView<AdminController> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      /// 🏷️ JENIS USULAN
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: warnaJenisUsulan.withOpacity(
+                                            0.10,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          border: Border.all(
+                                            color: warnaJenisUsulan.withOpacity(
+                                              0.35,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          labelJenisUsulan,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: warnaJenisUsulan,
+                                          ),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 7),
+
                                       /// 📝 JUDUL
                                       Text(
                                         item["judul_usulan"]?.toString() ?? "-",

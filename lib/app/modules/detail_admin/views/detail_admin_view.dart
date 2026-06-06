@@ -53,6 +53,16 @@ class DetailAdminView extends GetView<DetailAdminController> {
           );
         }
         final item = controller.data;
+        final args = Get.arguments ?? {};
+        final fromLaporan = args["from"] == "laporan";
+
+        final jenisUsulan =
+            item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
+
+        final isFisik = jenisUsulan == "fisik";
+        final isNonFisik = jenisUsulan == "non_fisik";
+
+        final labelJenisUsulan = isNonFisik ? "Non Fisik" : "Fisik";
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -83,10 +93,17 @@ class DetailAdminView extends GetView<DetailAdminController> {
                 title: "Informasi Usulan",
                 icon: Iconsax.document_text_copy,
                 children: [
+                  _info("Jenis Usulan", labelJenisUsulan),
                   _info("Judul Usulan", item["judul_usulan"]),
                   _info("Dusun", item["dusun"]),
                   _info("Permasalahan", item["permasalahan"]),
-                  _info("Lokasi", item["lokasi_detail"]),
+                  _info(
+                    isFisik ? "Lokasi" : "Alamat Lokasi / Sasaran",
+                    item["lokasi_detail"],
+                  ),
+
+                  if (isFisik) _info("Titik Koordinat", item["koordinat"]),
+
                   _info("Tanggal", item["tanggal"]),
                 ],
               ),
@@ -97,7 +114,9 @@ class DetailAdminView extends GetView<DetailAdminController> {
 
               const SizedBox(height: 24),
 
-              _actionArea(item),
+              if (!fromLaporan) _actionArea(item),
+
+              if (fromLaporan) _laporanInfoBox(),
 
               const SizedBox(height: 20),
             ],
@@ -107,7 +126,32 @@ class DetailAdminView extends GetView<DetailAdminController> {
     );
   }
 
+  Widget _headerBadge(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(50),
+        border: Border.all(color: Colors.white.withOpacity(0.25)),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(
+          fontSize: 10,
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   Widget _statusHeader(dynamic item) {
+    final jenisUsulan =
+        item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
+
+    final isNonFisik = jenisUsulan == "non_fisik";
+    final labelJenisUsulan = isNonFisik ? "NON FISIK" : "FISIK";
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -126,21 +170,16 @@ class DetailAdminView extends GetView<DetailAdminController> {
               fontWeight: FontWeight.w700,
             ),
           ),
+
           const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Text(
-              item["status"]?.toString().toUpperCase() ?? "-",
-              style: GoogleFonts.poppins(
-                fontSize: 10,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _headerBadge(labelJenisUsulan),
+              _headerBadge(item["status"]?.toString().toUpperCase() ?? "-"),
+            ],
           ),
         ],
       ),
@@ -216,34 +255,160 @@ class DetailAdminView extends GetView<DetailAdminController> {
 
   //tabel perhitungan
   Widget _tabelPerhitunganAhp(dynamic item) {
+    final jenisUsulan =
+        item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
+
+    final isNonFisik = jenisUsulan == "non_fisik";
+
+    if (isNonFisik) {
+      return _tabelPerhitunganAhpNonFisik(item);
+    }
+
+    return _tabelPerhitunganAhpFisik(item);
+  }
+
+  //fisik
+  Widget _tabelPerhitunganAhpFisik(dynamic item) {
     String kondisiUrgensi = item["urgensi"]?.toString() ?? "-";
     String kondisiDampak = item["masyarakat_terdampak"]?.toString() ?? "-";
     String kondisiKerusakan = item["tingkat_kerusakan"]?.toString() ?? "-";
 
-    // Ambil biaya asli dari inputan user
     String biayaInputUser = item["biaya"]?.toString() ?? "0";
-
-    // Kondisi biaya tetap ditampilkan sebagai nominal rupiah
     String kondisiBiaya = AhpHelper.formatRupiah(biayaInputUser);
 
     double skorUrgensi = AhpHelper.skorUrgensiKondisi(kondisiUrgensi);
     double skorDampak = AhpHelper.skorDampakKondisi(kondisiDampak);
     double skorKerusakan = AhpHelper.skorKerusakanKondisi(kondisiKerusakan);
-
     double skorBiaya = AhpHelper.skorBiayaNominal(biayaInputUser);
 
-    double bobotUrgensi = AhpHelper.bobotUrgensi;
-    double bobotDampak = AhpHelper.bobotDampak;
-    double bobotKerusakan = AhpHelper.bobotKerusakan;
-    double bobotBiaya = AhpHelper.bobotBiaya;
+    double hasilUrgensi = AhpHelper.bobotUrgensi * skorUrgensi * 20;
+    double hasilDampak = AhpHelper.bobotDampak * skorDampak * 20;
+    double hasilKerusakan = AhpHelper.bobotKerusakan * skorKerusakan * 20;
+    double hasilBiaya = AhpHelper.bobotBiaya * skorBiaya * 20;
 
-    double hasilUrgensi = bobotUrgensi * skorUrgensi;
-    double hasilDampak = bobotDampak * skorDampak;
-    double hasilKerusakan = bobotKerusakan * skorKerusakan;
-    double hasilBiaya = bobotBiaya * skorBiaya;
+    double total = AhpHelper.hitungTotalAhpFisik100(item);
 
-    double total = AhpHelper.hitungTotalAhp(item);
+    return _tabelAhpWidget(
+      title: "Tabel Perhitungan AHP Fisik",
+      rows: [
+        _rowAhp(
+          "Urgensi",
+          AhpHelper.bobotUrgensi,
+          kondisiUrgensi,
+          skorUrgensi,
+          hasilUrgensi,
+        ),
+        _rowAhp(
+          "Masyarakat Terdampak",
+          AhpHelper.bobotDampak,
+          kondisiDampak,
+          skorDampak,
+          hasilDampak,
+        ),
+        _rowAhp(
+          "Tingkat Kerusakan",
+          AhpHelper.bobotKerusakan,
+          kondisiKerusakan,
+          skorKerusakan,
+          hasilKerusakan,
+        ),
+        _rowAhp(
+          "Biaya",
+          AhpHelper.bobotBiaya,
+          kondisiBiaya,
+          skorBiaya,
+          hasilBiaya,
+        ),
+      ],
+      total: total,
+    );
+  }
 
+  //nonfisik
+  Widget _tabelPerhitunganAhpNonFisik(dynamic item) {
+    String kondisiKebutuhan = item["tingkat_kebutuhan"]?.toString() ?? "-";
+    String kondisiPenerima = item["jumlah_penerima_manfaat"]?.toString() ?? "-";
+    String kondisiDampakSosial = item["dampak_sosial"]?.toString() ?? "-";
+    String kondisiKelayakan = item["kelayakan_pelaksanaan"]?.toString() ?? "-";
+
+    double skorKebutuhan = AhpHelper.skorKebutuhanKondisi(kondisiKebutuhan);
+    double skorPenerima = AhpHelper.skorPenerimaManfaatKondisi(kondisiPenerima);
+    double skorDampakSosial = AhpHelper.skorDampakSosialKondisi(
+      kondisiDampakSosial,
+    );
+    double skorKelayakan = AhpHelper.skorKelayakanKondisi(kondisiKelayakan);
+
+    double hasilKebutuhan = AhpHelper.bobotKebutuhan * skorKebutuhan * 20;
+    double hasilPenerima = AhpHelper.bobotPenerimaManfaat * skorPenerima * 20;
+    double hasilDampakSosial =
+        AhpHelper.bobotDampakSosial * skorDampakSosial * 20;
+    double hasilKelayakan = AhpHelper.bobotKelayakan * skorKelayakan * 20;
+
+    double total = AhpHelper.hitungTotalAhpNonFisik100(item);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _tabelAhpWidget(
+          title: "Tabel Perhitungan AHP Non Fisik",
+          rows: [
+            _rowAhp(
+              "Tingkat Kebutuhan",
+              AhpHelper.bobotKebutuhan,
+              kondisiKebutuhan,
+              skorKebutuhan,
+              hasilKebutuhan,
+            ),
+            _rowAhp(
+              "Penerima Manfaat",
+              AhpHelper.bobotPenerimaManfaat,
+              kondisiPenerima,
+              skorPenerima,
+              hasilPenerima,
+            ),
+            _rowAhp(
+              "Dampak Sosial",
+              AhpHelper.bobotDampakSosial,
+              kondisiDampakSosial,
+              skorDampakSosial,
+              hasilDampakSosial,
+            ),
+            _rowAhp(
+              "Kelayakan",
+              AhpHelper.bobotKelayakan,
+              kondisiKelayakan,
+              skorKelayakan,
+              hasilKelayakan,
+            ),
+          ],
+          total: total,
+        ),
+
+        if (item["biaya"] != null &&
+            item["biaya"].toString().isNotEmpty &&
+            item["biaya"].toString() != "null")
+          _section(
+            title: "Informasi Biaya",
+            icon: Iconsax.money_copy,
+            children: [
+              _info(
+                "Perkiraan Biaya",
+                AhpHelper.formatRupiah(item["biaya"].toString()),
+              ),
+              _info(
+                "Keterangan",
+                "Biaya pada usulan non fisik bersifat opsional dan tidak masuk dalam perhitungan AHP.",
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _tabelAhpWidget({
+    required String title,
+    required List<DataRow> rows,
+    required double total,
+  }) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -265,7 +430,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
               ),
               const SizedBox(width: 8),
               Text(
-                "Tabel Perhitungan AHP",
+                title,
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -331,36 +496,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
                   ),
                 ),
               ],
-              rows: [
-                _rowAhp(
-                  "Urgensi",
-                  bobotUrgensi,
-                  kondisiUrgensi,
-                  skorUrgensi,
-                  hasilUrgensi,
-                ),
-                _rowAhp(
-                  "Masyarakat Terdampak",
-                  bobotDampak,
-                  kondisiDampak,
-                  skorDampak,
-                  hasilDampak,
-                ),
-                _rowAhp(
-                  "Tingkat Kerusakan",
-                  bobotKerusakan,
-                  kondisiKerusakan,
-                  skorKerusakan,
-                  hasilKerusakan,
-                ),
-                _rowAhp(
-                  "Biaya",
-                  bobotBiaya,
-                  kondisiBiaya,
-                  skorBiaya,
-                  hasilBiaya,
-                ),
-              ],
+              rows: rows,
             ),
           ),
 
@@ -439,6 +575,55 @@ class DetailAdminView extends GetView<DetailAdminController> {
 
   //fotousulan
   Widget _fotoUsulan(dynamic item) {
+    final foto = item["foto_usulan"]?.toString() ?? "";
+
+    if (foto.isEmpty || foto == "null" || foto == "-") {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xFFE6E8EC)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Iconsax.gallery_copy,
+                  size: 20,
+                  color: Color(0xFF003E79),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Foto Usulan",
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Container(
+              height: 160,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Text(
+                "Foto tidak tersedia",
+                style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -472,7 +657,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
           ClipRRect(
             borderRadius: BorderRadius.circular(18),
             child: Image.network(
-              controller.getFotoUsulan(item["foto_usulan"]?.toString() ?? ""),
+              controller.getFotoUsulan(foto),
               width: double.infinity,
               height: 220,
               fit: BoxFit.cover,
@@ -558,28 +743,76 @@ class DetailAdminView extends GetView<DetailAdminController> {
     final sudahDitolak = status == "ditolak";
 
     if (masihDiproses) {
-      return Row(
-        children: [
-          Expanded(
-            child: _actionButton(
-              title: "Terima",
-              icon: Icons.check_rounded,
-              color: const Color(0xFF003E79),
-              backgroundColor: Colors.white,
-              onTap: () => _showTerimaSheet(),
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xFFE6E8EC)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.fact_check_rounded,
+                  size: 21,
+                  color: Color(0xFF003E79),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Keputusan Admin",
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1F2937),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _actionButton(
-              title: "Tolak",
-              icon: Icons.close_rounded,
-              color: const Color(0xFF003E79),
-              backgroundColor: Colors.white,
-              onTap: () => _showTolakSheet(),
+
+            const SizedBox(height: 6),
+
+            Text(
+              "Silakan pilih tindakan untuk memproses usulan masyarakat.",
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                color: Colors.grey,
+                height: 1.4,
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _decisionButton(
+                    title: "Terima",
+                    subtitle: "Setujui usulan",
+                    icon: Icons.check_rounded,
+                    color: Colors.green,
+                    onTap: () => _showTerimaSheet(),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: _decisionButton(
+                    title: "Tolak",
+                    subtitle: "Tolak usulan",
+                    icon: Icons.close_rounded,
+                    color: Colors.red,
+                    onTap: () => _showTolakSheet(),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       );
     }
 
@@ -598,7 +831,6 @@ class DetailAdminView extends GetView<DetailAdminController> {
                 ? AhpHelper.formatRupiah(item["biaya_final"].toString())
                 : "-",
           ),
-
           _keputusanInfo(
             "Tahun Realisasi",
             item["tahun_realisasi"]?.toString() ?? "-",
@@ -633,6 +865,91 @@ class DetailAdminView extends GetView<DetailAdminController> {
     }
 
     return const SizedBox();
+  }
+
+  Widget _decisionButton({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: color.withOpacity(0.35), width: 1.2),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              child: Icon(icon, color: Colors.white, size: 24),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+
+            const SizedBox(height: 3),
+
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //pengecualian di detail admin diproses
+  Widget _laporanInfoBox() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF003E79).withOpacity(0.08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFF003E79).withOpacity(0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_rounded, color: Color(0xFF003E79), size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "Halaman ini dibuka dari laporan usulan, sehingga hanya digunakan untuk melihat detail data dan tidak menampilkan aksi terima atau tolak.",
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: const Color(0xFF1F2937),
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _statusKeputusanBox({

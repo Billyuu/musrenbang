@@ -18,6 +18,8 @@ abstract class Routes {
   static const DETAIL_ADMIN = _Paths.DETAIL_ADMIN;
   static const ADMIN_LOGIN = _Paths.ADMIN_LOGIN;
   static const DETAIL_HASIL_MUSRENBANG = _Paths.DETAIL_HASIL_MUSRENBANG;
+  static const USULAN_NON_FISIK = _Paths.USULAN_NON_FISIK;
+  static const LAPORAN_USULAN_MUSRENBANG = _Paths.LAPORAN_USULAN_MUSRENBANG;
 }
 
 abstract class _Paths {
@@ -37,4 +39,6 @@ abstract class _Paths {
   static const DETAIL_ADMIN = '/detail-admin';
   static const ADMIN_LOGIN = '/admin-login';
   static const DETAIL_HASIL_MUSRENBANG = '/detail-hasil-musrenbang';
+  static const USULAN_NON_FISIK = '/usulan-non-fisik';
+  static const LAPORAN_USULAN_MUSRENBANG = '/laporan-usulan-musrenbang';
 }

@@ -5,8 +5,8 @@ import 'package:get_storage/get_storage.dart';
 
 class ApiService {
   static const String baseUrl =
-      "http://192.168.150.57/api_musrenbang/public/api";
-
+      "http://192.168.110.204/api_musrenbang/public/api";
+ 
   // LOGIN FIREBASE KE LARAVEL
   static Future<Map<String, dynamic>> loginFirebase({
     required String firebaseUid,
@@ -193,52 +193,62 @@ class ApiService {
     };
   }
 
-  // SIMPAN USULAN
-  static Future<Map<String, dynamic>> simpanUsulan({
-    required Map<String, String> data,
-    File? foto,
-  }) async {
-    try {
-      // 1. Sesuaikan endpoint dengan yang ada di Laravel
-      var uri = Uri.parse("$baseUrl/usulan");
-      var request = http.MultipartRequest("POST", uri);
+  // SIMPAN USULAN FISIK / NON FISIK
+static Future<Map<String, dynamic>> simpanUsulan({
+  required Map<String, String> data,
+  File? foto,
+}) async {
+  try {
+    var uri = Uri.parse("$baseUrl/usulan");
+    var request = http.MultipartRequest("POST", uri);
 
-      // 2. Tambahkan header agar server tahu kita mengirim JSON
-      request.headers.addAll({"Accept": "application/json"});
+    request.headers.addAll({
+      "Accept": "application/json",
+    });
 
-      // 3. Masukkan semua data teks (judul, usulan, dll)
-      request.fields.addAll(data);
+    // Masukkan semua data teks
+    request.fields.addAll(data);
 
-      // 4. Masukkan foto jika ada
-      if (foto != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'foto_usulan', // Pastikan di Laravel namanya juga 'foto'
-            foto.path,
-          ),
-        );
-      }
-
-      // 5. Kirim dan terima respon
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
-      // 6. Log untuk mempermudah perbaikan jika masih error
-      print("LOG API STATUS: ${response.statusCode}");
-      print("LOG API BODY: ${response.body}");
-
-      return {
-        "statusCode": response.statusCode,
-        "body": jsonDecode(response.body),
-      };
-    } catch (e) {
-      print("Error ApiService: $e");
-      return {
-        "statusCode": 500,
-        "body": {"message": "Gagal terhubung ke server"},
-      };
+    // Foto hanya dikirim jika ada
+    // Untuk usulan fisik: biasanya wajib
+    // Untuk usulan non fisik: boleh kosong
+    if (foto != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'foto_usulan',
+          foto.path,
+        ),
+      );
     }
+
+    // Log debugging
+    print("===== DATA USULAN DIKIRIM =====");
+    print(request.fields);
+    print("FOTO ADA: ${foto != null}");
+    print("ENDPOINT: $uri");
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    print("LOG API STATUS: ${response.statusCode}");
+    print("LOG API BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  } catch (e) {
+    print("Error ApiService simpanUsulan: $e");
+
+    return {
+      "statusCode": 500,
+      "body": {
+        "success": false,
+        "message": "Gagal terhubung ke server",
+      },
+    };
   }
+}
 
   // AMBIL DATA USULAN
   static Future<Map<String, dynamic>> getUsulan(int userId) async {
@@ -378,27 +388,47 @@ static Future<Map<String, dynamic>> terimaUsulanAdmin({
     };
   }
 
-  //login admin
-  static Future<Map<String, dynamic>> loginAdmin({
-    required String email,
-    required String password,
-  }) async {
-    final url = Uri.parse("$baseUrl/admin/login");
+  // LOGIN ADMIN
+static Future<Map<String, dynamic>> loginAdmin({
+  required String email,
+  required String password,
+}) async {
+  final url = Uri.parse("$baseUrl/admin/login");
 
-    final response = await http.post(
-      url,
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({"email": email, "password": password}),
-    );
+  try {
+    final response = await http
+        .post(
+          url,
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          },
+          body: jsonEncode({
+            "email": email,
+            "password": password,
+          }),
+        )
+        .timeout(const Duration(seconds: 5));
+
+    print("ADMIN LOGIN STATUS: ${response.statusCode}");
+    print("ADMIN LOGIN BODY: ${response.body}");
 
     return {
       "statusCode": response.statusCode,
       "body": jsonDecode(response.body),
     };
+  } catch (e) {
+    print("ERROR API LOGIN ADMIN: $e");
+
+    return {
+      "statusCode": 500,
+      "body": {
+        "success": false,
+        "message": "Gagal terhubung ke server admin",
+      },
+    };
   }
+}
 
   // AMBIL DATA HASIL MUSRENBANG / USULAN DISETUJUI
   static Future<Map<String, dynamic>> getHasilMusrenbang() async {

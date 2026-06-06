@@ -81,6 +81,13 @@ class DetailView extends GetView<DetailController> {
           );
         }
 
+        final jenisUsulan =
+            data['jenis_usulan']?.toString().toLowerCase().trim() ?? 'fisik';
+        final isFisik = jenisUsulan == 'fisik';
+        final isNonFisik = jenisUsulan == 'non_fisik';
+
+        final labelJenisUsulan = isNonFisik ? 'Non Fisik' : 'Fisik';
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -106,7 +113,13 @@ class DetailView extends GetView<DetailController> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    _statusBadge(data['status']?.toString() ?? '-'),
+                    Row(
+                      children: [
+                        _jenisUsulanBadge(labelJenisUsulan, isNonFisik),
+                        const SizedBox(width: 8),
+                        _statusBadge(data['status']?.toString() ?? '-'),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -127,20 +140,27 @@ class DetailView extends GetView<DetailController> {
               _sectionTitle('Informasi Usulan'),
 
               _detailItem(
+                icon: Icons.category_rounded,
+                title: 'Jenis Usulan',
+                value: labelJenisUsulan,
+              ),
+              _detailItem(
                 icon: Icons.home_rounded,
                 title: 'Dusun',
                 value: data['dusun']?.toString() ?? '-',
               ),
               _detailItem(
                 icon: Icons.location_on_rounded,
-                title: 'Lokasi Detail',
+                title: isFisik ? 'Lokasi Detail' : 'Alamat Lokasi / Sasaran',
                 value: data['lokasi_detail']?.toString() ?? '-',
               ),
-              _detailItem(
-                icon: Icons.map_rounded,
-                title: 'Titik Koordinat',
-                value: data['koordinat']?.toString() ?? '-',
-              ),
+
+              if (isFisik)
+                _detailItem(
+                  icon: Icons.map_rounded,
+                  title: 'Titik Koordinat',
+                  value: data['koordinat']?.toString() ?? '-',
+                ),
 
               const SizedBox(height: 12),
               _sectionTitle('Isi Pengajuan'),
@@ -150,31 +170,57 @@ class DetailView extends GetView<DetailController> {
                 title: 'Permasalahan',
                 value: data['permasalahan']?.toString() ?? '-',
               ),
-              _detailItem(
-                icon: Icons.priority_high_rounded,
-                title: 'Urgensi',
-                value: data['urgensi']?.toString() ?? '-',
-              ),
-              _detailItem(
-                icon: Icons.groups_rounded,
-                title: 'Masyarakat Terdampak',
-                value: data['masyarakat_terdampak']?.toString() ?? '-',
-              ),
-              _detailItem(
-                icon: Icons.construction_rounded,
-                title: 'Tingkat Kerusakan',
-                value: data['tingkat_kerusakan']?.toString() ?? '-',
-              ),
-              _detailItem(
-                icon: Icons.payments_rounded,
-                title: 'Perkiraan Biaya',
-                value: 'Rp ${data['biaya']?.toString() ?? '-'}',
-              ),
-              _detailItem(
-                icon: Icons.payments_rounded,
-                title: 'Perkiraan Biaya',
-                value: 'Rp ${data['biaya']?.toString() ?? '-'}',
-              ),
+
+              if (isFisik) ...[
+                _detailItem(
+                  icon: Icons.priority_high_rounded,
+                  title: 'Urgensi',
+                  value: data['urgensi']?.toString() ?? '-',
+                ),
+                _detailItem(
+                  icon: Icons.groups_rounded,
+                  title: 'Masyarakat Terdampak',
+                  value: data['masyarakat_terdampak']?.toString() ?? '-',
+                ),
+                _detailItem(
+                  icon: Icons.construction_rounded,
+                  title: 'Tingkat Kerusakan',
+                  value: data['tingkat_kerusakan']?.toString() ?? '-',
+                ),
+                _detailItem(
+                  icon: Icons.payments_rounded,
+                  title: 'Perkiraan Biaya',
+                  value: _formatBiaya(data['biaya']),
+                ),
+              ],
+
+              if (isNonFisik) ...[
+                _detailItem(
+                  icon: Icons.assignment_turned_in_rounded,
+                  title: 'Tingkat Kebutuhan',
+                  value: data['tingkat_kebutuhan']?.toString() ?? '-',
+                ),
+                _detailItem(
+                  icon: Icons.groups_rounded,
+                  title: 'Jumlah Penerima Manfaat',
+                  value: data['jumlah_penerima_manfaat']?.toString() ?? '-',
+                ),
+                _detailItem(
+                  icon: Icons.volunteer_activism_rounded,
+                  title: 'Dampak Sosial',
+                  value: data['dampak_sosial']?.toString() ?? '-',
+                ),
+                _detailItem(
+                  icon: Icons.check_circle_rounded,
+                  title: 'Kelayakan Pelaksanaan',
+                  value: data['kelayakan_pelaksanaan']?.toString() ?? '-',
+                ),
+                _detailItem(
+                  icon: Icons.payments_rounded,
+                  title: 'Perkiraan Biaya',
+                  value: _formatBiaya(data['biaya']),
+                ),
+              ],
 
               const SizedBox(height: 12),
               _keputusanAdminBox(data),
@@ -183,7 +229,7 @@ class DetailView extends GetView<DetailController> {
         );
       }),
     );
-  } // FOTO USULAN
+  }
 
   Widget _buildFotoUsulan(String? foto) {
     if (foto == null || foto.isEmpty || foto == '-') {
@@ -525,6 +571,35 @@ class DetailView extends GetView<DetailController> {
         ],
       ),
     );
+  }
+
+  Widget _jenisUsulanBadge(String label, bool isNonFisik) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.18),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.4)),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  String _formatBiaya(dynamic biaya) {
+    final value = biaya?.toString().trim() ?? '';
+
+    if (value.isEmpty || value == 'null') {
+      return 'Tidak diisi';
+    }
+
+    return 'Rp $value';
   }
 
   Widget _statusBadge(String status) {

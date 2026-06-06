@@ -46,28 +46,14 @@ class LoginView extends GetView<LoginController> {
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-
                               const SizedBox(height: 8),
-
-                            GestureDetector(
-  behavior: HitTestBehavior.translucent,
-  onTapDown: (_) {
-    controller.startAdminLoginTimer();
-  },
-  onTapUp: (_) {
-    controller.cancelAdminLoginTimer();
-  },
-  onTapCancel: () {
-    controller.cancelAdminLoginTimer();
-  },
-  child: Text(
-    "Silahkan Login Menggunakan Email Anda!",
-    style: GoogleFonts.poppins(
-      color: Colors.white.withOpacity(0.9),
-      fontSize: 13,
-    ),
-  ),
-),
+                              Text(
+                                "Silakan login menggunakan email dan password Anda",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 13,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -89,7 +75,6 @@ class LoginView extends GetView<LoginController> {
 
                           child: Column(
                             children: [
-                              /// EMAIL
                               /// EMAIL
                               TextField(
                                 controller: controller.emailController,
@@ -228,7 +213,7 @@ class LoginView extends GetView<LoginController> {
                                             ),
                                           )
                                         : Text(
-                                            "Masuk",
+                                            "Masuk ke Aplikasi",
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
                                               fontSize: 15,

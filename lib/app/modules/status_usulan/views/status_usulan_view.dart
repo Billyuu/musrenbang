@@ -94,6 +94,16 @@ class StatusUsulanView extends GetView<StatusUsulanController> {
             itemBuilder: (context, index) {
               final item = data[index];
 
+              final jenisUsulan = item["jenis_usulan"]?.toString() ?? "fisik";
+
+              final labelJenisUsulan = jenisUsulan == "non_fisik"
+                  ? "Non Fisik"
+                  : "Fisik";
+
+              final warnaJenisUsulan = jenisUsulan == "non_fisik"
+                  ? const Color(0xFF1565C0)
+                  : const Color(0xFF003E79);
+
               return InkWell(
                 onTap: () => Get.toNamed('/detail-usulan', arguments: item),
                 child: Column(
@@ -135,6 +145,31 @@ class StatusUsulanView extends GetView<StatusUsulanController> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Badge Jenis Usulan
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: warnaJenisUsulan.withOpacity(0.10),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: warnaJenisUsulan.withOpacity(0.35),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    labelJenisUsulan,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: warnaJenisUsulan,
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 7),
+
                                 // Judul Usulan
                                 Text(
                                   item["judul_usulan"]?.toString() ?? "-",

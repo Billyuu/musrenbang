@@ -203,7 +203,196 @@ class HomeView extends GetView<HomeController> {
               right: 20,
               child: GestureDetector(
                 onTap: () {
-                  Get.toNamed(Routes.USULAN);
+                  Get.bottomSheet(
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 25),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(28),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 45,
+                              height: 5,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Text(
+                            "Pilih Jenis Usulan",
+                            style: GoogleFonts.poppins(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF0F0C10),
+                            ),
+                          ),
+
+                          const SizedBox(height: 6),
+
+                          Text(
+                            "Silakan pilih jenis usulan yang ingin Anda ajukan.",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          /// USULAN FISIK
+                          GestureDetector(
+                            onTap: () {
+                              Get.back();
+                              Get.toNamed(Routes.USULAN);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEAF3FC),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: const Color(0xFFD6E8F8),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 42,
+                                    height: 42,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF003E79),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.home_repair_service_rounded,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 14),
+
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Usulan Fisik",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF0F0C10),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "Jalan, drainase, lampu, jembatan, atau fasilitas umum.",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 11,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 16,
+                                    color: Color(0xFF003E79),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          /// USULAN NON FISIK
+                          GestureDetector(
+                            onTap: () {
+                              Get.back();
+                              Get.toNamed(Routes.USULAN_NON_FISIK);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF6F8FB),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: const Color(0xFFE2E6EA),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 42,
+                                    height: 42,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF1565C0),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.groups_rounded,
+                                      color: Colors.white,
+                                      size: 23,
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 14),
+
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Usulan Non Fisik",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF0F0C10),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "UMKM, beasiswa, pelatihan, bantuan sosial, atau kesehatan.",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 11,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 16,
+                                    color: Color(0xFF1565C0),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -494,6 +683,16 @@ class HomeView extends GetView<HomeController> {
                   itemCount: filtered.length,
                   itemBuilder: (context, index) {
                     final item = filtered[index];
+                    final jenisUsulan =
+                        item["jenis_usulan"]?.toString() ?? "fisik";
+
+                    final labelJenisUsulan = jenisUsulan == "non_fisik"
+                        ? "Non Fisik"
+                        : "Fisik";
+
+                    final warnaJenisUsulan = jenisUsulan == "non_fisik"
+                        ? const Color(0xFF1565C0)
+                        : const Color(0xFF003E79);
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,6 +726,30 @@ class HomeView extends GetView<HomeController> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    /// 🏷️ JENIS USULAN
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: warnaJenisUsulan.withOpacity(
+                                          0.10,
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        labelJenisUsulan,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: warnaJenisUsulan,
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 7),
+
                                     /// 📝 JUDUL
                                     Text(
                                       item["judul_usulan"]?.toString() ?? "-",
@@ -556,8 +779,6 @@ class HomeView extends GetView<HomeController> {
                                   Get.toNamed(
                                     Routes.DETAIL,
                                     arguments: {
-
-                                      
                                       'id':
                                           int.tryParse(item['id'].toString()) ??
                                           0,

@@ -14,6 +14,8 @@ import '../modules/hasil_musrenbang/bindings/hasil_musrenbang_binding.dart';
 import '../modules/hasil_musrenbang/views/hasil_musrenbang_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/laporan_usulan_musrenbang/bindings/laporan_usulan_musrenbang_binding.dart';
+import '../modules/laporan_usulan_musrenbang/views/laporan_usulan_musrenbang_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/notif/bindings/notif_binding.dart';
@@ -30,6 +32,8 @@ import '../modules/status_usulan/bindings/status_usulan_binding.dart';
 import '../modules/status_usulan/views/status_usulan_view.dart';
 import '../modules/usulan/bindings/usulan_binding.dart';
 import '../modules/usulan/views/usulan_view.dart';
+import '../modules/usulan_non_fisik/bindings/usulan_non_fisik_binding.dart';
+import '../modules/usulan_non_fisik/views/usulan_non_fisik_view.dart';
 
 part 'app_routes.dart';
 
@@ -113,6 +117,16 @@ class AppPages {
       name: _Paths.DETAIL_HASIL_MUSRENBANG,
       page: () => const DetailHasilMusrenbangView(),
       binding: DetailHasilMusrenbangBinding(),
+    ),
+    GetPage(
+      name: _Paths.USULAN_NON_FISIK,
+      page: () => const UsulanNonFisikView(),
+      binding: UsulanNonFisikBinding(),
+    ),
+    GetPage(
+      name: _Paths.LAPORAN_USULAN_MUSRENBANG,
+      page: () => const LaporanUsulanMusrenbangView(),
+      binding: LaporanUsulanMusrenbangBinding(),
     ),
   ];
 }
