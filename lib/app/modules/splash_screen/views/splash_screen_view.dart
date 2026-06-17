@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:musrenbang/app/routes/app_pages.dart';
+import 'package:get_storage/get_storage.dart';
 
 class SplashScreenView extends StatefulWidget {
   const SplashScreenView({super.key});
@@ -16,28 +17,30 @@ class _SplashScreenViewState extends State<SplashScreenView> {
   int currentPage = 0;
 
   final List<Map<String, dynamic>> splashData = [
-   {
-  "image": "assets/images/logo.png",
-  "badge": "Selamat Datang di",
-  "title": "MUSRENBANG\nDESA SUKOREJO",
-  "subtitle": "Bangun Desa Bersama",
-  "desc":
-      "Wujudkan pembangunan desa yang lebih maju melalui aspirasi, usulan, dan partisipasi aktif masyarakat secara digital.",
-},
-{
-  "badge": "🗳️ Aspirasi Warga",
-  "title": "SUARA WARGA",
-  "subtitle": "Lebih Didengar",
-  "desc":
-      "Sampaikan usulan dan aspirasi pembangunan dengan lebih mudah, cepat, dan transparan langsung melalui aplikasi.",
-},
-{
-  "badge": "🚀 Desa Modern",
-  "title": "DESA DIGITAL",
-  "subtitle": "Transparan & Efisien",
-  "desc":
-      "Pantau proses pembangunan desa secara real-time dengan sistem Musrenbang digital yang modern dan terpercaya.",
-},
+    {
+      "image": "assets/images/logo.png",
+      "badge": "Selamat Datang di",
+      "title": "MUSRENBANG\nDESA SUKOREJO",
+      "subtitle": "Bangun Desa Bersama",
+      "desc":
+          "Wujudkan pembangunan desa yang lebih maju melalui aspirasi, usulan, dan partisipasi aktif masyarakat secara digital.",
+    },
+    {
+      "image": "assets/images/logo1.png",
+      "badge": "Aspirasi Warga",
+      "title": "SUARA WARGA",
+      "subtitle": "Lebih Didengar",
+      "desc":
+          "Sampaikan usulan dan aspirasi pembangunan dengan lebih mudah, cepat, dan transparan langsung melalui aplikasi.",
+    },
+    {
+      "image": "assets/images/logo1.png",
+      "badge": "Desa Modern",
+      "title": "DESA DIGITAL",
+      "subtitle": "Transparan & Efisien",
+      "desc":
+          "Pantau proses pembangunan desa secara real-time dengan sistem Musrenbang digital yang modern dan terpercaya.",
+    },
   ];
 
   @override
@@ -69,7 +72,26 @@ class _SplashScreenViewState extends State<SplashScreenView> {
                           /// LOGO CARD
                           /// ICON / IMAGE
                           if (splashData[index]['image'] != null)
-                            Image.asset(splashData[index]['image'], height: 180)
+                            Image.asset(
+                              splashData[index]['image'],
+                              height: 180,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 150,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEAF2FF),
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
+                                  child: const Icon(
+                                    Icons.image_not_supported_rounded,
+                                    size: 70,
+                                    color: Color(0xFF003E79),
+                                  ),
+                                );
+                              },
+                            )
                           else
                             Container(
                               width: 150,
@@ -208,16 +230,17 @@ class _SplashScreenViewState extends State<SplashScreenView> {
                         borderRadius: BorderRadius.circular(18),
                       ),
                     ),
-                    onPressed: () {
-                      if (currentPage == splashData.length - 1) {
-                        Get.offNamed(Routes.LOGIN);
-                      } else {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 400),
-                          curve: Curves.easeInOut,
-                        );
-                      }
-                    },
+                   onPressed: () {
+  if (currentPage == splashData.length - 1) {
+    GetStorage().write("sudah_lihat_splash", true);
+    Get.offAllNamed(Routes.LOGIN);
+  } else {
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
+},
                     child: Text(
                       currentPage == splashData.length - 1
                           ? "Mulai Sekarang"

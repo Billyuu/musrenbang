@@ -4,7 +4,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:musrenbang/app/routes/app_pages.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:musrenbang/app/utils/ahp_helper.dart';
-
+import 'package:get_storage/get_storage.dart';
 import '../controllers/admin_controller.dart';
 
 class AdminView extends GetView<AdminController> {
@@ -100,7 +100,7 @@ class AdminView extends GetView<AdminController> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
-    Color iconColor = const Color(0xFF1565C0),
+    Color iconColor = const Color(0xFF003E79),
   }) {
     return InkWell(
       onTap: onTap,
@@ -219,7 +219,7 @@ class AdminView extends GetView<AdminController> {
               const SizedBox(height: 16),
 
               Text(
-                "Panduan ini membantu admin dalam mengelola usulan masyarakat, mengecek detail usulan, menentukan status, dan menjaga keamanan akses admin.",
+                "Panduan ini membantu admin dalam mengelola usulan masyarakat mulai dari memeriksa data usulan, menentukan keputusan awal, memantau hasil Musrenbang, hingga menetapkan status ditunda atau direalisasikan.",
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   color: Colors.grey.shade700,
@@ -233,49 +233,84 @@ class AdminView extends GetView<AdminController> {
                 icon: Icons.list_alt_rounded,
                 title: "1. Lihat Daftar Usulan",
                 desc:
-                    "Admin dapat melihat seluruh usulan pembangunan yang diajukan oleh masyarakat.",
+                    "Admin dapat melihat seluruh usulan pembangunan yang diajukan oleh masyarakat, baik usulan fisik maupun non-fisik.",
               ),
 
               _guideItem(
                 icon: Icons.filter_alt_rounded,
                 title: "2. Gunakan Filter Status",
                 desc:
-                    "Gunakan menu Diproses, Disetujui, dan Ditolak untuk melihat usulan berdasarkan status pengajuan.",
+                    "Gunakan filter Diproses, Disetujui, Ditolak, Ditunda, dan Direalisasikan untuk melihat usulan sesuai statusnya.",
+              ),
+
+              _guideItem(
+                icon: Icons.category_rounded,
+                title: "3. Pilih Jenis Usulan",
+                desc:
+                    "Admin dapat membedakan usulan Fisik dan Non Fisik. Usulan fisik biasanya memiliki lokasi, koordinat, foto depan-belakang, serta volume pekerjaan.",
               ),
 
               _guideItem(
                 icon: Icons.visibility_rounded,
-                title: "3. Periksa Detail Usulan",
+                title: "4. Periksa Detail Usulan",
                 desc:
-                    "Tekan ikon panah pada usulan untuk melihat detail seperti judul, lokasi, permasalahan, urgensi, biaya, dan data pendukung.",
-              ),
-
-              _guideItem(
-                icon: Icons.check_circle_rounded,
-                title: "4. Setujui Usulan",
-                desc:
-                    "Jika usulan layak diproses, admin dapat mengubah status usulan menjadi disetujui.",
-              ),
-
-              _guideItem(
-                icon: Icons.cancel_rounded,
-                title: "5. Tolak Usulan",
-                desc:
-                    "Jika usulan belum sesuai, admin dapat menolak usulan agar statusnya tercatat dengan jelas.",
+                    "Tekan tombol detail untuk melihat informasi lengkap seperti judul, dusun, lokasi, permasalahan, biaya, data kriteria AHP, foto pendukung, dan volume untuk usulan fisik.",
               ),
 
               _guideItem(
                 icon: Icons.analytics_rounded,
-                title: "6. Perhatikan Skor AHP",
+                title: "5. Perhatikan Skor AHP",
                 desc:
-                    "Skor AHP membantu admin melihat nilai prioritas usulan berdasarkan kriteria yang digunakan dalam sistem.",
+                    "Skor AHP digunakan untuk membantu admin melihat nilai prioritas usulan berdasarkan kriteria yang telah ditentukan dalam sistem.",
+              ),
+
+              _guideItem(
+                icon: Icons.check_circle_rounded,
+                title: "6. Setujui Usulan",
+                desc:
+                    "Jika usulan layak, admin dapat menyetujui usulan dengan mengisi biaya final dan tahun realisasi. Usulan yang disetujui akan masuk ke hasil Musrenbang.",
+              ),
+
+              _guideItem(
+                icon: Icons.cancel_rounded,
+                title: "7. Tolak Usulan",
+                desc:
+                    "Jika usulan tidak sesuai, data kurang lengkap, atau belum layak diproses, admin dapat menolak usulan dengan memberikan catatan penolakan.",
+              ),
+
+              _guideItem(
+                icon: Icons.assignment_turned_in_rounded,
+                title: "8. Kelola Hasil Musrenbang",
+                desc:
+                    "Usulan yang telah disetujui dapat dilihat pada halaman hasil Musrenbang. Pada halaman ini admin dapat menentukan apakah usulan ditunda atau direalisasikan.",
+              ),
+
+              _guideItem(
+                icon: Icons.update_rounded,
+                title: "9. Tunda Usulan",
+                desc:
+                    "Jika usulan belum dapat dilaksanakan karena prioritas, anggaran, atau waktu pelaksanaan, admin dapat mengubah status menjadi Ditunda dengan mengisi tahun realisasi dan catatan penundaan.",
+              ),
+
+              _guideItem(
+                icon: Icons.verified_rounded,
+                title: "10. Realisasikan Usulan",
+                desc:
+                    "Jika usulan sudah dilaksanakan, admin dapat mengubah status menjadi Direalisasikan. Status ini menandakan bahwa usulan telah selesai ditindaklanjuti.",
+              ),
+
+              _guideItem(
+                icon: Icons.picture_as_pdf_rounded,
+                title: "11. Cetak Laporan Musrenbang",
+                desc:
+                    "Admin dapat mencetak laporan usulan berdasarkan status dan jenis usulan, seperti Diproses, Disetujui, Ditolak, Ditunda, atau Direalisasikan.",
               ),
 
               _guideItem(
                 icon: Icons.logout_rounded,
-                title: "7. Logout Admin",
+                title: "12. Logout Admin",
                 desc:
-                    "Gunakan menu logout setelah selesai agar akses admin tetap aman.",
+                    "Gunakan menu logout setelah selesai mengelola data agar akses admin tetap aman dan tidak digunakan oleh pihak lain.",
               ),
 
               const SizedBox(height: 18),
@@ -287,7 +322,7 @@ class AdminView extends GetView<AdminController> {
                     Get.back();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1565C0),
+                    backgroundColor: const Color(0xFF003E79),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -404,7 +439,7 @@ class AdminView extends GetView<AdminController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Admin',
+                  GetStorage().read("admin_name") ?? "Admin Desa",
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     color: Colors.white,
@@ -426,7 +461,10 @@ class AdminView extends GetView<AdminController> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: GestureDetector(
                 onTap: () {
-                  Get.toNamed(Routes.HASIL_MUSRENBANG);
+                  Get.toNamed(
+                    Routes.HASIL_MUSRENBANG,
+                    arguments: {"from": "admin"},
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -520,118 +558,189 @@ class AdminView extends GetView<AdminController> {
 
           /// FILTER STATUS
           const SizedBox(height: 0),
-
           Transform.translate(
             offset: const Offset(0, -20),
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.symmetric(vertical: 20),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: const Color(0xFFCCCCCC), width: 1),
               ),
 
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  /// DIPROSES
-                  GestureDetector(
-                    onTap: () => controller.statusAktif.value = "Diproses",
-                    child: Obx(
-                      () => Row(
-                        children: [
-                          Icon(
-                            Icons.local_shipping,
-                            size: 20,
-                            color: controller.statusAktif.value == "Diproses"
-                                ? const Color(0xFF003E79)
-                                : Colors.grey,
-                          ),
-
-                          const SizedBox(width: 6),
-
-                          Text(
-                            "Diproses",
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    /// DIPROSES
+                    GestureDetector(
+                      onTap: () => controller.statusAktif.value = "Diproses",
+                      child: Obx(
+                        () => Row(
+                          children: [
+                            Icon(
+                              Icons.local_shipping,
+                              size: 20,
                               color: controller.statusAktif.value == "Diproses"
                                   ? const Color(0xFF003E79)
                                   : Colors.grey,
                             ),
-                          ),
-                        ],
+
+                            const SizedBox(width: 6),
+
+                            Text(
+                              "Diproses",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    controller.statusAktif.value == "Diproses"
+                                    ? const Color(0xFF003E79)
+                                    : Colors.grey,
+                              ),
+                            ),
+                            SizedBox(width: 18),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  /// DISETUJUI
-                  GestureDetector(
-                    onTap: () => controller.statusAktif.value = "Disetujui",
-                    child: Obx(
-                      () => Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            size: 20,
-                            color: controller.statusAktif.value == "Disetujui"
-                                ? const Color(0xFF003E79)
-                                : Colors.grey,
-                          ),
-
-                          const SizedBox(width: 6),
-
-                          Text(
-                            "Disetujui",
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                    /// DISETUJUI
+                    GestureDetector(
+                      onTap: () => controller.statusAktif.value = "Disetujui",
+                      child: Obx(
+                        () => Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              size: 20,
                               color: controller.statusAktif.value == "Disetujui"
                                   ? const Color(0xFF003E79)
                                   : Colors.grey,
                             ),
-                          ),
-                        ],
+
+                            const SizedBox(width: 6),
+
+                            Text(
+                              "Disetujui",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    controller.statusAktif.value == "Disetujui"
+                                    ? const Color(0xFF003E79)
+                                    : Colors.grey,
+                              ),
+                            ),
+                            SizedBox(width: 18),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  /// DITOLAK
-                  GestureDetector(
-                    onTap: () => controller.statusAktif.value = "Ditolak",
-                    child: Obx(
-                      () => Row(
-                        children: [
-                          Icon(
-                            Icons.cancel,
-                            size: 20,
-                            color: controller.statusAktif.value == "Ditolak"
-                                ? const Color(0xFF003E79)
-                                : Colors.grey,
-                          ),
-
-                          const SizedBox(width: 6),
-
-                          Text(
-                            "Ditolak",
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                    /// DITOLAK
+                    GestureDetector(
+                      onTap: () => controller.statusAktif.value = "Ditolak",
+                      child: Obx(
+                        () => Row(
+                          children: [
+                            Icon(
+                              Icons.cancel,
+                              size: 20,
                               color: controller.statusAktif.value == "Ditolak"
                                   ? const Color(0xFF003E79)
                                   : Colors.grey,
                             ),
-                          ),
-                        ],
+
+                            const SizedBox(width: 6),
+
+                            Text(
+                              "Ditolak",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: controller.statusAktif.value == "Ditolak"
+                                    ? const Color(0xFF003E79)
+                                    : Colors.grey,
+                              ),
+                            ),
+                            SizedBox(width: 18),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+
+                    /// DITUNDA
+                    GestureDetector(
+                      onTap: () => controller.statusAktif.value = "Ditunda",
+                      child: Obx(
+                        () => Row(
+                          children: [
+                            Icon(
+                              Icons.update,
+                              size: 20,
+                              color: controller.statusAktif.value == "Ditunda"
+                                  ? const Color(0xFF003E79)
+                                  : Colors.grey,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              "Ditunda",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: controller.statusAktif.value == "Ditunda"
+                                    ? const Color(0xFF003E79)
+                                    : Colors.grey,
+                              ),
+                            ),
+                            SizedBox(width: 18),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    /// DIREALISASIKAN
+                    GestureDetector(
+                      onTap: () =>
+                          controller.statusAktif.value = "Direalisasikan",
+                      child: Obx(
+                        () => Row(
+                          children: [
+                            Icon(
+                              Icons.verified,
+                              size: 20,
+                              color:
+                                  controller.statusAktif.value ==
+                                      "Direalisasikan"
+                                  ? const Color(0xFF003E79)
+                                  : Colors.grey,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              "Direalisasikan",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    controller.statusAktif.value ==
+                                        "Direalisasikan"
+                                    ? const Color(0xFF003E79)
+                                    : Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 0),
+
           Obx(() {
             /// 🔄 LOADING
             if (controller.isLoading.value) {

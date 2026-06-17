@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:musrenbang/services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:musrenbang/services/fcm_service.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
@@ -22,17 +23,27 @@ class LoginController extends GetxController {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
 
-  // Kalau sudah tidak pakai halaman admin login tersembunyi,
-  // bagian ini boleh dibiarkan dulu atau nanti dihapus.
-  void startAdminLoginTimer() {
-    adminLoginTimer?.cancel();
-    adminLoginTimer = Timer(const Duration(seconds: 3), () {
-      Get.toNamed(Routes.ADMIN_LOGIN);
-    });
-  }
-
   void cancelAdminLoginTimer() {
     adminLoginTimer?.cancel();
+  }
+
+  //
+  void clearLoginSessionOnly() {
+    final box = GetStorage();
+
+    box.remove("role");
+    box.remove("is_login");
+    box.remove("isAdminLogin");
+    box.remove("isUserLogin");
+
+    box.remove("admin_id");
+    box.remove("admin_name");
+    box.remove("admin_email");
+
+    box.remove("user_id");
+    box.remove("firebase_uid");
+    box.remove("email");
+    box.remove("nama");
   }
 
   void showMessage({
@@ -101,68 +112,79 @@ class LoginController extends GetxController {
   /// LOGIN UTAMA
   /// Admin dan user memakai form yang sama.
   Future<void> login() async {
-  if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  try {
-    isLoading.value = true;
+    try {
+      isLoading.value = true;
 
-    final adminBerhasil = await _cobaLoginAdmin();
+      final email = emailController.text.trim().toLowerCase();
 
-    if (adminBerhasil) {
-      return;
+      if (email == "admin@gmail.com" || email == "sekretaris@gmail.com") {
+        final adminBerhasil = await _cobaLoginAdmin();
+
+        if (!adminBerhasil) {
+          showMessage(
+            title: "Login Admin Gagal",
+            message: "Email atau password admin salah.",
+          );
+        }
+
+        return;
+      }
+
+      await _loginUserFirebase();
+    } finally {
+      isLoading.value = false;
     }
-
-    await _loginUserFirebase();
-  } finally {
-    isLoading.value = false;
   }
-}
 
   /// CEK LOGIN ADMIN LARAVEL DULU
   Future<bool> _cobaLoginAdmin() async {
-  final email = emailController.text.trim();
-  final password = passwordController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-  try {
-    final result = await ApiService.loginAdmin(
-      email: email,
-      password: password,
-    );
-
-    final statusCode = result["statusCode"];
-    final body = result["body"];
-
-    print("CEK ADMIN LOGIN RESPONSE: $body");
-
-    if (statusCode == 200 && body["success"] == true) {
-      final admin = body["data"];
-      final box = GetStorage();
-
-      await box.erase();
-
-      box.write("role", "admin");
-      box.write("isAdminLogin", true);
-      box.write("isUserLogin", false);
-      box.write("admin_id", admin["id"]);
-      box.write("admin_name", admin["name"]);
-      box.write("admin_email", admin["email"]);
-
-      showMessage(
-        title: "Login Berhasil",
-        message: "Selamat datang, Admin Desa.",
-        isSuccess: true,
+    try {
+      final result = await ApiService.loginAdmin(
+        email: email,
+        password: password,
       );
 
-      Get.offAllNamed(Routes.ADMIN);
-      return true;
-    }
+      final statusCode = result["statusCode"];
+      final body = result["body"];
 
-    return false;
-  } catch (e) {
-    print("ADMIN LOGIN CHECK FAILED: $e");
-    return false;
+      print("CEK ADMIN LOGIN RESPONSE: $body");
+
+      if (statusCode == 200 && body["success"] == true) {
+        final admin = body["data"];
+        final box = GetStorage();
+
+        clearLoginSessionOnly();
+
+        box.write("role", "admin");
+        box.write("is_login", true);
+        box.write("isAdminLogin", true);
+        box.write("isUserLogin", false);
+
+        box.write("admin_id", admin["id"]);
+        box.write("admin_name", admin["name"]);
+        box.write("admin_email", admin["email"]);
+
+        showMessage(
+          title: "Login Berhasil",
+          message: "Selamat datang, ${admin["name"]}.",
+          isSuccess: true,
+        );
+
+        Get.offAllNamed(Routes.ADMIN);
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      print("ADMIN LOGIN CHECK FAILED: $e");
+      return false;
+    }
   }
-}
 
   /// LOGIN USER FIREBASE
   Future<void> _loginUserFirebase() async {
@@ -171,10 +193,7 @@ class LoginController extends GetxController {
 
     try {
       UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+          .signInWithEmailAndPassword(email: email, password: password);
 
       User? user = userCredential.user;
 
@@ -186,9 +205,7 @@ class LoginController extends GetxController {
         return;
       }
 
-      final result = await ApiService.loginFirebase(
-        firebaseUid: user.uid,
-      );
+      final result = await ApiService.loginFirebase(firebaseUid: user.uid);
 
       final statusCode = result["statusCode"];
       final body = result["body"];
@@ -199,20 +216,41 @@ class LoginController extends GetxController {
         final dataUser = body["data"];
         final box = GetStorage();
 
-        await box.erase();
+        clearLoginSessionOnly();
 
         box.write("role", "user");
+        box.write("is_login", true);
         box.write("isUserLogin", true);
         box.write("isAdminLogin", false);
+
         box.write("user_id", dataUser["id"] ?? "");
         box.write("firebase_uid", dataUser["firebase_uid"] ?? user.uid);
         box.write("email", dataUser["email"] ?? user.email);
         box.write("nama", dataUser["nama"] ?? "");
 
-        final profilController = Get.put(
-          ProfilController(),
-          permanent: true,
-        );
+        // 🔥 TARUH DI SINI
+        print("USER ID DISIMPAN: ${box.read("user_id")}");
+        print("NAMA DISIMPAN: ${box.read("nama")}");
+        print("EMAIL DISIMPAN: ${box.read("email")}");
+
+        // 🔔 AMBIL TOKEN FCM
+        try {
+          final token = await FcmService.initFcm();
+          print("TOKEN USER LOGIN: $token");
+
+          if (token != null && token.isNotEmpty) {
+            final resultToken = await ApiService.saveFcmToken(
+              userId: dataUser["id"].toString(),
+              token: token,
+            );
+
+            print("SAVE TOKEN RESPONSE: $resultToken");
+          }
+        } catch (e) {
+          print("ERROR SAVE FCM TOKEN: $e");
+        }
+
+        final profilController = Get.put(ProfilController(), permanent: true);
 
         await profilController.loadProfile();
 
@@ -231,10 +269,7 @@ class LoginController extends GetxController {
           errorMessage = "Data akun belum ditemukan di sistem.";
         }
 
-        showMessage(
-          title: "Login Gagal",
-          message: errorMessage,
-        );
+        showMessage(title: "Login Gagal", message: errorMessage);
       }
     } on FirebaseAuthException catch (e) {
       String message = "Email atau password yang Anda masukkan salah.";
@@ -251,10 +286,7 @@ class LoginController extends GetxController {
         message = "Terlalu banyak percobaan login. Coba lagi beberapa saat.";
       }
 
-      showMessage(
-        title: "Login Gagal",
-        message: message,
-      );
+      showMessage(title: "Login Gagal", message: message);
     } catch (e) {
       print("ERROR LOGIN USER: $e");
 

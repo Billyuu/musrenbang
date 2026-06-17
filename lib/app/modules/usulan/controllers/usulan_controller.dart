@@ -11,6 +11,9 @@ class UsulanController extends GetxController {
   final judulController = TextEditingController();
   final permasalahanController = TextEditingController();
   final biayaController = TextEditingController();
+  final panjangController = TextEditingController();
+  final lebarController = TextEditingController();
+  final tinggiController = TextEditingController();
   final lokasiController = TextEditingController();
   final koordinatController = TextEditingController();
 
@@ -19,7 +22,8 @@ class UsulanController extends GetxController {
   var selectedTerdampak = "".obs;
   var selectedKerusakan = "".obs;
 
-  var selectedImage = Rx<File?>(null);
+  var selectedImageDepan = Rx<File?>(null);
+  var selectedImageBelakang = Rx<File?>(null);
   final ImagePicker _picker = ImagePicker();
 
   var isLoading = false.obs;
@@ -50,23 +54,84 @@ class UsulanController extends GetxController {
       ),
       messageText: Text(
         message,
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontSize: 13,
-        ),
+        style: GoogleFonts.poppins(color: Colors.white, fontSize: 13),
       ),
     );
   }
 
-  Future<void> pickImage() async {
-    final XFile? image = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 75,
-    );
+  Future<void> pickImageDepan() async {
+  final XFile? image = await _picker.pickImage(
+    source: ImageSource.gallery,
+    imageQuality: 70,
+    maxWidth: 1280,
+    maxHeight: 1280,
+  );
 
-    if (image != null) {
-      selectedImage.value = File(image.path);
+  if (image != null) {
+    final file = File(image.path);
+    final sizeInBytes = await file.length();
+    final sizeInMb = sizeInBytes / (1024 * 1024);
+
+    if (sizeInMb > 2) {
+      showMessage(
+        title: "Foto terlalu besar",
+        message: "Ukuran foto depan maksimal 2 MB.",
+      );
+      return;
     }
+
+    selectedImageDepan.value = file;
+  }
+}
+
+Future<void> pickImageBelakang() async {
+  final XFile? image = await _picker.pickImage(
+    source: ImageSource.gallery,
+    imageQuality: 70,
+    maxWidth: 1280,
+    maxHeight: 1280,
+  );
+
+  if (image != null) {
+    final file = File(image.path);
+    final sizeInBytes = await file.length();
+    final sizeInMb = sizeInBytes / (1024 * 1024);
+
+    if (sizeInMb > 2) {
+      showMessage(
+        title: "Foto terlalu besar",
+        message: "Ukuran foto belakang maksimal 2 MB.",
+      );
+      return;
+    }
+
+    selectedImageBelakang.value = file;
+  }
+}
+
+  //hitung volume
+  double? hitungVolume() {
+    final panjangText = panjangController.text.trim();
+    final lebarText = lebarController.text.trim();
+    final tinggiText = tinggiController.text.trim();
+
+    if (panjangText.isEmpty && lebarText.isEmpty && tinggiText.isEmpty) {
+      return null;
+    }
+
+    if (panjangText.isEmpty || lebarText.isEmpty || tinggiText.isEmpty) {
+      return null;
+    }
+
+    final panjang = double.tryParse(panjangText.replaceAll(',', '.'));
+    final lebar = double.tryParse(lebarText.replaceAll(',', '.'));
+    final tinggi = double.tryParse(tinggiText.replaceAll(',', '.'));
+
+    if (panjang == null || lebar == null || tinggi == null) {
+      return null;
+    }
+
+    return panjang * lebar * tinggi;
   }
 
   bool validateForm() {
@@ -125,6 +190,33 @@ class UsulanController extends GetxController {
       );
       return false;
     }
+    final panjang = panjangController.text.trim();
+    final lebar = lebarController.text.trim();
+    final tinggi = tinggiController.text.trim();
+
+    final adaInputVolume =
+        panjang.isNotEmpty || lebar.isNotEmpty || tinggi.isNotEmpty;
+
+    if (adaInputVolume) {
+      if (panjang.isEmpty || lebar.isEmpty || tinggi.isEmpty) {
+        showMessage(
+          title: "Data volume belum lengkap",
+          message:
+              "Jika ingin mengisi volume, panjang, lebar, dan tinggi harus diisi lengkap.",
+        );
+        return false;
+      }
+
+      if (double.tryParse(panjang.replaceAll(',', '.')) == null ||
+          double.tryParse(lebar.replaceAll(',', '.')) == null ||
+          double.tryParse(tinggi.replaceAll(',', '.')) == null) {
+        showMessage(
+          title: "Format volume tidak valid",
+          message: "Panjang, lebar, dan tinggi harus berupa angka.",
+        );
+        return false;
+      }
+    }
 
     if (lokasiController.text.trim().isEmpty) {
       showMessage(
@@ -142,13 +234,21 @@ class UsulanController extends GetxController {
       return false;
     }
 
-    if (selectedImage.value == null) {
-      showMessage(
-        title: "Foto belum dipilih",
-        message: "Silakan unggah foto pendukung usulan.",
-      );
-      return false;
-    }
+   if (selectedImageDepan.value == null) {
+  showMessage(
+    title: "Foto depan belum dipilih",
+    message: "Silakan unggah foto tampak depan. Maksimal 2 MB.",
+  );
+  return false;
+}
+
+if (selectedImageBelakang.value == null) {
+  showMessage(
+    title: "Foto belakang belum dipilih",
+    message: "Silakan unggah foto tampak belakang. Maksimal 2 MB.",
+  );
+  return false;
+}
 
     return true;
   }
@@ -170,8 +270,11 @@ class UsulanController extends GetxController {
         return;
       }
 
+      final volume = hitungVolume();
+
       Map<String, String> body = {
         "user_id": userId.toString(),
+        "jenis_usulan": "fisik",
         "judul_usulan": judulController.text.trim(),
         "permasalahan": permasalahanController.text.trim(),
         "dusun": selectedDusun.value,
@@ -181,12 +284,24 @@ class UsulanController extends GetxController {
         "biaya": biayaController.text.trim().replaceAll('.', ''),
         "lokasi_detail": lokasiController.text.trim(),
         "koordinat": koordinatController.text.trim(),
+
+        "panjang": panjangController.text.trim().isEmpty
+            ? ""
+            : panjangController.text.trim().replaceAll(',', '.'),
+        "lebar": lebarController.text.trim().isEmpty
+            ? ""
+            : lebarController.text.trim().replaceAll(',', '.'),
+        "tinggi": tinggiController.text.trim().isEmpty
+            ? ""
+            : tinggiController.text.trim().replaceAll(',', '.'),
+        "volume": volume == null ? "" : volume.toStringAsFixed(2),
       };
 
-      var result = await ApiService.simpanUsulan(
-        data: body,
-        foto: selectedImage.value,
-      );
+    var result = await ApiService.simpanUsulan(
+  data: body,
+  fotoDepan: selectedImageDepan.value,
+  fotoBelakang: selectedImageBelakang.value,
+);
 
       if (result['statusCode'] == 200 || result['statusCode'] == 201) {
         showMessage(
@@ -200,7 +315,8 @@ class UsulanController extends GetxController {
       } else {
         showMessage(
           title: "Usulan Gagal Dikirim",
-          message: result['body']['message'] ?? "Terjadi kesalahan pada server.",
+          message:
+              result['body']['message'] ?? "Terjadi kesalahan pada server.",
         );
       }
     } catch (e) {
@@ -217,6 +333,9 @@ class UsulanController extends GetxController {
     judulController.clear();
     permasalahanController.clear();
     biayaController.clear();
+    panjangController.clear();
+    lebarController.clear();
+    tinggiController.clear();
     lokasiController.clear();
     koordinatController.clear();
 
@@ -224,7 +343,8 @@ class UsulanController extends GetxController {
     selectedUrgensi.value = "";
     selectedTerdampak.value = "";
     selectedKerusakan.value = "";
-    selectedImage.value = null;
+   selectedImageDepan.value = null;
+selectedImageBelakang.value = null;
   }
 
   @override
@@ -232,6 +352,9 @@ class UsulanController extends GetxController {
     judulController.dispose();
     permasalahanController.dispose();
     biayaController.dispose();
+    panjangController.dispose();
+    lebarController.dispose();
+    tinggiController.dispose();
     lokasiController.dispose();
     koordinatController.dispose();
     super.onClose();

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:musrenbang/app/routes/app_pages.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
@@ -41,7 +40,7 @@ class RegistrasiView extends GetView<RegistrasiController> {
                   const SizedBox(height: 8),
 
                   Text(
-                    "Silahkan daftar menggunakan data sesuai KTP Anda!.",
+                    "Silahkan daftar menggunakan Email aktif dan data sesuai KTP Anda!.",
                     style: GoogleFonts.poppins(
                       color: Colors.white.withOpacity(0.9),
                       fontSize: 13,
@@ -302,12 +301,10 @@ class RegistrasiView extends GetView<RegistrasiController> {
 
                     const SizedBox(height: 15),
 
-                    /// PHONE
                     TextField(
                       controller: controller.phoneController,
                       keyboardType: TextInputType.phone,
                       cursorColor: const Color(0xFF003E79),
-
                       style: GoogleFonts.poppins(fontSize: 14),
 
                       decoration: InputDecoration(
@@ -320,6 +317,18 @@ class RegistrasiView extends GetView<RegistrasiController> {
                           size: 22,
                         ),
 
+                        prefix: Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Text(
+                            "+62",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+
                         filled: true,
                         fillColor: const Color(0xffF5F7FA),
 
@@ -329,7 +338,6 @@ class RegistrasiView extends GetView<RegistrasiController> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 15),
 
                     /// PASSWORD
@@ -419,47 +427,47 @@ class RegistrasiView extends GetView<RegistrasiController> {
 
                     const SizedBox(height: 30),
 
-                   /// BUTTON
-Obx(
-  () => SizedBox(
-    width: double.infinity,
-    height: 54,
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF003E79),
-        disabledBackgroundColor: const Color(0xFF003E79),
-        disabledForegroundColor: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-      onPressed: controller.isLoading.value
-          ? null
-          : () {
-              FocusScope.of(context).unfocus();
-              controller.register();
-            },
-      child: controller.isLoading.value
-          ? const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : Text(
-              "Daftar",
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-    ),
-  ),
-),
+                    /// BUTTON
+                    Obx(
+                      () => SizedBox(
+                        width: double.infinity,
+                        height: 54,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF003E79),
+                            disabledBackgroundColor: const Color(0xFF003E79),
+                            disabledForegroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : () {
+                                  FocusScope.of(context).unfocus();
+                                  controller.register();
+                                },
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(
+                                  "Daftar",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
 
                     const SizedBox(height: 20),
 

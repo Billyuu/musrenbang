@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 void main() async {
-  final url = Uri.parse('http://127.0.0.1:8000/api/login');
-  final body = jsonEncode({"nik": "3578123456789001", "password": "123456"});
+  final url = Uri.parse('https://api.musrenyuk.shop/api/v1/user/profile');
+  final body = jsonEncode({"user_id": '2'});
   try {
     final response = await http.post(
       url,

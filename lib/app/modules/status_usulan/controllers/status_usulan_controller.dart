@@ -8,7 +8,44 @@ class StatusUsulanController extends GetxController {
   var dataUsulan = <dynamic>[].obs;
   var errorMessage = "".obs;
 
-  //id_user
+  // =============================
+  // 📌 KATEGORI FISIK / NON FISIK
+  // =============================
+ var kategoriAktif = "Fisik".obs;
+
+  void pilihKategori(String kategori) {
+    kategoriAktif.value = kategori;
+  }
+
+  int get totalFisik {
+    return dataUsulan.where((item) {
+      final jenis = item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "";
+      return jenis == "fisik";
+    }).length;
+  }
+
+  int get totalNonFisik {
+    return dataUsulan.where((item) {
+      final jenis = item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "";
+      return jenis == "non_fisik";
+    }).length;
+  }
+
+  List<dynamic> get filteredUsulan {
+    return dataUsulan.where((item) {
+      final jenis = item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "";
+
+      if (kategoriAktif.value == "Fisik") {
+        return jenis == "fisik";
+      }
+
+      return jenis == "non_fisik";
+    }).toList();
+  }
+
+  // =============================
+  // 👤 USER ID
+  // =============================
   final box = GetStorage();
 
   int get userId => box.read("user_id") ?? 0;
@@ -36,6 +73,10 @@ class StatusUsulanController extends GetxController {
 
       if (result['statusCode'] == 200) {
         dataUsulan.value = result['body']['data'] ?? [];
+
+        print("TOTAL DATA: ${dataUsulan.length}");
+        print("TOTAL FISIK: $totalFisik");
+        print("TOTAL NON FISIK: $totalNonFisik");
       } else {
         errorMessage.value =
             result['body']['message'] ?? "Gagal mengambil data";
@@ -51,18 +92,14 @@ class StatusUsulanController extends GetxController {
   }
 
   // =============================
-  // 🔄 REFRESH (PULL TO REFRESH)
+  // 🔄 REFRESH
   // =============================
   Future<void> refreshData() async {
     await getUsulan();
   }
 
   // =============================
-  // 📊 HELPER (OPTIONAL)
+  // 📊 HELPER
   // =============================
   bool get isEmpty => dataUsulan.isEmpty;
-
-  get statusAktif => null;
-
-  get filteredUsulan => null;
 }

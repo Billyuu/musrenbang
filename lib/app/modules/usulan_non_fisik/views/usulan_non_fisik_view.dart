@@ -177,34 +177,183 @@ class UsulanNonFisikView extends GetView<UsulanNonFisikController> {
     );
   }
 
-  Widget _infoBox() {
-    return Container(
+  void _showKonfirmasiSimpan(BuildContext context) {
+  Get.bottomSheet(
+    Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF3FC),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFD6E8F8)),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(28),
+        ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Iconsax.info_circle_copy, color: primaryColor, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              "Usulan non fisik digunakan untuk pengajuan seperti pelatihan, bantuan sosial, pendidikan, kesehatan, UMKM, atau program pemberdayaan masyarakat.",
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: Colors.black87,
-                height: 1.5,
-              ),
+          Container(
+            width: 42,
+            height: 5,
+            margin: const EdgeInsets.only(bottom: 18),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(10),
             ),
+          ),
+
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(
+              Icons.fact_check_rounded,
+              size: 34,
+              color: primaryColor,
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          Text(
+            "Periksa Usulan Anda",
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: primaryColor,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            "Pastikan data usulan non-fisik sudah sesuai sebelum dikirim. Data yang sudah dikirim akan diproses oleh admin.",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              height: 1.5,
+              color: Colors.grey.shade600,
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          _konfirmasiItem(
+            icon: Icons.check_circle_outline_rounded,
+            text: "Judul dan permasalahan sudah jelas.",
+          ),
+          _konfirmasiItem(
+            icon: Icons.check_circle_outline_rounded,
+            text: "Tingkat kebutuhan, penerima manfaat, dan bidang usulan sudah sesuai.",
+          ),
+          _konfirmasiItem(
+            icon: Icons.check_circle_outline_rounded,
+            text: "Estimasi biaya dan lokasi/sasaran sudah benar.",
+          ),
+          _konfirmasiItem(
+            icon: Icons.warning_amber_rounded,
+            text: "Usulan tidak mengandung kata kasar, hinaan, SARA, atau data palsu.",
+          ),
+
+          const SizedBox(height: 24),
+
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 50,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.grey.shade300),
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      "Cek Lagi",
+                      style: GoogleFonts.poppins(
+                        color: Colors.black87,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.back();
+                      controller.simpanUsulanNonFisik();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      "Ya, Simpan",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
-    );
-  }
+    ),
+    isScrollControlled: true,
+    ignoreSafeArea: false,
+  );
+}
+
+Widget _konfirmasiItem({
+  required IconData icon,
+  required String text,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: primaryColor,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.poppins(
+              fontSize: 12.5,
+              height: 1.5,
+              color: Colors.grey.shade700,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +361,7 @@ class UsulanNonFisikView extends GetView<UsulanNonFisikController> {
       appBar: AppBar(
         titleSpacing: 0,
         title: Text(
-          'Usulan Non Fisik',
+          'Pengajuan Usulan Non Fisik',
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontSize: 17,
@@ -234,7 +383,7 @@ class UsulanNonFisikView extends GetView<UsulanNonFisikController> {
                 Get.toNamed(Routes.NOTIF);
               },
               icon: const Icon(
-                Icons.notifications_none_rounded,
+                Icons.help_outline,
                 color: Colors.white,
                 size: 25,
               ),
@@ -248,12 +397,6 @@ class UsulanNonFisikView extends GetView<UsulanNonFisikController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-
-            _infoBox(),
-
-            const SizedBox(height: 18),
-
             /// Dusun
             _dusunDropdown(),
 
@@ -293,21 +436,11 @@ class UsulanNonFisikView extends GetView<UsulanNonFisikController> {
             ),
 
             const SizedBox(height: 15),
-
-            /// Dampak Sosial
+            //bidang usulan
             _dropdownField(
-              hintText: "Pilih dampak sosial",
-              items: controller.opsiDampakSosial,
-              selectedValue: controller.dampakSosial,
-            ),
-
-            const SizedBox(height: 15),
-
-            /// Kelayakan Pelaksanaan
-            _dropdownField(
-              hintText: "Pilih kelayakan pelaksanaan",
-              items: controller.opsiKelayakan,
-              selectedValue: controller.kelayakanPelaksanaan,
+              hintText: "Bidang Usulan",
+              items: controller.opsiBidangUsulan,
+              selectedValue: controller.bidangUsulan,
             ),
 
             const SizedBox(height: 15),
@@ -315,7 +448,7 @@ class UsulanNonFisikView extends GetView<UsulanNonFisikController> {
             /// Biaya
             _textField(
               textController: controller.biayaC,
-              hintText: "Masukkan estimasi biaya (opsional)",
+              hintText: "Masukkan estimasi biaya",
               keyboardType: TextInputType.number,
               prefixText: "Rp ",
             ),
@@ -418,12 +551,15 @@ class UsulanNonFisikView extends GetView<UsulanNonFisikController> {
                       borderRadius: BorderRadius.circular(25),
                     ),
                   ),
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () {
-                          FocusScope.of(context).unfocus();
-                          controller.simpanUsulanNonFisik();
-                        },
+                 onPressed: controller.isLoading.value
+    ? null
+    : () {
+        FocusScope.of(context).unfocus();
+
+        if (controller.validateForm()) {
+          _showKonfirmasiSimpan(context);
+        }
+      },
                   child: controller.isLoading.value
                       ? const SizedBox(
                           width: 22,

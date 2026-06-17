@@ -17,104 +17,42 @@ class UsulanNonFisikController extends GetxController {
 
   var tingkatKebutuhan = "".obs;
   var jumlahPenerimaManfaat = "".obs;
-  var dampakSosial = "".obs;
-  var kelayakanPelaksanaan = "".obs;
+  var bidangUsulan = "".obs;
 
   var selectedImage = Rx<File?>(null);
   final ImagePicker _picker = ImagePicker();
 
   var isLoading = false.obs;
-final List<Map<String, String>> opsiTingkatKebutuhan = [
-  {
-    'value': 'Sangat Dibutuhkan',
-    'label': 'Sangat Dibutuhkan',
-  },
-  {
-    'value': 'Dibutuhkan',
-    'label': 'Dibutuhkan',
-  },
-  {
-    'value': 'Cukup Dibutuhkan',
-    'label': 'Cukup Dibutuhkan',
-  },
-  {
-    'value': 'Kurang Dibutuhkan',
-    'label': 'Kurang Dibutuhkan',
-  },
-  {
-    'value': 'Tidak Terlalu Dibutuhkan',
-    'label': 'Tidak Terlalu Dibutuhkan',
-  },
-];
+  final List<Map<String, String>> opsiTingkatKebutuhan = [
+    {'value': 'Sangat Dibutuhkan', 'label': 'Sangat Dibutuhkan'},
+    {'value': 'Dibutuhkan', 'label': 'Dibutuhkan'},
+    {'value': 'Cukup Dibutuhkan', 'label': 'Cukup Dibutuhkan'},
+    {'value': 'Kurang Dibutuhkan', 'label': 'Kurang Dibutuhkan'},
+    {'value': 'Tidak Terlalu Dibutuhkan', 'label': 'Tidak Terlalu Dibutuhkan'},
+  ];
 
-final List<Map<String, String>> opsiPenerimaManfaat = [
-  {
-    'value': 'Sangat Banyak (> 200 orang)',
-    'label': 'Sangat Banyak (> 200 orang)',
-  },
-  {
-    'value': 'Banyak (101 - 200 orang)',
-    'label': 'Banyak (101 - 200 orang)',
-  },
-  {
-    'value': 'Sedang (51 - 100 orang)',
-    'label': 'Sedang (51 - 100 orang)',
-  },
-  {
-    'value': 'Sedikit (21 - 50 orang)',
-    'label': 'Sedikit (21 - 50 orang)',
-  },
-  {
-    'value': 'Sangat Sedikit (1 - 20 orang)',
-    'label': 'Sangat Sedikit (1 - 20 orang)',
-  },
-];
+  final List<Map<String, String>> opsiPenerimaManfaat = [
+    {
+      'value': 'Sangat Banyak (> 80 orang)',
+      'label': 'Sangat Banyak (> 80 orang)',
+    },
+    {'value': 'Banyak (51 - 80 orang)', 'label': 'Banyak (51 - 80 orang)'},
+    {'value': 'Sedang (31 - 50 orang)', 'label': 'Sedang (31 - 50 orang)'},
+    {'value': 'Sedikit (11 - 30 orang)', 'label': 'Sedikit (11 - 30 orang)'},
+    {
+      'value': 'Sangat Sedikit (1 - 10 orang)',
+      'label': 'Sangat Sedikit (1 - 10 orang)',
+    },
+  ];
 
-final List<Map<String, String>> opsiDampakSosial = [
-  {
-    'value': 'Sangat Berdampak',
-    'label': 'Sangat Berdampak',
-  },
-  {
-    'value': 'Berdampak',
-    'label': 'Berdampak',
-  },
-  {
-    'value': 'Cukup Berdampak',
-    'label': 'Cukup Berdampak',
-  },
-  {
-    'value': 'Kurang Berdampak',
-    'label': 'Kurang Berdampak',
-  },
-  {
-    'value': 'Tidak Terlalu Berdampak',
-    'label': 'Tidak Terlalu Berdampak',
-  },
-];
+  final List<Map<String, String>> opsiBidangUsulan = [
+    {'value': 'Kesehatan', 'label': 'Kesehatan'},
+    {'value': 'Sosial/Kesejahteraan', 'label': 'Sosial/Kesejahteraan'},
+    {'value': 'UMKM/Ekonomi', 'label': 'UMKM/Ekonomi'},
+    {'value': 'Pendidikan', 'label': 'Pendidikan'},
+    {'value': 'Pemberdayaan Masyarakat', 'label': 'Pemberdayaan Masyarakat'},
+  ];
 
-final List<Map<String, String>> opsiKelayakan = [
-  {
-    'value': 'Sangat Layak',
-    'label': 'Sangat Layak',
-  },
-  {
-    'value': 'Layak',
-    'label': 'Layak',
-  },
-  {
-    'value': 'Cukup Layak',
-    'label': 'Cukup Layak',
-  },
-  {
-    'value': 'Kurang Layak',
-    'label': 'Kurang Layak',
-  },
-  {
-    'value': 'Tidak Layak',
-    'label': 'Tidak Layak',
-  },
-];
   void showMessage({
     required String title,
     required String message,
@@ -197,23 +135,23 @@ final List<Map<String, String>> opsiKelayakan = [
       );
       return false;
     }
-
-    if (dampakSosial.value.isEmpty) {
+    if (bidangUsulan.value.isEmpty) {
       showMessage(
-        title: "Dampak sosial belum dipilih",
-        message: "Silakan pilih dampak sosial dari usulan.",
+        title: "Bidang usulan belum dipilih",
+        message: "Silakan pilih bidang usulan.",
       );
       return false;
     }
 
-    if (kelayakanPelaksanaan.value.isEmpty) {
+    final biayaBersih = biayaC.text.trim().replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (biayaBersih.isEmpty) {
       showMessage(
-        title: "Kelayakan belum dipilih",
-        message: "Silakan pilih kelayakan pelaksanaan usulan.",
+        title: "Biaya belum diisi",
+        message: "Silakan masukkan estimasi biaya usulan.",
       );
       return false;
     }
-
 
     if (lokasiC.text.trim().isEmpty) {
       showMessage(
@@ -222,8 +160,6 @@ final List<Map<String, String>> opsiKelayakan = [
       );
       return false;
     }
-
-   
 
     return true;
   }
@@ -245,7 +181,7 @@ final List<Map<String, String>> opsiKelayakan = [
         return;
       }
 
-     final biayaBersih = biayaC.text.trim().replaceAll(RegExp(r'[^0-9]'), '');
+      final biayaBersih = biayaC.text.trim().replaceAll(RegExp(r'[^0-9]'), '');
 
       Map<String, String> body = {
         "user_id": userId.toString(),
@@ -257,31 +193,23 @@ final List<Map<String, String>> opsiKelayakan = [
         // Kriteria non fisik
         "tingkat_kebutuhan": tingkatKebutuhan.value,
         "jumlah_penerima_manfaat": jumlahPenerimaManfaat.value,
-        "dampak_sosial": dampakSosial.value,
-        "kelayakan_pelaksanaan": kelayakanPelaksanaan.value,
-
+        "bidang_usulan": bidangUsulan.value,
+        "biaya": biayaBersih,
         // Data umum
-        
         "lokasi_detail": lokasiC.text.trim(),
-
-        
       };
-      
-// Biaya opsional, hanya dikirim kalau diisi
-if (biayaBersih.isNotEmpty) {
-  body["biaya"] = biayaBersih;
-}
 
       print("===== BODY NON FISIK SEBELUM DIKIRIM =====");
       print(body);
       print("TINGKAT KEBUTUHAN: ${tingkatKebutuhan.value}");
       print("JUMLAH PENERIMA MANFAAT: ${jumlahPenerimaManfaat.value}");
-      print("DAMPAK SOSIAL: ${dampakSosial.value}");
-      print("KELAYAKAN: ${kelayakanPelaksanaan.value}");
+      print("BIDANG USULAN: ${bidangUsulan.value}");
+      print("BIAYA: $biayaBersih");
 
       var result = await ApiService.simpanUsulan(
         data: body,
-        foto: selectedImage.value,
+        fotoDepan: selectedImage.value,
+        fotoBelakang: null,
       );
 
       if (result['statusCode'] == 200 || result['statusCode'] == 201) {
@@ -323,8 +251,7 @@ if (biayaBersih.isNotEmpty) {
 
     tingkatKebutuhan.value = "";
     jumlahPenerimaManfaat.value = "";
-    dampakSosial.value = "";
-    kelayakanPelaksanaan.value = "";
+    bidangUsulan.value = "";
     selectedImage.value = null;
   }
 

@@ -4,9 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 
 class ApiService {
-  static const String baseUrl =
-      "http://192.168.110.204/api_musrenbang/public/api";
- 
+  static const String host = "https://api.musrenyuk.shop";
+  static const String baseUrl = "$host/api/v1";
+
+  static String getFotoUsulan(String fileName) {
+    final url = "$host/storage/usulans/$fileName";
+    print("URL FOTO USULAN: $url");
+    return url;
+  }
+
   // LOGIN FIREBASE KE LARAVEL
   static Future<Map<String, dynamic>> loginFirebase({
     required String firebaseUid,
@@ -85,6 +91,27 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> getProfile(int userId) async {
+    final url = Uri.parse("$baseUrl/user/profile");
+
+    final response = await http.post(
+      url,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({"user_id": userId.toString()}),
+    );
+
+    print("PROFILE STATUS: ${response.statusCode}");
+    print("PROFILE BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
+
   // GET FOTO PROFILE
   static Future<String?> getProfileFoto() async {
     try {
@@ -93,7 +120,7 @@ class ApiService {
       print("GET PROFILE USER ID: ${box.read("user_id")}");
 
       final res = await http.post(
-        Uri.parse("$baseUrl/profile"),
+        Uri.parse("$baseUrl/user/profile"),
         headers: {"Accept": "application/json"},
         body: {"user_id": box.read("user_id").toString()},
       );
@@ -112,25 +139,21 @@ class ApiService {
     return null;
   }
 
-  // Upload Foto Profil (Versi Debug)
+  // Upload Foto Profil
   static Future<String?> uploadFoto(File file) async {
     try {
       final box = GetStorage();
 
-      var uri = Uri.parse("$baseUrl/update-foto");
+      var uri = Uri.parse("$baseUrl/user/update-foto");
       var request = http.MultipartRequest("POST", uri);
 
       request.headers.addAll({"Accept": "application/json"});
 
-      // 🔥 KIRIM USER ID
       request.fields['user_id'] = box.read("user_id").toString();
-      print("UPLOAD USER ID: ${box.read("user_id")}");
 
-      // 🔥 KIRIM FOTO
       request.files.add(await http.MultipartFile.fromPath('foto', file.path));
 
       var response = await request.send();
-
       var resBody = await response.stream.bytesToString();
 
       print("STATUS UPLOAD: ${response.statusCode}");
@@ -138,7 +161,6 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var data = json.decode(resBody);
-
         return data['data']['foto_url'];
       }
 
@@ -154,9 +176,13 @@ class ApiService {
     final box = GetStorage();
 
     var response = await http.post(
-      Uri.parse("$baseUrl/update-alamat"),
+      Uri.parse("$baseUrl/user/update-alamat"),
+      headers: {"Accept": "application/json"},
       body: {"user_id": box.read("user_id").toString(), "alamat": alamat},
     );
+
+    print("STATUS UPDATE ALAMAT: ${response.statusCode}");
+    print("BODY UPDATE ALAMAT: ${response.body}");
 
     return response.statusCode == 200;
   }
@@ -166,89 +192,71 @@ class ApiService {
     final box = GetStorage();
 
     final response = await http.post(
-      Uri.parse("$baseUrl/update-nohp"),
+      Uri.parse("$baseUrl/user/update-nohp"),
+      headers: {"Accept": "application/json"},
       body: {"user_id": box.read("user_id").toString(), "nomor_telepon": noHp},
     );
 
-    print("STATUS: ${response.statusCode}");
-    print("BODY: ${response.body}");
+    print("STATUS UPDATE NO HP: ${response.statusCode}");
+    print("BODY UPDATE NO HP: ${response.body}");
 
     return response.statusCode == 200;
   }
 
-  static Future<Map<String, dynamic>> getProfile(int userId) async {
-    final url = Uri.parse("$baseUrl/profile");
-
-    final response = await http.post(
-      url,
-      headers: {"Accept": "application/json"},
-      body: {"user_id": userId.toString()},
-    );
-
-    print("PROFILE BODY: ${response.body}");
-
-    return {
-      "statusCode": response.statusCode,
-      "body": jsonDecode(response.body),
-    };
-  }
-
   // SIMPAN USULAN FISIK / NON FISIK
-static Future<Map<String, dynamic>> simpanUsulan({
-  required Map<String, String> data,
-  File? foto,
-}) async {
-  try {
-    var uri = Uri.parse("$baseUrl/usulan");
-    var request = http.MultipartRequest("POST", uri);
+  static Future<Map<String, dynamic>> simpanUsulan({
+    required Map<String, String> data,
+    File? fotoDepan,
+    File? fotoBelakang,
+  }) async {
+    try {
+      var uri = Uri.parse("$baseUrl/usulan");
+      var request = http.MultipartRequest("POST", uri);
 
-    request.headers.addAll({
-      "Accept": "application/json",
-    });
+      request.headers.addAll({"Accept": "application/json"});
 
-    // Masukkan semua data teks
-    request.fields.addAll(data);
+      request.fields.addAll(data);
 
-    // Foto hanya dikirim jika ada
-    // Untuk usulan fisik: biasanya wajib
-    // Untuk usulan non fisik: boleh kosong
-    if (foto != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'foto_usulan',
-          foto.path,
-        ),
-      );
+      if (fotoDepan != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath('foto_usulan', fotoDepan.path),
+        );
+      }
+
+      if (fotoBelakang != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'foto_usulan_belakang',
+            fotoBelakang.path,
+          ),
+        );
+      }
+
+      print("===== DATA USULAN DIKIRIM =====");
+      print(request.fields);
+      print("FOTO DEPAN ADA: ${fotoDepan != null}");
+      print("FOTO BELAKANG ADA: ${fotoBelakang != null}");
+      print("ENDPOINT: $uri");
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print("LOG API STATUS: ${response.statusCode}");
+      print("LOG API BODY: ${response.body}");
+
+      return {
+        "statusCode": response.statusCode,
+        "body": jsonDecode(response.body),
+      };
+    } catch (e) {
+      print("Error ApiService simpanUsulan: $e");
+
+      return {
+        "statusCode": 500,
+        "body": {"success": false, "message": "Gagal terhubung ke server"},
+      };
     }
-
-    // Log debugging
-    print("===== DATA USULAN DIKIRIM =====");
-    print(request.fields);
-    print("FOTO ADA: ${foto != null}");
-    print("ENDPOINT: $uri");
-
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-
-    print("LOG API STATUS: ${response.statusCode}");
-    print("LOG API BODY: ${response.body}");
-
-    return {
-      "statusCode": response.statusCode,
-      "body": jsonDecode(response.body),
-    };
-  } catch (e) {
-    print("Error ApiService simpanUsulan: $e");
-
-    return {
-      "statusCode": 500,
-      "body": {
-        "success": false,
-        "message": "Gagal terhubung ke server",
-      },
-    };
   }
-}
 
   // AMBIL DATA USULAN
   static Future<Map<String, dynamic>> getUsulan(int userId) async {
@@ -267,7 +275,7 @@ static Future<Map<String, dynamic>> simpanUsulan({
 
   // AMBIL DETAIL USULAN BERDASARKAN ID USULAN
   static Future<Map<String, dynamic>> getDetailUsulan(int idUsulan) async {
-    final url = Uri.parse("$baseUrl/usulan-detail/$idUsulan");
+    final url = Uri.parse("$baseUrl/usulan/detail/$idUsulan");
 
     final response = await http.get(
       url,
@@ -281,13 +289,6 @@ static Future<Map<String, dynamic>> simpanUsulan({
       "statusCode": response.statusCode,
       "body": jsonDecode(response.body),
     };
-  } // URL FOTO USULAN
-
-  static const String publicUrl =
-      "http://192.168.150.168/api_musrenbang/public";
-
-  static String getFotoUsulan(String fileName) {
-    return "$publicUrl/storage/usulans/$fileName";
   }
 
   ///ADMIN
@@ -326,35 +327,35 @@ static Future<Map<String, dynamic>> simpanUsulan({
   }
 
   //terima usulan
- // TERIMA USULAN ADMIN
-static Future<Map<String, dynamic>> terimaUsulanAdmin({
-  required int id,
-  required String biayaFinal,
-  required String tahunRealisasi,
-  required double skorAhp,
-}) async {
-  final response = await http.post(
-    Uri.parse("$baseUrl/admin/usulan/$id/terima"),
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-    },
-    body: jsonEncode({
-      "biaya_final": biayaFinal,
-      "tahun_realisasi": tahunRealisasi,
-      "skor_ahp": double.parse(skorAhp.toStringAsFixed(4)),
-    }),
-  );
+  // TERIMA USULAN ADMIN
+  static Future<Map<String, dynamic>> terimaUsulanAdmin({
+    required int id,
+    required String biayaFinal,
+    required String tahunRealisasi,
+    required double skorAhp,
+  }) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/admin/usulan/$id/terima"),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "biaya_final": biayaFinal,
+        "tahun_realisasi": tahunRealisasi,
+        "skor_ahp": double.parse(skorAhp.toStringAsFixed(4)),
+      }),
+    );
 
-  print("TERIMA USULAN STATUS: ${response.statusCode}");
-  print("TERIMA USULAN BODY: ${response.body}");
-  print("SKOR AHP DIKIRIM: ${skorAhp.toStringAsFixed(4)}");
+    print("TERIMA USULAN STATUS: ${response.statusCode}");
+    print("TERIMA USULAN BODY: ${response.body}");
+    print("SKOR AHP DIKIRIM: ${skorAhp.toStringAsFixed(4)}");
 
-  return {
-    "statusCode": response.statusCode,
-    "body": jsonDecode(response.body),
-  };
-}
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
+  }
 
   // tolak usulan
   static Future<Map<String, dynamic>> tolakUsulanAdmin({
@@ -388,47 +389,68 @@ static Future<Map<String, dynamic>> terimaUsulanAdmin({
     };
   }
 
-  // LOGIN ADMIN
-static Future<Map<String, dynamic>> loginAdmin({
-  required String email,
-  required String password,
-}) async {
-  final url = Uri.parse("$baseUrl/admin/login");
+  //tunda
+  static Future<Map<String, dynamic>> tundaUsulan({
+    required int id,
+    required String tahun,
+    required String catatan,
+  }) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/admin/usulan/$id/tunda"),
+      headers: {"Accept": "application/json"},
+      body: {"tahun_realisasi": tahun, "catatan_penundaan": catatan},
+    );
 
-  try {
-    final response = await http
-        .post(
-          url,
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-          },
-          body: jsonEncode({
-            "email": email,
-            "password": password,
-          }),
-        )
-        .timeout(const Duration(seconds: 5));
-
-    print("ADMIN LOGIN STATUS: ${response.statusCode}");
-    print("ADMIN LOGIN BODY: ${response.body}");
+    print("TUNDA URL: $baseUrl/admin/usulan/$id/tunda");
+    print("TUNDA STATUS: ${response.statusCode}");
+    print("TUNDA BODY: ${response.body}");
 
     return {
       "statusCode": response.statusCode,
-      "body": jsonDecode(response.body),
-    };
-  } catch (e) {
-    print("ERROR API LOGIN ADMIN: $e");
-
-    return {
-      "statusCode": 500,
-      "body": {
-        "success": false,
-        "message": "Gagal terhubung ke server admin",
-      },
+      "body": response.body.isNotEmpty && response.body.trim().startsWith("{")
+          ? jsonDecode(response.body)
+          : {"message": response.body},
     };
   }
-}
+
+  // LOGIN ADMIN
+  static Future<Map<String, dynamic>> loginAdmin({
+    required String email,
+    required String password,
+  }) async {
+    final url = Uri.parse("$baseUrl/admin/login");
+
+    try {
+      final response = await http
+          .post(
+            url,
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+            },
+            body: jsonEncode({"email": email, "password": password}),
+          )
+          .timeout(const Duration(seconds: 5));
+
+      print("ADMIN LOGIN STATUS: ${response.statusCode}");
+      print("ADMIN LOGIN BODY: ${response.body}");
+
+      return {
+        "statusCode": response.statusCode,
+        "body": jsonDecode(response.body),
+      };
+    } catch (e) {
+      print("ERROR API LOGIN ADMIN: $e");
+
+      return {
+        "statusCode": 500,
+        "body": {
+          "success": false,
+          "message": "Gagal terhubung ke server admin",
+        },
+      };
+    }
+  }
 
   // AMBIL DATA HASIL MUSRENBANG / USULAN DISETUJUI
   static Future<Map<String, dynamic>> getHasilMusrenbang() async {
@@ -445,6 +467,59 @@ static Future<Map<String, dynamic>> loginAdmin({
     return {
       "statusCode": response.statusCode,
       "body": jsonDecode(response.body),
+    };
+  }
+
+  // realisasi
+  static Future<Map<String, dynamic>> realisasiUsulan({
+    required int id,
+    required String tahun,
+  }) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/admin/usulan/$id/realisasi"),
+      headers: {"Accept": "application/json"},
+      body: {"tahun_realisasi": tahun},
+    );
+
+    print("REALISASI URL: $baseUrl/admin/usulan/$id/realisasi");
+    print("REALISASI STATUS: ${response.statusCode}");
+    print("REALISASI BODY: ${response.body}");
+
+    return {
+      "statusCode": response.statusCode,
+      "body": response.body.isNotEmpty && response.body.trim().startsWith("{")
+          ? jsonDecode(response.body)
+          : {"message": response.body},
+    };
+  }
+
+  //notifikasi
+  static Future<Map<String, dynamic>> saveFcmToken({
+    required String userId,
+    required String token,
+  }) async {
+    final url = Uri.parse("$baseUrl/fcm-token");
+
+    final response = await http.post(
+      url,
+      headers: {"Accept": "application/json"},
+      body: {"user_id": userId, "token": token},
+    );
+
+    print("SAVE FCM TOKEN URL: $url");
+    print("SAVE FCM TOKEN STATUS: ${response.statusCode}");
+    print("SAVE FCM TOKEN BODY: ${response.body}");
+
+    if (response.body.trim().startsWith("{")) {
+      return {
+        "statusCode": response.statusCode,
+        "body": jsonDecode(response.body),
+      };
+    }
+
+    return {
+      "statusCode": response.statusCode,
+      "body": {"success": false, "message": response.body},
     };
   }
 }

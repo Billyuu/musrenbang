@@ -23,7 +23,6 @@ class DetailView extends GetView<DetailController> {
           ),
         ),
         backgroundColor: const Color(0xFF003E79),
-
         leading: IconButton(
           icon: const Icon(Iconsax.arrow_left_2_copy, color: Colors.white),
           onPressed: () {
@@ -123,19 +122,45 @@ class DetailView extends GetView<DetailController> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 20),
 
               _detailItem(
                 icon: Icons.calendar_month_rounded,
                 title: 'Dibuat Pada',
-                value: data['created_at']?.toString() ?? '-',
+               value: data['tanggal'] != null
+    ? _formatTanggalIndonesia(data['tanggal'].toString())
+    : '-',
               ),
+
               const SizedBox(height: 20),
 
-              _sectionTitle('Foto Usulan'),
+              /// FOTO USULAN
+              /// Fisik: tampil foto depan dan belakang.
+              /// Non fisik: tampil hanya kalau ada foto.
+              if (_adaFoto(data['foto_usulan']) ||
+                  _adaFoto(data['foto_usulan_belakang']) ||
+                  isFisik) ...[
+                _sectionTitle('Foto Usulan'),
 
-              _buildFotoUsulan(data['foto_usulan']?.toString()),
-              const SizedBox(height: 12),
+                if (_adaFoto(data['foto_usulan']))
+                  _buildFotoUsulan(
+                    data['foto_usulan']?.toString(),
+                    label: isFisik ? 'Foto Tampak Depan' : 'Foto Pendukung',
+                  )
+                else if (isFisik)
+                  _buildFotoKosong(label: 'Foto Tampak Depan'),
+
+                if (isFisik && _adaFoto(data['foto_usulan_belakang']))
+                  _buildFotoUsulan(
+                    data['foto_usulan_belakang']?.toString(),
+                    label: 'Foto Tampak Belakang',
+                  )
+                else if (isFisik)
+                  _buildFotoKosong(label: 'Foto Tampak Belakang'),
+
+                const SizedBox(height: 12),
+              ],
 
               _sectionTitle('Informasi Usulan'),
 
@@ -144,11 +169,13 @@ class DetailView extends GetView<DetailController> {
                 title: 'Jenis Usulan',
                 value: labelJenisUsulan,
               ),
+
               _detailItem(
                 icon: Icons.home_rounded,
                 title: 'Dusun',
                 value: data['dusun']?.toString() ?? '-',
               ),
+
               _detailItem(
                 icon: Icons.location_on_rounded,
                 title: isFisik ? 'Lokasi Detail' : 'Alamat Lokasi / Sasaran',
@@ -163,6 +190,7 @@ class DetailView extends GetView<DetailController> {
                 ),
 
               const SizedBox(height: 12),
+
               _sectionTitle('Isi Pengajuan'),
 
               _detailItem(
@@ -177,16 +205,41 @@ class DetailView extends GetView<DetailController> {
                   title: 'Urgensi',
                   value: data['urgensi']?.toString() ?? '-',
                 ),
+
                 _detailItem(
                   icon: Icons.groups_rounded,
                   title: 'Masyarakat Terdampak',
                   value: data['masyarakat_terdampak']?.toString() ?? '-',
                 ),
+
                 _detailItem(
                   icon: Icons.construction_rounded,
                   title: 'Tingkat Kerusakan',
                   value: data['tingkat_kerusakan']?.toString() ?? '-',
                 ),
+
+                /// VOLUME
+                if (_adaVolume(data['volume']))
+                  _detailItem(
+                    icon: Icons.calculate_rounded,
+                    title: 'Volume',
+                    value: '${data['volume']} m³',
+                  ),
+
+                /// Kalau kamu juga ingin tampilkan panjang, lebar, tinggi,
+                /// bagian ini boleh dipakai.
+                if (_adaVolume(data['panjang']) ||
+                    _adaVolume(data['lebar']) ||
+                    _adaVolume(data['tinggi']))
+                  _detailItem(
+                    icon: Icons.straighten_rounded,
+                    title: 'Ukuran',
+                    value:
+                        'Panjang: ${_nilaiAtauStrip(data['panjang'])} m, '
+                        'Lebar: ${_nilaiAtauStrip(data['lebar'])} m, '
+                        'Tinggi: ${_nilaiAtauStrip(data['tinggi'])} m',
+                  ),
+
                 _detailItem(
                   icon: Icons.payments_rounded,
                   title: 'Perkiraan Biaya',
@@ -200,21 +253,19 @@ class DetailView extends GetView<DetailController> {
                   title: 'Tingkat Kebutuhan',
                   value: data['tingkat_kebutuhan']?.toString() ?? '-',
                 ),
+
                 _detailItem(
                   icon: Icons.groups_rounded,
                   title: 'Jumlah Penerima Manfaat',
                   value: data['jumlah_penerima_manfaat']?.toString() ?? '-',
                 ),
+
                 _detailItem(
-                  icon: Icons.volunteer_activism_rounded,
-                  title: 'Dampak Sosial',
-                  value: data['dampak_sosial']?.toString() ?? '-',
+                  icon: Icons.category_rounded,
+                  title: 'Bidang Usulan',
+                  value: data['bidang_usulan']?.toString() ?? '-',
                 ),
-                _detailItem(
-                  icon: Icons.check_circle_rounded,
-                  title: 'Kelayakan Pelaksanaan',
-                  value: data['kelayakan_pelaksanaan']?.toString() ?? '-',
-                ),
+
                 _detailItem(
                   icon: Icons.payments_rounded,
                   title: 'Perkiraan Biaya',
@@ -223,6 +274,7 @@ class DetailView extends GetView<DetailController> {
               ],
 
               const SizedBox(height: 12),
+
               _keputusanAdminBox(data),
             ],
           ),
@@ -231,113 +283,203 @@ class DetailView extends GetView<DetailController> {
     );
   }
 
-  Widget _buildFotoUsulan(String? foto) {
-    if (foto == null || foto.isEmpty || foto == '-') {
-      return Container(
-        width: double.infinity,
-        height: 180,
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE8E8E8)),
-        ),
-        child: Center(
-          child: Text(
-            'Foto usulan tidak tersedia',
-            style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
-          ),
-        ),
-      );
+  /// FORMAT TANGGAL
+  /// Dari: 2026-06-10 15:19:57
+  /// Jadi: 10 Juni 2026
+  String _formatTanggalIndonesia(String tanggal) {
+    final parts = tanggal.split(' ')[0].split('-');
+
+    if (parts.length != 3) return tanggal;
+
+    final year = parts[0];
+    final monthNum = int.tryParse(parts[1]) ?? 0;
+    final day = parts[2];
+
+    final bulan = [
+      '',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+
+    if (monthNum < 1 || monthNum > 12) {
+      return tanggal.split(' ')[0];
     }
 
-    final imageUrl = ApiService.getFotoUsulan(foto);
+    return '$day ${bulan[monthNum]} $year';
+  }
 
-    print("FOTO DB: $foto");
-    print("URL FOTO: $imageUrl");
+  bool _adaFoto(dynamic foto) {
+    final value = foto?.toString().trim() ?? '';
+    return value.isNotEmpty && value != '-' && value != 'null';
+  }
 
-    return Container(
-      width: double.infinity,
-      height: 220,
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8E8E8)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+  bool _adaVolume(dynamic value) {
+    final text = value?.toString().trim() ?? '';
+    return text.isNotEmpty && text != '-' && text != 'null' && text != '0';
+  }
+
+  String _nilaiAtauStrip(dynamic value) {
+    final text = value?.toString().trim() ?? '';
+    if (text.isEmpty || text == 'null' || text == '-') {
+      return '-';
+    }
+    return text;
+  }
+
+  Widget _buildFotoUsulan(
+    String? foto, {
+    String label = 'Foto Usulan',
+  }) {
+    if (!_adaFoto(foto)) {
+      return _buildFotoKosong(label: label);
+    }
+
+    final imageUrl = ApiService.getFotoUsulan(foto!);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Image.network(
-          imageUrl,
+        ),
+
+        const SizedBox(height: 8),
+
+        Container(
           width: double.infinity,
           height: 220,
-          fit: BoxFit.cover,
-
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-
-            return Container(
-              color: Colors.white,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(
-                      color: Color(0xFF003E79),
-                      strokeWidth: 3,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Memuat foto...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF003E79),
-                      ),
-                    ),
-                  ],
-                ),
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE8E8E8)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
-            );
-          },
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.network(
+              imageUrl,
+              width: double.infinity,
+              height: 220,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
 
-          errorBuilder: (context, error, stackTrace) {
-            print("ERROR FOTO: $error");
-
-            return Container(
-              color: Colors.white,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.broken_image_rounded,
-                      size: 55,
-                      color: Colors.grey.shade400,
+                return Container(
+                  color: Colors.white,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(
+                          color: Color(0xFF003E79),
+                          strokeWidth: 3,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Memuat foto...',
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF003E79),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Gagal memuat foto',
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade600,
-                      ),
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.white,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.broken_image_rounded,
+                          size: 55,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Gagal memuat foto',
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            );
-          },
+                  ),
+                );
+              },
+            ),
+          ),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildFotoKosong({
+    String label = 'Foto Usulan',
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        Container(
+          width: double.infinity,
+          height: 180,
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE8E8E8)),
+          ),
+          child: Center(
+            child: Text(
+              'Foto tidak tersedia',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -459,6 +601,110 @@ class DetailView extends GetView<DetailController> {
                   ? 'Rp ${data['biaya_final']}'
                   : '-',
             ),
+            _keputusanItem(
+              title: 'Tahun Realisasi',
+              value: data['tahun_realisasi']?.toString() ?? '-',
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (status == 'ditunda') {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(top: 6, bottom: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.orange.withOpacity(0.35)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.update_rounded,
+                  color: Colors.orange,
+                  size: 22,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Status Penundaan',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Usulan ini belum dapat direalisasikan pada tahun berjalan dan akan dipertimbangkan kembali sesuai prioritas pembangunan desa serta ketersediaan anggaran.',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Colors.orange.shade800,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _keputusanItem(
+              title: 'Tahun Realisasi',
+              value: data['tahun_realisasi']?.toString() ?? '-',
+            ),
+            _keputusanItem(
+              title: 'Catatan Penundaan',
+              value: data['catatan_penundaan']?.toString() ?? '-',
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (status == 'direalisasikan') {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(top: 6, bottom: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.blue.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.blue.withOpacity(0.35)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.verified_rounded,
+                  color: Color(0xFF003E79),
+                  size: 22,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Usulan Telah Direalisasikan',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF003E79),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Selamat, usulan yang diajukan telah direalisasikan dan menjadi bagian dari pelaksanaan program pembangunan desa. Terima kasih atas partisipasi Anda dalam Musrenbang Desa.',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: const Color(0xFF003E79),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
             _keputusanItem(
               title: 'Tahun Realisasi',
               value: data['tahun_realisasi']?.toString() ?? '-',
@@ -605,18 +851,21 @@ class DetailView extends GetView<DetailController> {
   Widget _statusBadge(String status) {
     Color color;
 
-    switch (status.toLowerCase()) {
+    switch (status.toLowerCase().trim()) {
+      case 'diproses':
+        color = Colors.orange;
+        break;
       case 'disetujui':
         color = Colors.green;
         break;
       case 'ditolak':
         color = Colors.red;
         break;
-      case 'diproses':
-        color = Colors.orange;
+      case 'ditunda':
+        color = Colors.deepOrange;
         break;
-      case 'diverifikasi':
-        color = Colors.blue;
+      case 'direalisasikan':
+        color = const Color(0xFF003E79);
         break;
       default:
         color = Colors.grey;
@@ -625,17 +874,36 @@ class DetailView extends GetView<DetailController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.18),
+        color: color.withOpacity(0.18),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.4)),
+        border: Border.all(color: color.withOpacity(0.45)),
       ),
-      child: Text(
-        status.toUpperCase(),
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            status.toLowerCase() == "direalisasikan"
+                ? Icons.verified_rounded
+                : status.toLowerCase() == "ditunda"
+                    ? Icons.update_rounded
+                    : status.toLowerCase() == "ditolak"
+                        ? Icons.cancel_rounded
+                        : status.toLowerCase() == "disetujui"
+                            ? Icons.check_circle_rounded
+                            : Icons.hourglass_bottom_rounded,
+            size: 13,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            status.toUpperCase(),
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

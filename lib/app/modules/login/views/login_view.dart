@@ -16,270 +16,265 @@ class LoginView extends GetView<LoginController> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
             return SingleChildScrollView(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
+              padding: EdgeInsets.only(bottom: keyboardHeight),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      /// HEADER
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            top: 60,
-                            left: 25,
-                            right: 25,
-                            bottom: 30,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Selamat Datang",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 30,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                child: Column(
+                  children: [
+                    /// HEADER
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 60,
+                          left: 25,
+                          right: 25,
+                          bottom: 30,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Selamat Datang",
+                              style: GoogleFonts.poppins(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "Silakan login menggunakan email dan password Anda",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 13,
-                                ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Silakan login menggunakan email dan password Anda",
+                              style: GoogleFonts.poppins(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 13,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
 
-                      /// FORM CARD
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(25),
+                    /// FORM CARD
+                    Container(
+                      width: double.infinity,
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight - 180,
+                      ),
+                      padding: const EdgeInsets.all(25),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(35),
+                          topRight: Radius.circular(35),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          /// EMAIL
+                          TextField(
+                            controller: controller.emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            cursorColor: const Color(0xFF003E79),
 
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(35),
-                              topRight: Radius.circular(35),
+                            style: GoogleFonts.poppins(fontSize: 14),
+
+                            decoration: InputDecoration(
+                              hintText: "Email",
+                              hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                              prefixIcon: const Icon(
+                                Icons.email_outlined,
+                                color: Color(0xFF003E79),
+                                size: 22,
+                              ),
+
+                              filled: true,
+                              fillColor: const Color(0xffF5F7FA),
+
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                              ),
+
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                borderSide: BorderSide.none,
+                              ),
                             ),
                           ),
 
-                          child: Column(
-                            children: [
-                              /// EMAIL
-                              TextField(
-                                controller: controller.emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                cursorColor: const Color(0xFF003E79),
+                          const SizedBox(height: 18),
 
-                                style: GoogleFonts.poppins(fontSize: 14),
+                          /// PASSWORD
+                          Obx(
+                            () => TextField(
+                              controller: controller.passwordController,
+                              obscureText: !controller.isPasswordVisible.value,
+                              cursorColor: const Color(0xFF003E79),
 
-                                decoration: InputDecoration(
-                                  hintText: "Email",
-                                  hintStyle: GoogleFonts.poppins(fontSize: 14),
+                              style: GoogleFonts.poppins(fontSize: 14),
 
-                                  prefixIcon: const Icon(
-                                    Icons.email_outlined,
-                                    color: Color(0xFF003E79),
+                              decoration: InputDecoration(
+                                hintText: "Password",
+                                hintStyle: GoogleFonts.poppins(fontSize: 14),
+
+                                prefixIcon: const Icon(
+                                  Icons.lock_outline,
+                                  color: Color(0xFF003E79),
+                                  size: 22,
+                                ),
+
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    controller.isPasswordVisible.value
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: const Color(0xFF003E79),
                                     size: 22,
                                   ),
+                                  onPressed:
+                                      controller.togglePasswordVisibility,
+                                ),
 
-                                  filled: true,
-                                  fillColor: const Color(0xffF5F7FA),
+                                filled: true,
+                                fillColor: const Color(0xffF5F7FA),
 
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          /// LUPA PASSWORD
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                Get.toNamed(Routes.RESET_PASSWORD);
+                              },
+                              child: Text(
+                                "Lupa Password?",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: const Color(0xFF003E79),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 18),
+
+                          /// LOGIN BUTTON
+                          Obx(
+                            () => SizedBox(
+                              width: double.infinity,
+                              height: 54,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF003E79),
+                                  disabledBackgroundColor: const Color(
+                                    0xFF003E79,
                                   ),
+                                  disabledForegroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                onPressed: controller.isLoading.value
+                                    ? null
+                                    : () {
+                                        FocusScope.of(context).unfocus();
+                                        controller.login();
+                                      },
+                                child: controller.isLoading.value
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Masuk ke Aplikasi",
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
 
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(18),
-                                    borderSide: BorderSide.none,
+                          const SizedBox(height: 22),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Divider(color: Colors.grey.shade300),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Text(
+                                  "Musrenbang Digital",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    color: Colors.grey,
                                   ),
                                 ),
                               ),
-
-                              const SizedBox(height: 18),
-
-                              /// PASSWORD
-                              Obx(
-                                () => TextField(
-                                  controller: controller.passwordController,
-                                  obscureText:
-                                      !controller.isPasswordVisible.value,
-                                  cursorColor: const Color(0xFF003E79),
-
-                                  style: GoogleFonts.poppins(fontSize: 14),
-
-                                  decoration: InputDecoration(
-                                    hintText: "Password",
-                                    hintStyle: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                    ),
-
-                                    prefixIcon: const Icon(
-                                      Icons.lock_outline,
-                                      color: Color(0xFF003E79),
-                                      size: 22,
-                                    ),
-
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        controller.isPasswordVisible.value
-                                            ? Icons.visibility_outlined
-                                            : Icons.visibility_off_outlined,
-                                        color: const Color(0xFF003E79),
-                                        size: 22,
-                                      ),
-                                      onPressed:
-                                          controller.togglePasswordVisibility,
-                                    ),
-
-                                    filled: true,
-                                    fillColor: const Color(0xffF5F7FA),
-
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 10),
-
-                              /// LUPA PASSWORD
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    Get.toNamed(Routes.RESET_PASSWORD);
-                                  },
-                                  child: Text(
-                                    "Lupa Password?",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      color: const Color(0xFF003E79),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 18),
-
-                              /// LOGIN BUTTON
-                              Obx(
-                                () => SizedBox(
-                                  width: double.infinity,
-                                  height: 54,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF003E79),
-                                      disabledBackgroundColor: const Color(
-                                        0xFF003E79,
-                                      ),
-                                      disabledForegroundColor: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    onPressed: controller.isLoading.value
-                                        ? null
-                                        : () {
-                                            FocusScope.of(context).unfocus();
-                                            controller.login();
-                                          },
-                                    child: controller.isLoading.value
-                                        ? const SizedBox(
-                                            width: 22,
-                                            height: 22,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : Text(
-                                            "Masuk ke Aplikasi",
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 22),
-
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Divider(color: Colors.grey.shade300),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    child: Text(
-                                      "Musrenbang Digital",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 11,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Divider(color: Colors.grey.shade300),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Belum punya akun?",
-                                    style: GoogleFonts.poppins(fontSize: 13),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      FocusScope.of(context).unfocus();
-                                      Get.toNamed(Routes.REGISTRASI);
-                                    },
-                                    child: Text(
-                                      "Daftar",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: const Color(0xFF003E79),
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              Expanded(
+                                child: Divider(color: Colors.grey.shade300),
                               ),
                             ],
                           ),
-                        ),
+
+                          const SizedBox(height: 12),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Belum punya akun?",
+                                style: GoogleFonts.poppins(fontSize: 13),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  FocusScope.of(context).unfocus();
+                                  Get.toNamed(Routes.REGISTRASI);
+                                },
+                                child: Text(
+                                  "Daftar",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: const Color(0xFF003E79),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );

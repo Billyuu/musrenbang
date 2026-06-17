@@ -60,20 +60,30 @@ class LaporanUsulanMusrenbangController extends GetxController {
   }
 
   String mapJenis(String jenis) {
-    return jenis == "Non Fisik" ? "non_fisik" : "fisik";
+    return jenis.toLowerCase().replaceAll(" ", "_").trim();
   }
 
   List<dynamic> get filteredLaporan {
-    final status = statusAktif.value.toLowerCase().trim();
-    final jenis = mapJenis(jenisAktif.value);
+    final statusFilter = statusAktif.value.toLowerCase().trim();
+    final jenisFilter = mapJenis(jenisAktif.value);
 
     return dataUsulan.where((item) {
       final statusItem = item["status"]?.toString().toLowerCase().trim() ?? "";
 
       final jenisItem =
-          item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
+          item["jenis_usulan"]
+              ?.toString()
+              .toLowerCase()
+              .replaceAll(" ", "_")
+              .trim() ??
+          "fisik";
 
-      return statusItem == status && jenisItem == jenis;
+      print("STATUS API: $statusItem");
+      print("STATUS FILTER: $statusFilter");
+      print("JENIS API: $jenisItem");
+      print("JENIS FILTER: $jenisFilter");
+
+      return statusItem == statusFilter && jenisItem == jenisFilter;
     }).toList();
   }
 

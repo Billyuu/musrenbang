@@ -44,6 +44,10 @@ class LaporanUsulanMusrenbangView
         final totalDiproses = controller.totalByStatus("Diproses").toString();
         final totalDisetujui = controller.totalByStatus("Disetujui").toString();
         final totalDitolak = controller.totalByStatus("Ditolak").toString();
+        final totalDitunda = controller.totalByStatus("Ditunda").toString();
+        final totalDirealisasikan = controller
+            .totalByStatus("Direalisasikan")
+            .toString();
         final totalFisik = controller.totalByJenis("Fisik");
         final totalNonFisik = controller.totalByJenis("Non Fisik");
 
@@ -55,6 +59,8 @@ class LaporanUsulanMusrenbangView
               totalDiproses: totalDiproses,
               totalDisetujui: totalDisetujui,
               totalDitolak: totalDitolak,
+              totalDitunda: totalDitunda,
+              totalDirealisasikan: totalDirealisasikan,
               statusAktif: statusAktif,
             ),
 
@@ -279,6 +285,8 @@ class LaporanUsulanMusrenbangView
     required String totalDiproses,
     required String totalDisetujui,
     required String totalDitolak,
+    required String totalDitunda,
+    required String totalDirealisasikan,
     required String statusAktif,
   }) {
     return Container(
@@ -316,42 +324,69 @@ class LaporanUsulanMusrenbangView
 
           const SizedBox(height: 18),
 
-          Row(
-            children: [
-              _summaryBox(
-                title: "Diproses",
-                value: totalDiproses,
-                icon: Icons.hourglass_bottom_rounded,
-                isActive: statusAktif == "Diproses",
-                onTap: () {
-                  controller.statusAktif.value = "Diproses";
-                },
-              ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _summaryBox(
+                  title: "Diproses",
+                  value: totalDiproses,
+                  icon: Icons.hourglass_bottom_rounded,
+                  isActive: statusAktif == "Diproses",
+                  onTap: () {
+                    controller.statusAktif.value = "Diproses";
+                  },
+                ),
 
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
 
-              _summaryBox(
-                title: "Disetujui",
-                value: totalDisetujui,
-                icon: Icons.check_circle_rounded,
-                isActive: statusAktif == "Disetujui",
-                onTap: () {
-                  controller.statusAktif.value = "Disetujui";
-                },
-              ),
+                _summaryBox(
+                  title: "Disetujui",
+                  value: totalDisetujui,
+                  icon: Icons.check_circle_rounded,
+                  isActive: statusAktif == "Disetujui",
+                  onTap: () {
+                    controller.statusAktif.value = "Disetujui";
+                  },
+                ),
 
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
 
-              _summaryBox(
-                title: "Ditolak",
-                value: totalDitolak,
-                icon: Icons.cancel_rounded,
-                isActive: statusAktif == "Ditolak",
-                onTap: () {
-                  controller.statusAktif.value = "Ditolak";
-                },
-              ),
-            ],
+                _summaryBox(
+                  title: "Ditolak",
+                  value: totalDitolak,
+                  icon: Icons.cancel_rounded,
+                  isActive: statusAktif == "Ditolak",
+                  onTap: () {
+                    controller.statusAktif.value = "Ditolak";
+                  },
+                ),
+
+                const SizedBox(width: 10),
+
+                _summaryBox(
+                  title: "Ditunda",
+                  value: totalDitunda,
+                  icon: Icons.update_rounded,
+                  isActive: statusAktif == "Ditunda",
+                  onTap: () {
+                    controller.statusAktif.value = "Ditunda";
+                  },
+                ),
+
+                const SizedBox(width: 10),
+
+                _summaryBox(
+                  title: "Realisasi",
+                  value: totalDirealisasikan,
+                  icon: Icons.verified_rounded,
+                  isActive: statusAktif == "Direalisasikan",
+                  onTap: () {
+                    controller.statusAktif.value = "Direalisasikan";
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -365,7 +400,8 @@ class LaporanUsulanMusrenbangView
     required bool isActive,
     required VoidCallback onTap,
   }) {
-    return Expanded(
+    return SizedBox(
+      width: 105,
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
@@ -741,7 +777,7 @@ class LaporanUsulanMusrenbangView
   Widget _statusBadge(String status) {
     Color color;
 
-    switch (status.toLowerCase()) {
+    switch (status.toLowerCase().trim()) {
       case "diproses":
         color = Colors.orange;
         break;
@@ -750,6 +786,12 @@ class LaporanUsulanMusrenbangView
         break;
       case "ditolak":
         color = Colors.red;
+        break;
+      case "ditunda":
+        color = Colors.deepOrange;
+        break;
+      case "direalisasikan":
+        color = primaryColor;
         break;
       default:
         color = Colors.grey;

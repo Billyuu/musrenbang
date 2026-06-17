@@ -116,7 +116,7 @@ class ProfilController extends GetxController {
     try {
       final userId = box.read("user_id");
 
-      if (userId == null) return;
+     if (userId == null || userId == "") return;
 
       isLoading(true);
 
@@ -971,27 +971,43 @@ class ProfilController extends GetxController {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: isLoading.value
-                            ? null
-                            : () async {
-                                try {
-                                  isLoading.value = true;
+    ? null
+    : () async {
+        try {
+          isLoading.value = true;
 
-                                  imageUrl.value = "";
-                                  nama.value = "";
-                                  nik.value = "";
-                                  alamat.value = "";
-                                  noHp.value = "";
-                                  jenisKelamin.value = "";
+          imageUrl.value = "";
+          selectedImage.value = null;
 
-                                  await box.erase();
+          nama.value = "";
+          email.value = "";
+          nik.value = "";
+          alamat.value = "";
+          noHp.value = "";
+          jenisKelamin.value = "";
 
-                                  Get.back();
+          box.remove("is_login");
+          box.remove("role");
 
-                                  Get.offAllNamed('/login');
-                                } finally {
-                                  isLoading.value = false;
-                                }
-                              },
+          box.remove("isUserLogin");
+          box.remove("isAdminLogin");
+
+          box.remove("user_id");
+          box.remove("firebase_uid");
+          box.remove("email");
+          box.remove("nama");
+
+          box.remove("admin_id");
+          box.remove("admin_name");
+          box.remove("admin_email");
+
+          Get.back();
+
+          Get.offAllNamed('/login');
+        } finally {
+          isLoading.value = false;
+        }
+      },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF003E79),
                           disabledBackgroundColor: const Color(0xFF003E79),

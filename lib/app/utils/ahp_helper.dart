@@ -6,14 +6,13 @@ class AhpHelper {
   static const double bobotDampak = 0.30;
   static const double bobotKerusakan = 0.20;
   static const double bobotBiaya = 0.10;
-
   // =========================
   // BOBOT KRITERIA AHP NON FISIK
   // =========================
   static const double bobotKebutuhan = 0.35;
   static const double bobotPenerimaManfaat = 0.25;
-  static const double bobotDampakSosial = 0.25;
-  static const double bobotKelayakan = 0.15;
+  static const double bobotBidangUsulan = 0.20;
+  static const double bobotBiayaNonFisik = 0.20;
 
   // =========================
   // HITUNG TOTAL AHP OTOMATIS
@@ -49,27 +48,21 @@ class AhpHelper {
         (bobotBiaya * skorBiaya);
   }
 
-  // =========================
-  // HITUNG TOTAL AHP NON FISIK
-  // =========================
   static double hitungTotalAhpNonFisik(dynamic item) {
     String kondisiKebutuhan = item["tingkat_kebutuhan"]?.toString() ?? "-";
-    String kondisiPenerima =
-        item["jumlah_penerima_manfaat"]?.toString() ?? "-";
-    String kondisiDampakSosial = item["dampak_sosial"]?.toString() ?? "-";
-    String kondisiKelayakan =
-        item["kelayakan_pelaksanaan"]?.toString() ?? "-";
+    String kondisiPenerima = item["jumlah_penerima_manfaat"]?.toString() ?? "-";
+    String kondisiBidang = item["bidang_usulan"]?.toString() ?? "-";
+    String biayaInputUser = item["biaya"]?.toString() ?? "0";
 
     double skorKebutuhan = skorKebutuhanKondisi(kondisiKebutuhan);
     double skorPenerima = skorPenerimaManfaatKondisi(kondisiPenerima);
-    double skorDampakSosial =
-        skorDampakSosialKondisi(kondisiDampakSosial);
-    double skorKelayakan = skorKelayakanKondisi(kondisiKelayakan);
+    double skorBidang = skorBidangUsulanKondisi(kondisiBidang);
+    double skorBiaya = skorBiayaNominal(biayaInputUser);
 
     return (bobotKebutuhan * skorKebutuhan) +
         (bobotPenerimaManfaat * skorPenerima) +
-        (bobotDampakSosial * skorDampakSosial) +
-        (bobotKelayakan * skorKelayakan);
+        (bobotBidangUsulan * skorBidang) +
+        (bobotBiayaNonFisik * skorBiaya);
   }
 
   // =========================
@@ -148,31 +141,18 @@ class AhpHelper {
   }
 
   // =========================
-  // SKOR DAMPAK SOSIAL NON FISIK
+  // SKOR BIDANG USULAN NON FISIK
   // =========================
-  static double skorDampakSosialKondisi(String kondisi) {
+  static double skorBidangUsulanKondisi(String kondisi) {
     final value = kondisi.toLowerCase();
 
-    if (value.contains("sangat berdampak")) return 5;
-    if (value.contains("tidak terlalu berdampak")) return 1;
-    if (value.contains("kurang berdampak")) return 2;
-    if (value.contains("cukup berdampak")) return 3;
-    if (value.contains("berdampak")) return 4;
-
-    return double.tryParse(kondisi) ?? 0;
-  }
-
-  // =========================
-  // SKOR KELAYAKAN PELAKSANAAN NON FISIK
-  // =========================
-  static double skorKelayakanKondisi(String kondisi) {
-    final value = kondisi.toLowerCase();
-
-    if (value.contains("sangat layak")) return 5;
-    if (value.contains("tidak layak")) return 1;
-    if (value.contains("kurang layak")) return 2;
-    if (value.contains("cukup layak")) return 3;
-    if (value.contains("layak")) return 4;
+    if (value.contains("kesehatan")) return 5;
+    if (value.contains("pendidikan")) return 4;
+    if (value.contains("sosial")) return 4;
+    if (value.contains("kesejahteraan")) return 4;
+    if (value.contains("umkm")) return 3;
+    if (value.contains("ekonomi")) return 3;
+    if (value.contains("pemberdayaan")) return 3;
 
     return double.tryParse(kondisi) ?? 0;
   }
@@ -234,33 +214,33 @@ class AhpHelper {
 
   //100
   // =========================
-// KONVERSI NILAI AHP KE SKALA 100
-// =========================
-static double konversiKeSkala100(double nilaiSkala5) {
-  return nilaiSkala5 * 20;
-}
+  // KONVERSI NILAI AHP KE SKALA 100
+  // =========================
+  static double konversiKeSkala100(double nilaiSkala5) {
+    return nilaiSkala5 * 20;
+  }
 
-// =========================
-// HITUNG TOTAL AHP SKALA 100 OTOMATIS
-// =========================
-static double hitungTotalAhp100(dynamic item) {
-  final totalSkala5 = hitungTotalAhp(item);
-  return konversiKeSkala100(totalSkala5);
-}
+  // =========================
+  // HITUNG TOTAL AHP SKALA 100 OTOMATIS
+  // =========================
+  static double hitungTotalAhp100(dynamic item) {
+    final totalSkala5 = hitungTotalAhp(item);
+    return konversiKeSkala100(totalSkala5);
+  }
 
-// =========================
-// HITUNG TOTAL AHP FISIK SKALA 100
-// =========================
-static double hitungTotalAhpFisik100(dynamic item) {
-  final totalSkala5 = hitungTotalAhpFisik(item);
-  return konversiKeSkala100(totalSkala5);
-}
+  // =========================
+  // HITUNG TOTAL AHP FISIK SKALA 100
+  // =========================
+  static double hitungTotalAhpFisik100(dynamic item) {
+    final totalSkala5 = hitungTotalAhpFisik(item);
+    return konversiKeSkala100(totalSkala5);
+  }
 
-// =========================
-// HITUNG TOTAL AHP NON FISIK SKALA 100
-// =========================
-static double hitungTotalAhpNonFisik100(dynamic item) {
-  final totalSkala5 = hitungTotalAhpNonFisik(item);
-  return konversiKeSkala100(totalSkala5);
-}
+  // =========================
+  // HITUNG TOTAL AHP NON FISIK SKALA 100
+  // =========================
+  static double hitungTotalAhpNonFisik100(dynamic item) {
+    final totalSkala5 = hitungTotalAhpNonFisik(item);
+    return konversiKeSkala100(totalSkala5);
+  }
 }

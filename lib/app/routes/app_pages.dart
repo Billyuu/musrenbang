@@ -2,8 +2,6 @@ import 'package:get/get.dart';
 
 import '../modules/admin/bindings/admin_binding.dart';
 import '../modules/admin/views/admin_view.dart';
-import '../modules/admin_login/bindings/admin_login_binding.dart';
-import '../modules/admin_login/views/admin_login_view.dart';
 import '../modules/detail/bindings/detail_binding.dart';
 import '../modules/detail/views/detail_view.dart';
 import '../modules/detail_admin/bindings/detail_admin_binding.dart';
@@ -107,11 +105,6 @@ class AppPages {
       name: _Paths.DETAIL_ADMIN,
       page: () => const DetailAdminView(),
       binding: DetailAdminBinding(),
-    ),
-    GetPage(
-      name: _Paths.ADMIN_LOGIN,
-      page: () => const AdminLoginView(),
-      binding: AdminLoginBinding(),
     ),
     GetPage(
       name: _Paths.DETAIL_HASIL_MUSRENBANG,

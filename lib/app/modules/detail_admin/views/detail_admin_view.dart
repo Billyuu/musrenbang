@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../controllers/detail_admin_controller.dart';
 import 'package:musrenbang/app/utils/ahp_helper.dart';
+import 'package:musrenbang/app/routes/app_pages.dart';
 
 class DetailAdminView extends GetView<DetailAdminController> {
   const DetailAdminView({super.key});
@@ -103,6 +104,20 @@ class DetailAdminView extends GetView<DetailAdminController> {
                   ),
 
                   if (isFisik) _info("Titik Koordinat", item["koordinat"]),
+
+                  if (isFisik && _adaVolume(item["volume"]))
+                    _info("Volume", "${item["volume"]} m³"),
+
+                  if (isFisik &&
+                      (_adaVolume(item["panjang"]) ||
+                          _adaVolume(item["lebar"]) ||
+                          _adaVolume(item["tinggi"])))
+                    _info(
+                      "Ukuran",
+                      "Panjang: ${_nilaiAtauStrip(item["panjang"])} m, "
+                          "Lebar: ${_nilaiAtauStrip(item["lebar"])} m, "
+                          "Tinggi: ${_nilaiAtauStrip(item["tinggi"])} m",
+                    ),
 
                   _info("Tanggal", item["tanggal"]),
                 ],
@@ -253,6 +268,24 @@ class DetailAdminView extends GetView<DetailAdminController> {
     );
   }
 
+  bool _adaFoto(dynamic foto) {
+    final value = foto?.toString().trim() ?? '';
+    return value.isNotEmpty && value != '-' && value != 'null';
+  }
+
+  bool _adaVolume(dynamic value) {
+    final text = value?.toString().trim() ?? '';
+    return text.isNotEmpty && text != '-' && text != 'null' && text != '0';
+  }
+
+  String _nilaiAtauStrip(dynamic value) {
+    final text = value?.toString().trim() ?? '';
+    if (text.isEmpty || text == 'null' || text == '-') {
+      return '-';
+    }
+    return text;
+  }
+
   //tabel perhitungan
   Widget _tabelPerhitunganAhp(dynamic item) {
     final jenisUsulan =
@@ -328,79 +361,56 @@ class DetailAdminView extends GetView<DetailAdminController> {
   Widget _tabelPerhitunganAhpNonFisik(dynamic item) {
     String kondisiKebutuhan = item["tingkat_kebutuhan"]?.toString() ?? "-";
     String kondisiPenerima = item["jumlah_penerima_manfaat"]?.toString() ?? "-";
-    String kondisiDampakSosial = item["dampak_sosial"]?.toString() ?? "-";
-    String kondisiKelayakan = item["kelayakan_pelaksanaan"]?.toString() ?? "-";
+    String kondisiBidang = item["bidang_usulan"]?.toString() ?? "-";
+
+    String biayaInputUser = item["biaya"]?.toString() ?? "0";
+    String kondisiBiaya = AhpHelper.formatRupiah(biayaInputUser);
 
     double skorKebutuhan = AhpHelper.skorKebutuhanKondisi(kondisiKebutuhan);
     double skorPenerima = AhpHelper.skorPenerimaManfaatKondisi(kondisiPenerima);
-    double skorDampakSosial = AhpHelper.skorDampakSosialKondisi(
-      kondisiDampakSosial,
-    );
-    double skorKelayakan = AhpHelper.skorKelayakanKondisi(kondisiKelayakan);
+    double skorBidang = AhpHelper.skorBidangUsulanKondisi(kondisiBidang);
+    double skorBiaya = AhpHelper.skorBiayaNominal(biayaInputUser);
 
     double hasilKebutuhan = AhpHelper.bobotKebutuhan * skorKebutuhan * 20;
     double hasilPenerima = AhpHelper.bobotPenerimaManfaat * skorPenerima * 20;
-    double hasilDampakSosial =
-        AhpHelper.bobotDampakSosial * skorDampakSosial * 20;
-    double hasilKelayakan = AhpHelper.bobotKelayakan * skorKelayakan * 20;
+    double hasilBidang = AhpHelper.bobotBidangUsulan * skorBidang * 20;
+    double hasilBiaya = AhpHelper.bobotBiayaNonFisik * skorBiaya * 20;
 
     double total = AhpHelper.hitungTotalAhpNonFisik100(item);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _tabelAhpWidget(
-          title: "Tabel Perhitungan AHP Non Fisik",
-          rows: [
-            _rowAhp(
-              "Tingkat Kebutuhan",
-              AhpHelper.bobotKebutuhan,
-              kondisiKebutuhan,
-              skorKebutuhan,
-              hasilKebutuhan,
-            ),
-            _rowAhp(
-              "Penerima Manfaat",
-              AhpHelper.bobotPenerimaManfaat,
-              kondisiPenerima,
-              skorPenerima,
-              hasilPenerima,
-            ),
-            _rowAhp(
-              "Dampak Sosial",
-              AhpHelper.bobotDampakSosial,
-              kondisiDampakSosial,
-              skorDampakSosial,
-              hasilDampakSosial,
-            ),
-            _rowAhp(
-              "Kelayakan",
-              AhpHelper.bobotKelayakan,
-              kondisiKelayakan,
-              skorKelayakan,
-              hasilKelayakan,
-            ),
-          ],
-          total: total,
-        ),
 
-        if (item["biaya"] != null &&
-            item["biaya"].toString().isNotEmpty &&
-            item["biaya"].toString() != "null")
-          _section(
-            title: "Informasi Biaya",
-            icon: Iconsax.money_copy,
-            children: [
-              _info(
-                "Perkiraan Biaya",
-                AhpHelper.formatRupiah(item["biaya"].toString()),
-              ),
-              _info(
-                "Keterangan",
-                "Biaya pada usulan non fisik bersifat opsional dan tidak masuk dalam perhitungan AHP.",
-              ),
-            ],
-          ),
+    return _tabelAhpWidget(
+      title: "Tabel Perhitungan AHP Non Fisik",
+      rows: [
+        _rowAhp(
+          "Tingkat Kebutuhan",
+          AhpHelper.bobotKebutuhan,
+          kondisiKebutuhan,
+          skorKebutuhan,
+          hasilKebutuhan,
+        ),
+        _rowAhp(
+          "Penerima Manfaat",
+          AhpHelper.bobotPenerimaManfaat,
+          kondisiPenerima,
+          skorPenerima,
+          hasilPenerima,
+        ),
+        _rowAhp(
+          "Bidang Usulan",
+          AhpHelper.bobotBidangUsulan,
+          kondisiBidang,
+          skorBidang,
+          hasilBidang,
+        ),
+        _rowAhp(
+          "Biaya",
+          AhpHelper.bobotBiayaNonFisik,
+          kondisiBiaya,
+          skorBiaya,
+          hasilBiaya,
+        ),
       ],
+      total: total,
     );
   }
 
@@ -575,55 +585,22 @@ class DetailAdminView extends GetView<DetailAdminController> {
 
   //fotousulan
   Widget _fotoUsulan(dynamic item) {
-    final foto = item["foto_usulan"]?.toString() ?? "";
+    final jenisUsulan =
+        item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
 
-    if (foto.isEmpty || foto == "null" || foto == "-") {
-      return Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFFE6E8EC)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Iconsax.gallery_copy,
-                  size: 20,
-                  color: Color(0xFF003E79),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "Foto Usulan",
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Container(
-              height: 160,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Text(
-                "Foto tidak tersedia",
-                style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
-              ),
-            ),
-          ],
-        ),
-      );
+    final isFisik = jenisUsulan == "fisik";
+
+    final fotoDepan = item["foto_usulan"]?.toString() ?? "";
+    final fotoBelakang = item["foto_usulan_belakang"]?.toString() ?? "";
+
+    final adaFotoDepan = _adaFoto(fotoDepan);
+    final adaFotoBelakang = _adaFoto(fotoBelakang);
+
+    // 🔥 NON FISIK: kalau kosong semua → JANGAN TAMPIL SAMA SEKALI
+    if (!isFisik && !adaFotoDepan) {
+      return const SizedBox(); // << INI FIX UTAMA
     }
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -653,25 +630,151 @@ class DetailAdminView extends GetView<DetailAdminController> {
               ),
             ],
           ),
+
           const SizedBox(height: 14),
-          ClipRRect(
+
+          if (isFisik) ...[
+            if (adaFotoDepan)
+              _fotoItem(label: "Foto Tampak Depan", fileName: fotoDepan),
+
+            if (adaFotoBelakang)
+              _fotoItem(label: "Foto Tampak Belakang", fileName: fotoBelakang),
+          ] else ...[
+            if (adaFotoDepan)
+              _fotoItem(label: "Foto Pendukung", fileName: fotoDepan),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _fotoItem({required String label, required String fileName}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: Image.network(
+            controller.getFotoUsulan(fileName),
+            width: double.infinity,
+            height: 220,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+
+              return Container(
+                height: 220,
+                alignment: Alignment.center,
+                color: Colors.grey.shade200,
+                child: const CircularProgressIndicator(
+                  color: Color(0xFF003E79),
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 220,
+                alignment: Alignment.center,
+                color: Colors.grey.shade200,
+                child: Text(
+                  "Foto tidak tersedia",
+                  style: GoogleFonts.poppins(fontSize: 13),
+                ),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _fotoKosongItem({required String label}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        Container(
+          width: double.infinity,
+          height: 180,
+          margin: const EdgeInsets.only(bottom: 16),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(18),
-            child: Image.network(
-              controller.getFotoUsulan(foto),
-              width: double.infinity,
-              height: 220,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 220,
-                  alignment: Alignment.center,
-                  color: Colors.grey.shade200,
-                  child: Text(
-                    "Foto tidak tersedia",
-                    style: GoogleFonts.poppins(fontSize: 13),
-                  ),
-                );
-              },
+          ),
+          child: Text(
+            "Foto tidak tersedia",
+            style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _fotoCardKosong({required String title}) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE6E8EC)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Iconsax.gallery_copy,
+                size: 20,
+                color: Color(0xFF003E79),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Container(
+            height: 160,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Text(
+              "Foto tidak tersedia",
+              style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
             ),
           ),
         ],
@@ -741,6 +844,8 @@ class DetailAdminView extends GetView<DetailAdminController> {
     final masihDiproses = status == "diproses";
     final sudahDiterima = status == "disetujui";
     final sudahDitolak = status == "ditolak";
+    final sudahDitunda = status == "ditunda";
+    final sudahDirealisasikan = status == "direalisasikan";
 
     if (masihDiproses) {
       return Container(
@@ -817,31 +922,178 @@ class DetailAdminView extends GetView<DetailAdminController> {
     }
 
     if (sudahDiterima) {
-      return _statusKeputusanBox(
-        title: "Usulan Sudah Diterima",
-        subtitle:
-            "Usulan ini telah disetujui oleh admin dan tidak dapat diproses ulang.",
-        icon: Icons.check_circle_rounded,
-        color: Colors.green,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _keputusanInfo(
-            "Biaya Final",
-            item["biaya_final"] != null &&
-                    item["biaya_final"].toString().isNotEmpty
-                ? AhpHelper.formatRupiah(item["biaya_final"].toString())
-                : "-",
+          _statusKeputusanBox(
+            title: "Usulan Sudah Diterima",
+            subtitle:
+                "Usulan ini telah disetujui oleh admin dan dapat diproses ke tahap berikutnya.",
+            icon: Icons.check_circle_rounded,
+            color: Colors.green,
+            children: [
+              _keputusanInfo(
+                "Biaya Final",
+                item["biaya_final"] != null &&
+                        item["biaya_final"].toString().isNotEmpty
+                    ? AhpHelper.formatRupiah(item["biaya_final"].toString())
+                    : "-",
+              ),
+              _keputusanInfo(
+                "Tahun Realisasi",
+                item["tahun_realisasi"]?.toString() ?? "-",
+              ),
+              _keputusanInfo(
+                "Skor AHP",
+                item["skor_ahp"] != null
+                    ? double.tryParse(
+                            item["skor_ahp"].toString(),
+                          )?.toStringAsFixed(2) ??
+                          "-"
+                    : "-",
+              ),
+            ],
           ),
+
+          const SizedBox(height: 16),
+
+          // 🔥 INI YANG BARU KAMU TAMBAH
+          Row(
+            children: [
+              Expanded(
+                child: _decisionButton(
+                  title: "Tunda",
+                  subtitle: "Ke Hasil Musrenbang",
+                  icon: Icons.update_rounded,
+                  color: Colors.orange,
+                  onTap: () {
+                    Get.toNamed(
+                      Routes.DETAIL_HASIL_MUSRENBANG,
+                      arguments: {
+                        "id": item["id"],
+                        "from": "admin",
+                        "mode": "tunda",
+                      },
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: _decisionButton(
+                  title: "Realisasikan",
+                  subtitle: "Selesaikan usulan",
+                  icon: Icons.verified_rounded,
+                  color: Colors.green,
+                  onTap: () {
+                    Get.toNamed(
+                      Routes.DETAIL_HASIL_MUSRENBANG,
+                      arguments: {
+                        "id": item["id"],
+                        "from": "admin",
+                        "mode": "realisasi",
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    if (sudahDitunda) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xFFE6E8EC)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _statusKeputusanBox(
+              title: "Usulan Sedang Ditunda",
+              subtitle:
+                  "Usulan ini masih berstatus ditunda. Admin dapat menunda kembali atau merealisasikan usulan.",
+              icon: Icons.update_rounded,
+              color: Colors.orange,
+              children: [
+                _keputusanInfo(
+                  "Tahun Realisasi",
+                  item["tahun_realisasi"]?.toString() ?? "-",
+                ),
+                _keputusanInfo(
+                  "Catatan Penundaan",
+                  item["catatan_penundaan"]?.toString() ?? "-",
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _decisionButton(
+                    title: "Tunda Lagi",
+                    subtitle: "Perbarui tahun",
+                    icon: Icons.update_rounded,
+                    color: Colors.orange,
+                    onTap: () {
+                      Get.toNamed(
+                        Routes.DETAIL_HASIL_MUSRENBANG,
+                        arguments: {"id": item["id"], "from": "admin"},
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: _decisionButton(
+                    title: "Realisasikan",
+                    subtitle: "Selesaikan usulan",
+                    icon: Icons.verified_rounded,
+                    color: Colors.green,
+                    onTap: () {
+                      Get.toNamed(
+                        Routes.DETAIL_HASIL_MUSRENBANG,
+                        arguments: {"id": item["id"], "from": "admin"},
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (sudahDirealisasikan) {
+      return _statusKeputusanBox(
+        title: "Usulan Sudah Direalisasikan",
+        subtitle:
+            "Usulan ini telah direalisasikan dan dinyatakan selesai dalam hasil Musrenbang.",
+        icon: Icons.verified_rounded,
+        color: const Color(0xFF003E79),
+        children: [
           _keputusanInfo(
             "Tahun Realisasi",
             item["tahun_realisasi"]?.toString() ?? "-",
           ),
           _keputusanInfo(
-            "Skor AHP",
-            item["skor_ahp"] != null
-                ? double.tryParse(
-                        item["skor_ahp"].toString(),
-                      )?.toStringAsFixed(2) ??
-                      "-"
+            "Biaya Final",
+            item["biaya_final"] != null &&
+                    item["biaya_final"].toString().isNotEmpty
+                ? AhpHelper.formatRupiah(item["biaya_final"].toString())
                 : "-",
           ),
         ],
@@ -1045,6 +1297,178 @@ class DetailAdminView extends GetView<DetailAdminController> {
     );
   }
 
+  //
+  void _showKonfirmasiKeputusan({
+    required String title,
+    required String message,
+    required IconData icon,
+    required Color color,
+    required String buttonText,
+    required Future<void> Function() onConfirm,
+  }) {
+    Get.bottomSheet(
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 42,
+              height: 5,
+              margin: const EdgeInsets.only(bottom: 18),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(icon, size: 34, color: color),
+            ),
+
+            const SizedBox(height: 18),
+
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF003E79),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                height: 1.5,
+                color: Colors.grey.shade600,
+              ),
+            ),
+
+            const SizedBox(height: 18),
+
+            _konfirmasiItemAdmin(
+              icon: Icons.fact_check_rounded,
+              text: "Detail usulan sudah diperiksa dengan benar.",
+            ),
+            _konfirmasiItemAdmin(
+              icon: Icons.location_on_rounded,
+              text:
+                  "Lokasi, biaya, data pengusul, dan data pendukung sudah dipertimbangkan.",
+            ),
+            _konfirmasiItemAdmin(
+              icon: Icons.warning_amber_rounded,
+              text: "Keputusan ini akan mengubah status usulan masyarakat.",
+            ),
+
+            const SizedBox(height: 24),
+
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.grey.shade300),
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        "Cek Lagi",
+                        style: GoogleFonts.poppins(
+                          color: Colors.black87,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Get.back();
+                        await onConfirm();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: color,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        buttonText,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+      ignoreSafeArea: false,
+    );
+  }
+
+  Widget _konfirmasiItemAdmin({required IconData icon, required String text}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: const Color(0xFF003E79)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(
+                fontSize: 12.5,
+                height: 1.5,
+                color: Colors.grey.shade700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  //
+
   void _showTerimaSheet() {
     final biayaC = TextEditingController();
     final tahunC = TextEditingController();
@@ -1086,20 +1510,30 @@ class DetailAdminView extends GetView<DetailAdminController> {
                   );
                   return;
                 }
-                final berhasil = await controller.terima(
-                  biayaFinal: biayaFinal,
-                  tahun: tahun,
+                _showKonfirmasiKeputusan(
+                  title: "Setujui Usulan?",
+                  message:
+                      "Pastikan biaya final dan tahun realisasi sudah benar. Usulan yang disetujui belum tentu langsung direalisasikan, karena masih dapat ditunda sesuai prioritas dan anggaran.",
+                  icon: Icons.check_circle_rounded,
+                  color: Colors.green,
+                  buttonText: "Ya, Setujui",
+                  onConfirm: () async {
+                    final berhasil = await controller.terima(
+                      biayaFinal: biayaFinal,
+                      tahun: tahun,
+                    );
+
+                    if (berhasil) {
+                      Get.closeAllSnackbars();
+
+                      Get.back(closeOverlays: true);
+
+                      await Future.delayed(const Duration(milliseconds: 300));
+
+                      Get.back(result: true);
+                    }
+                  },
                 );
-
-                if (berhasil) {
-                  Get.closeAllSnackbars();
-
-                  Get.back(closeOverlays: true);
-
-                  await Future.delayed(const Duration(milliseconds: 300));
-
-                  Get.back(result: true);
-                }
               },
             ),
           ),
@@ -1138,19 +1572,29 @@ class DetailAdminView extends GetView<DetailAdminController> {
                   );
                   return;
                 }
-                final berhasil = await controller.tolak(
-                  catatan: catatanC.text.trim(),
+                _showKonfirmasiKeputusan(
+                  title: "Tolak Usulan?",
+                  message:
+                      "Pastikan catatan penolakan sudah jelas dan sesuai. Usulan dapat ditolak apabila data tidak lengkap, tidak relevan, atau tidak sesuai kebutuhan masyarakat.",
+                  icon: Icons.cancel_rounded,
+                  color: Colors.red,
+                  buttonText: "Ya, Tolak",
+                  onConfirm: () async {
+                    final berhasil = await controller.tolak(
+                      catatan: catatanC.text.trim(),
+                    );
+
+                    if (berhasil) {
+                      Get.closeAllSnackbars();
+
+                      Get.back(closeOverlays: true);
+
+                      await Future.delayed(const Duration(milliseconds: 300));
+
+                      Get.back(result: true);
+                    }
+                  },
                 );
-
-                if (berhasil) {
-                  Get.closeAllSnackbars();
-
-                  Get.back(closeOverlays: true);
-
-                  await Future.delayed(const Duration(milliseconds: 300));
-
-                  Get.back(result: true);
-                }
               },
             ),
           ),

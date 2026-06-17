@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:musrenbang/app/routes/app_pages.dart';
-
+import 'package:musrenbang/app/utils/ahp_helper.dart';
 import '../controllers/hasil_musrenbang_controller.dart';
 
 class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
@@ -194,9 +194,55 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
         ? Get.find<HasilMusrenbangController>()
         : Get.put(HasilMusrenbangController());
 
-    return Material(
-      color: Colors.white,
-      child: Column(
+    //detail user admin
+    final args = Get.arguments ?? {};
+    final from = args is Map ? args["from"] ?? "user" : "user";
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+
+      floatingActionButton: from == "admin"
+          ? GestureDetector(
+              onTap: () => Get.back(),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF003E79),
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF003E79).withOpacity(0.25),
+                      blurRadius: 12,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.reply_rounded,
+                      color: Colors.white,
+                      size: 27,
+                    ),
+                    // const SizedBox(width: 6),
+                    // Text(
+                    //   "Kembali",
+                    //   style: GoogleFonts.poppins(
+                    //     color: Colors.white,
+                    //     fontSize: 12,
+                    //     fontWeight: FontWeight.w600,
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ),
+            )
+          : null,
+      body: Column(
         children: [
           /// ================= HEADER BIRU =================
           Container(
@@ -456,13 +502,9 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
                               item["tahun_realisasi"]?.toString() ?? "-";
 
                           final status = item["status"]?.toString() ?? "-";
+                          final statusColor = getStatusColor(status);
 
-                          final skorAhp =
-                              double.tryParse(
-                                item["skor_ahp"]?.toString() ?? "0",
-                              ) ??
-                              0.0;
-                          final skor = skorAhp.toStringAsFixed(2);
+                          final skor = _getSkorAHP(item);
                           return Container(
                             margin: const EdgeInsets.only(bottom: 15),
                             padding: const EdgeInsets.all(16),
@@ -565,15 +607,15 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
                                               vertical: 4,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: const Color(
-                                                0xFF2E7D32,
-                                              ).withOpacity(0.10),
+                                              color: statusColor.withOpacity(
+                                                0.10,
+                                              ),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                               border: Border.all(
-                                                color: const Color(
-                                                  0xFF2E7D32,
-                                                ).withOpacity(0.35),
+                                                color: statusColor.withOpacity(
+                                                  0.35,
+                                                ),
                                               ),
                                             ),
                                             child: Text(
@@ -581,7 +623,7 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
                                               style: GoogleFonts.poppins(
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.w600,
-                                                color: const Color(0xFF2E7D32),
+                                                color: statusColor,
                                               ),
                                             ),
                                           ),
@@ -593,29 +635,41 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
                                       onTap: () {
                                         Get.toNamed(
                                           Routes.DETAIL_HASIL_MUSRENBANG,
-                                          arguments: {"id": idUsulan},
+                                          arguments: {
+                                            "id": item["id"],
+                                            "from": from,
+                                          },
                                         );
                                       },
                                       child: Container(
-                                        width: 28,
-                                        height: 28,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 6,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF003E79),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.10,
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              "Detail",
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
                                               ),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 3),
+                                            ),
+                                            const SizedBox(width: 2),
+                                            const Icon(
+                                              Icons.arrow_forward_ios_rounded,
+                                              color: Colors.white,
+                                              size: 10,
                                             ),
                                           ],
-                                        ),
-                                        child: const Icon(
-                                          Icons.arrow_forward_rounded,
-                                          color: Colors.white,
-                                          size: 16,
                                         ),
                                       ),
                                     ),
@@ -635,5 +689,47 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
         ],
       ),
     );
+  }
+
+  //warna status
+  Color getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case "disetujui":
+        return Colors.green;
+
+      case "ditunda":
+        return Colors.orange;
+
+      case "direalisasikan":
+        return const Color(0xFF003E79);
+
+      default:
+        return Colors.grey;
+    }
+  }
+
+  //skor
+  String _getSkorAHP(dynamic item) {
+    final skorDb = item["skor_ahp"]?.toString().trim() ?? "";
+
+    if (skorDb.isNotEmpty && skorDb != "null") {
+      final nilai = double.tryParse(skorDb);
+
+      if (nilai != null) {
+        if (nilai <= 5) {
+          return (nilai * 20).toStringAsFixed(2);
+        }
+
+        return nilai.toStringAsFixed(2);
+      }
+
+      return skorDb;
+    }
+
+    final hasil = AhpHelper.hitungTotalAhp100(item);
+
+    if (hasil <= 0) return "-";
+
+    return hasil.toStringAsFixed(2);
   }
 }

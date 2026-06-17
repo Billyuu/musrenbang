@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:musrenbang/app/modules/profil/controllers/profil_controller.dart';
 import 'package:musrenbang/services/api_service.dart';
+import 'package:musrenbang/app/routes/app_pages.dart';
 import 'package:get_storage/get_storage.dart';
 
 class HomeController extends GetxController {
@@ -37,13 +38,17 @@ class HomeController extends GetxController {
   var statusAktif = "Diproses".obs;
 
   String mapStatus(String statusUI) {
-    switch (statusUI) {
-      case "Diproses":
+    switch (statusUI.toLowerCase()) {
+      case "diproses":
         return "diproses";
-      case "Disetujui":
+      case "disetujui":
         return "disetujui";
-      case "Ditolak":
+      case "ditolak":
         return "ditolak";
+      case "ditunda":
+        return "ditunda";
+      case "direalisasikan":
+        return "direalisasikan";
       default:
         return "";
     }
@@ -51,7 +56,7 @@ class HomeController extends GetxController {
 
   //filter data usulan
   List<dynamic> get filteredUsulan {
-    final statusFilter = mapStatus(statusAktif.value);
+    final statusFilter = statusAktif.value.toLowerCase().trim();
 
     return dataUsulan.where((item) {
       final statusApi = item["status"]?.toString().toLowerCase().trim() ?? "";
@@ -67,7 +72,27 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
 
-    userId = box.read("user_id");
+    final role = box.read("role");
+    final isLogin = box.read("is_login") == true;
+    final isUserLogin = box.read("isUserLogin") == true;
+    final storedUserId = box.read("user_id");
+
+    if (!isLogin || role != "user" || !isUserLogin || storedUserId == null) {
+      Get.offAllNamed(Routes.LOGIN);
+      return;
+    }
+
+   if (storedUserId == null || storedUserId == "") {
+  Get.offAllNamed(Routes.LOGIN);
+  return;
+}
+
+userId = int.parse(storedUserId.toString());
+
+    if (userId == 0) {
+      Get.offAllNamed(Routes.LOGIN);
+      return;
+    }
 
     print("USER ID HOME: $userId");
 

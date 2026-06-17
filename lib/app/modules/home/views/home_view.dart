@@ -6,6 +6,7 @@ import 'package:musrenbang/app/modules/hasil_musrenbang/views/hasil_musrenbang_v
 import 'package:musrenbang/app/modules/profil/views/profil_view.dart';
 import 'package:musrenbang/app/modules/profil/controllers/profil_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get_storage/get_storage.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -51,14 +52,58 @@ class HomeView extends GetView<HomeController> {
                       ),
                 actions: index == 0
                     ? [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.notifications_none_rounded,
-                            color: Colors.white,
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Builder(
+                            builder: (context) {
+                              final box = GetStorage();
+
+                              final bool sudahPernahDibuka =
+                                  box.read('sudah_buka_panduan') == true;
+
+                              final RxBool sudahBukaPanduan = RxBool(
+                                sudahPernahDibuka,
+                              );
+
+                              return Obx(
+                                () => Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.help_outline,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        box.write('sudah_buka_panduan', true);
+                                        sudahBukaPanduan.value = true;
+
+                                        Get.toNamed(Routes.NOTIF);
+                                      },
+                                    ),
+
+                                    if (!sudahBukaPanduan.value)
+                                      Positioned(
+                                        right: 12,
+                                        top: 12,
+                                        child: Container(
+                                          width: 9,
+                                          height: 9,
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 1.2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
-                          onPressed: () {
-                            Get.toNamed(Routes.NOTIF);
-                          },
                         ),
                       ]
                     : null,
@@ -368,7 +413,7 @@ class HomeView extends GetView<HomeController> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          "UMKM, beasiswa, pelatihan, bantuan sosial, atau kesehatan.",
+                                          "UMKM, Pendidikan, pelatihan, bantuan sosial, atau kesehatan.",
                                           style: GoogleFonts.poppins(
                                             fontSize: 11,
                                             color: Colors.grey,
@@ -494,106 +539,176 @@ class HomeView extends GetView<HomeController> {
         ),
 
         const SizedBox(height: 10),
+
         // action di proses
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: const Color(0xFFCCCCCC), width: 1),
           ),
 
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              /// 🔵 DIPROSES
-              GestureDetector(
-                onTap: () => controller.statusAktif.value = "Diproses",
-                child: Obx(
-                  () => Row(
-                    children: [
-                      Icon(
-                        Icons.local_shipping,
-                        size: 20,
-                        color: controller.statusAktif.value == "Diproses"
-                            ? const Color(0xFF003E79)
-                            : Colors.grey,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Diproses",
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// 🔵 DIPROSES
+                GestureDetector(
+                  onTap: () => controller.statusAktif.value = "Diproses",
+                  child: Obx(
+                    () => Row(
+                      children: [
+                        Icon(
+                          Icons.local_shipping,
+                          size: 20,
                           color: controller.statusAktif.value == "Diproses"
                               ? const Color(0xFF003E79)
                               : Colors.grey,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        Text(
+                          "Diproses",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: controller.statusAktif.value == "Diproses"
+                                ? const Color(0xFF003E79)
+                                : Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              /// 🔵 DISETUJUI
-              GestureDetector(
-                onTap: () => controller.statusAktif.value = "Disetujui",
-                child: Obx(
-                  () => Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle,
-                        size: 20,
-                        color: controller.statusAktif.value == "Disetujui"
-                            ? const Color(0xFF003E79)
-                            : Colors.grey,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Disetujui",
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                /// 🔵 DISETUJUI
+                GestureDetector(
+                  onTap: () => controller.statusAktif.value = "Disetujui",
+                  child: Obx(
+                    () => Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          size: 20,
                           color: controller.statusAktif.value == "Disetujui"
                               ? const Color(0xFF003E79)
                               : Colors.grey,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        Text(
+                          "Disetujui",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: controller.statusAktif.value == "Disetujui"
+                                ? const Color(0xFF003E79)
+                                : Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              /// 🔵 DITOLAK
-              GestureDetector(
-                onTap: () => controller.statusAktif.value = "Ditolak",
-                child: Obx(
-                  () => Row(
-                    children: [
-                      Icon(
-                        Icons.cancel,
-                        size: 20,
-                        color: controller.statusAktif.value == "Ditolak"
-                            ? const Color(0xFF003E79)
-                            : Colors.grey,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Ditolak",
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                /// 🔵 DITOLAK
+                GestureDetector(
+                  onTap: () => controller.statusAktif.value = "Ditolak",
+                  child: Obx(
+                    () => Row(
+                      children: [
+                        Icon(
+                          Icons.cancel,
+                          size: 20,
                           color: controller.statusAktif.value == "Ditolak"
                               ? const Color(0xFF003E79)
                               : Colors.grey,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        Text(
+                          "Ditolak",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: controller.statusAktif.value == "Ditolak"
+                                ? const Color(0xFF003E79)
+                                : Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+
+                /// 🔵 DITUNDA
+                GestureDetector(
+                  onTap: () => controller.statusAktif.value = "Ditunda",
+                  child: Obx(
+                    () => Row(
+                      children: [
+                        Icon(
+                          Icons.update,
+                          size: 20,
+                          color: controller.statusAktif.value == "Ditunda"
+                              ? const Color(0xFF003E79)
+                              : Colors.grey,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "Ditunda",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: controller.statusAktif.value == "Ditunda"
+                                ? const Color(0xFF003E79)
+                                : Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                      ],
+                    ),
+                  ),
+                ),
+
+                /// 🔵 DIREALISASIKAN
+                GestureDetector(
+                  onTap: () => controller.statusAktif.value = "Direalisasikan",
+                  child: Obx(
+                    () => Row(
+                      children: [
+                        Icon(
+                          Icons.verified,
+                          size: 20,
+                          color:
+                              controller.statusAktif.value == "Direalisasikan"
+                              ? const Color(0xFF003E79)
+                              : Colors.grey,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "Direalisasikan",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                controller.statusAktif.value == "Direalisasikan"
+                                ? const Color(0xFF003E79)
+                                : Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 15),
@@ -748,11 +863,13 @@ class HomeView extends GetView<HomeController> {
                                       ),
                                     ),
 
-                                    const SizedBox(height: 7),
+                                    const SizedBox(height: 8),
 
                                     /// 📝 JUDUL
                                     Text(
                                       item["judul_usulan"]?.toString() ?? "-",
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                       style: GoogleFonts.poppins(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
@@ -772,6 +889,7 @@ class HomeView extends GetView<HomeController> {
                                   ],
                                 ),
                               ),
+                              const SizedBox(width: 15),
 
                               /// ➡️ ICON PANAH
                               GestureDetector(

@@ -12,6 +12,8 @@ class HasilMusrenbangController extends GetxController {
     getHasilMusrenbang();
   }
 
+  
+
   //pencarian
   var keywordPencarian = ''.obs;
   void ubahPencarian(String value) {
@@ -37,6 +39,7 @@ int get totalNonFisik {
   }).length;
 }
 
+//pencarian
   List<dynamic> get hasilSesuaiKategoriPencarian {
     final data = hasilSesuaiKategori;
     final keyword = keywordPencarian.value.toLowerCase().trim();
