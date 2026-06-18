@@ -128,9 +128,9 @@ class DetailView extends GetView<DetailController> {
               _detailItem(
                 icon: Icons.calendar_month_rounded,
                 title: 'Dibuat Pada',
-               value: data['tanggal'] != null
-    ? _formatTanggalIndonesia(data['tanggal'].toString())
-    : '-',
+                value: data['tanggal'] != null
+                    ? _formatTanggalIndonesia(data['tanggal'].toString())
+                    : '-',
               ),
 
               const SizedBox(height: 20),
@@ -336,10 +336,7 @@ class DetailView extends GetView<DetailController> {
     return text;
   }
 
-  Widget _buildFotoUsulan(
-    String? foto, {
-    String label = 'Foto Usulan',
-  }) {
+  Widget _buildFotoUsulan(String? foto, {String label = 'Foto Usulan'}) {
     if (!_adaFoto(foto)) {
       return _buildFotoKosong(label: label);
     }
@@ -443,9 +440,7 @@ class DetailView extends GetView<DetailController> {
     );
   }
 
-  Widget _buildFotoKosong({
-    String label = 'Foto Usulan',
-  }) {
+  Widget _buildFotoKosong({String label = 'Foto Usulan'}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -472,10 +467,7 @@ class DetailView extends GetView<DetailController> {
           child: Center(
             child: Text(
               'Foto tidak tersedia',
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: Colors.grey,
-              ),
+              style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
             ),
           ),
         ),
@@ -598,7 +590,7 @@ class DetailView extends GetView<DetailController> {
               value:
                   data['biaya_final'] != null &&
                       data['biaya_final'].toString().isNotEmpty
-                  ? 'Rp ${data['biaya_final']}'
+                 ? _formatBiaya(data['biaya_final'])
                   : '-',
             ),
             _keputusanItem(
@@ -838,15 +830,27 @@ class DetailView extends GetView<DetailController> {
     );
   }
 
-  String _formatBiaya(dynamic biaya) {
-    final value = biaya?.toString().trim() ?? '';
+ String _formatBiaya(dynamic biaya) {
+  final value = biaya?.toString().trim() ?? '';
 
-    if (value.isEmpty || value == 'null') {
-      return 'Tidak diisi';
-    }
+  if (value.isEmpty || value == 'null' || value == '-') {
+    return 'Tidak diisi';
+  }
 
+  final cleaned = value.replaceAll(RegExp(r'[^0-9]'), '');
+  final number = int.tryParse(cleaned);
+
+  if (number == null) {
     return 'Rp $value';
   }
+
+  final result = number.toString().replaceAllMapped(
+    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+    (match) => '${match[1]}.',
+  );
+
+  return 'Rp $result';
+}
 
   Widget _statusBadge(String status) {
     Color color;
@@ -885,12 +889,12 @@ class DetailView extends GetView<DetailController> {
             status.toLowerCase() == "direalisasikan"
                 ? Icons.verified_rounded
                 : status.toLowerCase() == "ditunda"
-                    ? Icons.update_rounded
-                    : status.toLowerCase() == "ditolak"
-                        ? Icons.cancel_rounded
-                        : status.toLowerCase() == "disetujui"
-                            ? Icons.check_circle_rounded
-                            : Icons.hourglass_bottom_rounded,
+                ? Icons.update_rounded
+                : status.toLowerCase() == "ditolak"
+                ? Icons.cancel_rounded
+                : status.toLowerCase() == "disetujui"
+                ? Icons.check_circle_rounded
+                : Icons.hourglass_bottom_rounded,
             size: 13,
             color: Colors.white,
           ),

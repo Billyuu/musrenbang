@@ -1,18 +1,21 @@
 class AhpHelper {
   // =========================
   // BOBOT KRITERIA AHP FISIK
+  // Sesuai hasil kuesioner AHP
   // =========================
-  static const double bobotUrgensi = 0.40;
-  static const double bobotDampak = 0.30;
-  static const double bobotKerusakan = 0.20;
-  static const double bobotBiaya = 0.10;
+  static const double bobotUrgensi = 0.443;
+  static const double bobotDampak = 0.250;
+  static const double bobotKerusakan = 0.231;
+  static const double bobotBiaya = 0.076;
+
   // =========================
   // BOBOT KRITERIA AHP NON FISIK
+  // Sesuai hasil kuesioner AHP
   // =========================
-  static const double bobotKebutuhan = 0.35;
-  static const double bobotPenerimaManfaat = 0.25;
-  static const double bobotBidangUsulan = 0.20;
-  static const double bobotBiayaNonFisik = 0.20;
+  static const double bobotKebutuhan = 0.439;
+  static const double bobotPenerimaManfaat = 0.193;
+  static const double bobotBidangUsulan = 0.294;
+  static const double bobotBiayaNonFisik = 0.074;
 
   // =========================
   // HITUNG TOTAL AHP OTOMATIS
@@ -21,7 +24,9 @@ class AhpHelper {
     final jenisUsulan =
         item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
 
-    if (jenisUsulan == "non_fisik") {
+    if (jenisUsulan == "non_fisik" ||
+        jenisUsulan == "non fisik" ||
+        jenisUsulan == "nonfisik") {
       return hitungTotalAhpNonFisik(item);
     }
 
@@ -40,7 +45,7 @@ class AhpHelper {
     double skorUrgensi = skorUrgensiKondisi(kondisiUrgensi);
     double skorDampak = skorDampakKondisi(kondisiDampak);
     double skorKerusakan = skorKerusakanKondisi(kondisiKerusakan);
-    double skorBiaya = skorBiayaNominal(biayaInputUser);
+    double skorBiaya = skorBiayaNominalFisik(biayaInputUser);
 
     return (bobotUrgensi * skorUrgensi) +
         (bobotDampak * skorDampak) +
@@ -48,6 +53,9 @@ class AhpHelper {
         (bobotBiaya * skorBiaya);
   }
 
+  // =========================
+  // HITUNG TOTAL AHP NON FISIK
+  // =========================
   static double hitungTotalAhpNonFisik(dynamic item) {
     String kondisiKebutuhan = item["tingkat_kebutuhan"]?.toString() ?? "-";
     String kondisiPenerima = item["jumlah_penerima_manfaat"]?.toString() ?? "-";
@@ -57,7 +65,7 @@ class AhpHelper {
     double skorKebutuhan = skorKebutuhanKondisi(kondisiKebutuhan);
     double skorPenerima = skorPenerimaManfaatKondisi(kondisiPenerima);
     double skorBidang = skorBidangUsulanKondisi(kondisiBidang);
-    double skorBiaya = skorBiayaNominal(biayaInputUser);
+    double skorBiaya = skorBiayaNominalNonFisik(biayaInputUser);
 
     return (bobotKebutuhan * skorKebutuhan) +
         (bobotPenerimaManfaat * skorPenerima) +
@@ -69,7 +77,7 @@ class AhpHelper {
   // SKOR URGENSI FISIK
   // =========================
   static double skorUrgensiKondisi(String kondisi) {
-    final value = kondisi.toLowerCase();
+    final value = kondisi.toLowerCase().trim();
 
     if (value.contains("sangat mendesak")) return 5;
     if (value.contains("cukup mendesak")) return 3;
@@ -84,7 +92,7 @@ class AhpHelper {
   // SKOR MASYARAKAT TERDAMPAK FISIK
   // =========================
   static double skorDampakKondisi(String kondisi) {
-    final value = kondisi.toLowerCase();
+    final value = kondisi.toLowerCase().trim();
 
     if (value.contains("desa")) return 5;
     if (value.contains("dusun")) return 4;
@@ -99,9 +107,9 @@ class AhpHelper {
   // SKOR TINGKAT KERUSAKAN FISIK
   // =========================
   static double skorKerusakanKondisi(String kondisi) {
-    final value = kondisi.toLowerCase();
+    final value = kondisi.toLowerCase().trim();
 
-    if (value.contains("tidak punya")) return 5;
+    if (value.contains("tidak ada") || value.contains("tidak punya")) return 5;
     if (value.contains("rusak berat")) return 4;
     if (value.contains("rusak sedang")) return 3;
     if (value.contains("rusak ringan")) return 2;
@@ -114,7 +122,7 @@ class AhpHelper {
   // SKOR TINGKAT KEBUTUHAN NON FISIK
   // =========================
   static double skorKebutuhanKondisi(String kondisi) {
-    final value = kondisi.toLowerCase();
+    final value = kondisi.toLowerCase().trim();
 
     if (value.contains("sangat dibutuhkan")) return 5;
     if (value.contains("tidak terlalu dibutuhkan")) return 1;
@@ -127,32 +135,64 @@ class AhpHelper {
 
   // =========================
   // SKOR JUMLAH PENERIMA MANFAAT NON FISIK
+  // Semakin banyak penerima manfaat, semakin tinggi skor
   // =========================
   static double skorPenerimaManfaatKondisi(String kondisi) {
-    final value = kondisi.toLowerCase();
+    final value = kondisi.toLowerCase().trim();
 
+    // Format rentang dari dropdown, misalnya "1-10 orang", "51-80 orang"
+    if (value.contains(">80") ||
+        value.contains("> 80") ||
+        value.contains("lebih dari 80")) {
+      return 5;
+    }
+
+    if (value.contains("51-80") ||
+        value.contains("51 - 80") ||
+        value.contains("51 sampai 80")) {
+      return 4;
+    }
+
+    if (value.contains("31-50") ||
+        value.contains("31 - 50") ||
+        value.contains("31 sampai 50")) {
+      return 3;
+    }
+
+    if (value.contains("11-30") ||
+        value.contains("11 - 30") ||
+        value.contains("11 sampai 30")) {
+      return 2;
+    }
+
+    if (value.contains("1-10") ||
+        value.contains("1 - 10") ||
+        value.contains("1 sampai 10")) {
+      return 1;
+    }
+
+    // Jika di aplikasi pakai label umum
     if (value.contains("sangat banyak")) return 5;
-    if (value.contains("sangat sedikit")) return 1;
     if (value.contains("banyak")) return 4;
     if (value.contains("sedang")) return 3;
     if (value.contains("sedikit")) return 2;
+    if (value.contains("sangat sedikit")) return 1;
 
     return double.tryParse(kondisi) ?? 0;
   }
 
   // =========================
   // SKOR BIDANG USULAN NON FISIK
+  // Sesuai tabel nilai kondisi penelitian
   // =========================
   static double skorBidangUsulanKondisi(String kondisi) {
-    final value = kondisi.toLowerCase();
+    final value = kondisi.toLowerCase().trim();
 
     if (value.contains("kesehatan")) return 5;
-    if (value.contains("pendidikan")) return 4;
-    if (value.contains("sosial")) return 4;
-    if (value.contains("kesejahteraan")) return 4;
-    if (value.contains("umkm")) return 3;
-    if (value.contains("ekonomi")) return 3;
-    if (value.contains("pemberdayaan")) return 3;
+    if (value.contains("sosial") || value.contains("kesejahteraan")) return 4;
+    if (value.contains("ekonomi") || value.contains("umkm")) return 3;
+    if (value.contains("pendidikan")) return 2;
+    if (value.contains("pemberdayaan")) return 1;
 
     return double.tryParse(kondisi) ?? 0;
   }
@@ -174,14 +214,38 @@ class AhpHelper {
 
   // =========================
   // SKOR BIAYA FISIK
+  // 5 = 0 - 50 juta
+  // 4 = 50 - 100 juta
+  // 3 = 100 - 150 juta
+  // 2 = 150 - 200 juta
+  // 1 = > 200 juta
   // =========================
-  static double skorBiayaNominal(String biaya) {
+  static double skorBiayaNominalFisik(String biaya) {
     double nominal = parseRupiah(biaya);
 
     if (nominal <= 50000000) return 5;
     if (nominal <= 100000000) return 4;
     if (nominal <= 150000000) return 3;
     if (nominal <= 200000000) return 2;
+
+    return 1;
+  }
+
+  // =========================
+  // SKOR BIAYA NON FISIK
+  // 5 = 0 - 5 juta
+  // 4 = 5 - 10 juta
+  // 3 = 10 - 15 juta
+  // 2 = 15 - 20 juta
+  // 1 = > 20 juta
+  // =========================
+  static double skorBiayaNominalNonFisik(String biaya) {
+    double nominal = parseRupiah(biaya);
+
+    if (nominal <= 5000000) return 5;
+    if (nominal <= 10000000) return 4;
+    if (nominal <= 15000000) return 3;
+    if (nominal <= 20000000) return 2;
 
     return 1;
   }
@@ -212,7 +276,6 @@ class AhpHelper {
     return "Rp$hasil";
   }
 
-  //100
   // =========================
   // KONVERSI NILAI AHP KE SKALA 100
   // =========================

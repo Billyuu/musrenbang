@@ -33,7 +33,7 @@ class LaporanUsulanPdfService {
 
             pw.SizedBox(height: 10),
 
-            _tabelLaporan(data: data, status: status),
+            _tabelLaporan(data: data, status: status, jenis: jenis),
 
             pw.SizedBox(height: 28),
 
@@ -82,7 +82,13 @@ class LaporanUsulanPdfService {
   static pw.Widget _tabelLaporan({
     required List<dynamic> data,
     required String status,
+    required String jenis,
   }) {
+    final isNonFisikLaporan =
+        jenis.toLowerCase().trim() == "non_fisik" ||
+        jenis.toLowerCase().trim() == "non fisik" ||
+        jenis.toLowerCase().trim() == "nonfisik";
+
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey600, width: 0.5),
       columnWidths: {
@@ -104,7 +110,10 @@ class LaporanUsulanPdfService {
             _pdfCell("Judul Usulan", isHeader: true),
             _pdfCell("Kriteria\n(Bobot)", isHeader: true),
             _pdfCell("Kondisi\n(Nilai)", isHeader: true),
-            _pdfCell("Volume\nP/L/T", isHeader: true),
+            _pdfCell(
+              isNonFisikLaporan ? "Volume" : "Volume\nP/L/T",
+              isHeader: true,
+            ),
             _pdfCell("Skor", isHeader: true),
             _pdfCell("Keterangan", isHeader: true),
           ],
@@ -118,8 +127,8 @@ class LaporanUsulanPdfService {
               _pdfCell("${index + 1}"),
               _pdfCell(_safe(item["tanggal"])),
               _pdfCell(_safe(item["judul_usulan"])),
-              _pdfCell(_getKriteriaFisik()),
-              _pdfCell(_getKondisiNilaiFisik(item)),
+              _pdfCell(_getKriteria(item)),
+              _pdfCell(_getKondisiNilai(item)),
               _pdfCell(_getVolumePLT(item)),
               _pdfCell(_getSkor(item)),
               _pdfCell(_keteranganByStatus(item, status)),
@@ -130,11 +139,33 @@ class LaporanUsulanPdfService {
     );
   }
 
-  static String _getKriteriaFisik() {
-    return "Urgensi (${AhpHelper.bobotUrgensi.toStringAsFixed(2)})\n"
-        "Masyarakat Terdampak (${AhpHelper.bobotDampak.toStringAsFixed(2)})\n"
-        "Tingkat Kerusakan (${AhpHelper.bobotKerusakan.toStringAsFixed(2)})\n"
-        "Biaya (${AhpHelper.bobotBiaya.toStringAsFixed(2)})";
+  static bool _isNonFisik(dynamic item) {
+    final jenis =
+        item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
+
+    return jenis == "non_fisik" || jenis == "non fisik" || jenis == "nonfisik";
+  }
+
+  static String _getKriteria(dynamic item) {
+    if (_isNonFisik(item)) {
+      return "Tingkat Kebutuhan (${AhpHelper.bobotKebutuhan.toStringAsFixed(3)})\n"
+          "Jumlah Penerima Manfaat (${AhpHelper.bobotPenerimaManfaat.toStringAsFixed(3)})\n"
+          "Bidang Usulan (${AhpHelper.bobotBidangUsulan.toStringAsFixed(3)})\n"
+          "Biaya (${AhpHelper.bobotBiayaNonFisik.toStringAsFixed(3)})";
+    }
+
+    return "Urgensi (${AhpHelper.bobotUrgensi.toStringAsFixed(3)})\n"
+        "Masyarakat Terdampak (${AhpHelper.bobotDampak.toStringAsFixed(3)})\n"
+        "Tingkat Kerusakan (${AhpHelper.bobotKerusakan.toStringAsFixed(3)})\n"
+        "Biaya (${AhpHelper.bobotBiaya.toStringAsFixed(3)})";
+  }
+
+  static String _getKondisiNilai(dynamic item) {
+    if (_isNonFisik(item)) {
+      return _getKondisiNilaiNonFisik(item);
+    }
+
+    return _getKondisiNilaiFisik(item);
   }
 
   static String _getKondisiNilaiFisik(dynamic item) {
@@ -146,7 +177,7 @@ class LaporanUsulanPdfService {
     final skorUrgensi = AhpHelper.skorUrgensiKondisi(urgensi);
     final skorDampak = AhpHelper.skorDampakKondisi(dampak);
     final skorKerusakan = AhpHelper.skorKerusakanKondisi(kerusakan);
-    final skorBiaya = AhpHelper.skorBiayaNominal(biaya);
+    final skorBiaya = AhpHelper.skorBiayaNominalFisik(biaya);
 
     return "$urgensi ($skorUrgensi)\n"
         "$dampak ($skorDampak)\n"
@@ -154,48 +185,67 @@ class LaporanUsulanPdfService {
         "${_formatRupiah(biaya)} ($skorBiaya)";
   }
 
+  static String _getKondisiNilaiNonFisik(dynamic item) {
+    final kebutuhan = _safe(item["tingkat_kebutuhan"]);
+    final penerima = _safe(item["jumlah_penerima_manfaat"]);
+    final bidang = _safe(item["bidang_usulan"]);
+    final biaya = _safe(item["biaya"]);
+
+    final skorKebutuhan = AhpHelper.skorKebutuhanKondisi(kebutuhan);
+    final skorPenerima = AhpHelper.skorPenerimaManfaatKondisi(penerima);
+    final skorBidang = AhpHelper.skorBidangUsulanKondisi(bidang);
+    final skorBiaya = AhpHelper.skorBiayaNominalNonFisik(biaya);
+
+    return "$kebutuhan ($skorKebutuhan)\n"
+        "$penerima ($skorPenerima)\n"
+        "$bidang ($skorBidang)\n"
+        "${_formatRupiah(biaya)} ($skorBiaya)";
+  }
+
   static String _getVolumePLT(dynamic item) {
-  final jenis =
-      item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
-
-  if (jenis == "non_fisik") {
-    return "-";
-  }
-
-  final panjang = _safeVolume(item["panjang"]);
-  final lebar = _safeVolume(item["lebar"]);
-  final tinggi = _safeVolume(item["tinggi"]);
-  var volume = _safeVolume(item["volume"]);
-
-  if (panjang == "-" && lebar == "-" && tinggi == "-" && volume == "-") {
-    return "-";
-  }
-
-  if (volume == "-" && panjang != "-" && lebar != "-" && tinggi != "-") {
-    final p = double.tryParse(panjang.replaceAll(",", "."));
-    final l = double.tryParse(lebar.replaceAll(",", "."));
-    final t = double.tryParse(tinggi.replaceAll(",", "."));
-
-    if (p != null && l != null && t != null) {
-      volume = (p * l * t).toStringAsFixed(2);
+    if (_isNonFisik(item)) {
+      return "-";
     }
+
+    final panjang = _safeVolume(item["panjang"]);
+    final lebar = _safeVolume(item["lebar"]);
+    final tinggi = _safeVolume(item["tinggi"]);
+    var volume = _safeVolume(item["volume"]);
+
+    if (panjang == "-" && lebar == "-" && tinggi == "-" && volume == "-") {
+      return "-";
+    }
+
+    if (volume == "-" && panjang != "-" && lebar != "-" && tinggi != "-") {
+      final p = double.tryParse(panjang.replaceAll(",", "."));
+      final l = double.tryParse(lebar.replaceAll(",", "."));
+      final t = double.tryParse(tinggi.replaceAll(",", "."));
+
+      if (p != null && l != null && t != null) {
+        volume = (p * l * t).toStringAsFixed(2);
+      }
+    }
+
+    return "P: $panjang m\n"
+        "L: $lebar m\n"
+        "T: $tinggi m\n"
+        "Vol: $volume m3";
   }
 
-  return "P: $panjang m\n"
-      "L: $lebar m\n"
-      "T: $tinggi m\n"
-      "Vol: $volume m3";
-}
+  static String _safeVolume(dynamic value) {
+    final text = value?.toString().trim() ?? "";
 
-static String _safeVolume(dynamic value) {
-  final text = value?.toString().trim() ?? "";
+    if (text.isEmpty ||
+        text == "null" ||
+        text == "-" ||
+        text == "0" ||
+        text == "0.0" ||
+        text == "0.00") {
+      return "-";
+    }
 
-  if (text.isEmpty || text == "null" || text == "-" || text == "0" || text == "0.0" || text == "0.00") {
-    return "-";
+    return text;
   }
-
-  return text;
-}
 
   static pw.Widget _tandaTangan() {
     return pw.Align(
@@ -240,49 +290,30 @@ static String _safeVolume(dynamic value) {
     return text;
   }
 
-  static String _formatJenis(dynamic value) {
-    final jenis = value?.toString().toLowerCase().trim() ?? "fisik";
-    return jenis == "non_fisik" ? "Non Fisik" : "Fisik";
-  }
-
-  static String _getVolume(dynamic item) {
-    final volume =
-        item["volume"] ??
-        item["volume_usulan"] ??
-        item["volume_pekerjaan"] ??
-        item["jumlah_volume"];
-
-    return _safe(volume);
-  }
-
   static String _getSkor(dynamic item) {
+    final hasil = AhpHelper.hitungTotalAhp100(item);
+
+    if (hasil > 0) {
+      return hasil.toStringAsFixed(2);
+    }
+
     final skorDb = item["skor_ahp"]?.toString().trim() ?? "";
 
-    // Jika skor sudah tersimpan di database
     if (skorDb.isNotEmpty && skorDb != "null") {
       final nilaiDb = double.tryParse(skorDb);
 
       if (nilaiDb != null) {
-        // Jika skor lama masih skala 5, ubah ke skala 100
         if (nilaiDb <= 5) {
           return (nilaiDb * 20).toStringAsFixed(2);
         }
 
-        // Jika sudah skala 100
         return nilaiDb.toStringAsFixed(2);
       }
 
       return skorDb;
     }
 
-    // Jika skor_ahp masih null, hitung langsung dari data usulan
-    final hasil = AhpHelper.hitungTotalAhp100(item);
-
-    if (hasil <= 0) {
-      return "-";
-    }
-
-    return hasil.toStringAsFixed(2);
+    return "-";
   }
 
   static String _keteranganByStatus(dynamic item, String status) {

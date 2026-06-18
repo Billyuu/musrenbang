@@ -57,11 +57,8 @@ class DetailAdminView extends GetView<DetailAdminController> {
         final args = Get.arguments ?? {};
         final fromLaporan = args["from"] == "laporan";
 
-        final jenisUsulan =
-            item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
-
-        final isFisik = jenisUsulan == "fisik";
-        final isNonFisik = jenisUsulan == "non_fisik";
+        final isNonFisik = _isNonFisik(item);
+        final isFisik = _isFisik(item);
 
         final labelJenisUsulan = isNonFisik ? "Non Fisik" : "Fisik";
 
@@ -141,6 +138,17 @@ class DetailAdminView extends GetView<DetailAdminController> {
     );
   }
 
+  bool _isNonFisik(dynamic item) {
+    final jenis =
+        item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
+
+    return jenis == "non_fisik" || jenis == "non fisik" || jenis == "nonfisik";
+  }
+
+  bool _isFisik(dynamic item) {
+    return !_isNonFisik(item);
+  }
+
   Widget _headerBadge(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
@@ -161,10 +169,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
   }
 
   Widget _statusHeader(dynamic item) {
-    final jenisUsulan =
-        item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
-
-    final isNonFisik = jenisUsulan == "non_fisik";
+    final isNonFisik = _isNonFisik(item);
     final labelJenisUsulan = isNonFisik ? "NON FISIK" : "FISIK";
 
     return Container(
@@ -288,12 +293,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
 
   //tabel perhitungan
   Widget _tabelPerhitunganAhp(dynamic item) {
-    final jenisUsulan =
-        item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
-
-    final isNonFisik = jenisUsulan == "non_fisik";
-
-    if (isNonFisik) {
+    if (_isNonFisik(item)) {
       return _tabelPerhitunganAhpNonFisik(item);
     }
 
@@ -312,7 +312,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
     double skorUrgensi = AhpHelper.skorUrgensiKondisi(kondisiUrgensi);
     double skorDampak = AhpHelper.skorDampakKondisi(kondisiDampak);
     double skorKerusakan = AhpHelper.skorKerusakanKondisi(kondisiKerusakan);
-    double skorBiaya = AhpHelper.skorBiayaNominal(biayaInputUser);
+    double skorBiaya = AhpHelper.skorBiayaNominalFisik(biayaInputUser);
 
     double hasilUrgensi = AhpHelper.bobotUrgensi * skorUrgensi * 20;
     double hasilDampak = AhpHelper.bobotDampak * skorDampak * 20;
@@ -369,7 +369,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
     double skorKebutuhan = AhpHelper.skorKebutuhanKondisi(kondisiKebutuhan);
     double skorPenerima = AhpHelper.skorPenerimaManfaatKondisi(kondisiPenerima);
     double skorBidang = AhpHelper.skorBidangUsulanKondisi(kondisiBidang);
-    double skorBiaya = AhpHelper.skorBiayaNominal(biayaInputUser);
+    double skorBiaya = AhpHelper.skorBiayaNominalNonFisik(biayaInputUser);
 
     double hasilKebutuhan = AhpHelper.bobotKebutuhan * skorKebutuhan * 20;
     double hasilPenerima = AhpHelper.bobotPenerimaManfaat * skorPenerima * 20;
@@ -558,7 +558,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
         DataCell(Text(kriteria, style: GoogleFonts.poppins(fontSize: 11))),
         DataCell(
           Text(
-            bobot.toStringAsFixed(2),
+            bobot.toStringAsFixed(3),
             style: GoogleFonts.poppins(fontSize: 11),
           ),
         ),
@@ -585,10 +585,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
 
   //fotousulan
   Widget _fotoUsulan(dynamic item) {
-    final jenisUsulan =
-        item["jenis_usulan"]?.toString().toLowerCase().trim() ?? "fisik";
-
-    final isFisik = jenisUsulan == "fisik";
+    final isFisik = _isFisik(item);
 
     final fotoDepan = item["foto_usulan"]?.toString() ?? "";
     final fotoBelakang = item["foto_usulan_belakang"]?.toString() ?? "";
@@ -701,142 +698,6 @@ class DetailAdminView extends GetView<DetailAdminController> {
     );
   }
 
-  Widget _fotoKosongItem({required String label}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
-          ),
-        ),
-
-        const SizedBox(height: 8),
-
-        Container(
-          width: double.infinity,
-          height: 180,
-          margin: const EdgeInsets.only(bottom: 16),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Text(
-            "Foto tidak tersedia",
-            style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _fotoCardKosong({required String title}) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE6E8EC)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Iconsax.gallery_copy,
-                size: 20,
-                color: Color(0xFF003E79),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Container(
-            height: 160,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Text(
-              "Foto tidak tersedia",
-              style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _actionButton({
-    required String title,
-    required IconData icon,
-    required Color color,
-    required Color backgroundColor,
-    required VoidCallback onTap,
-  }) {
-    return ElevatedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 18),
-
-      label: Text(title),
-
-      style: ButtonStyle(
-        elevation: MaterialStateProperty.all(0),
-
-        padding: MaterialStateProperty.all(
-          const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-        ),
-
-        shape: MaterialStateProperty.all(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-
-        side: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.pressed)) {
-            return const BorderSide(color: Color(0xFF003E79), width: 2);
-          }
-
-          return BorderSide(color: color, width: 2);
-        }),
-
-        backgroundColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.pressed)) {
-            return const Color(0xFF003E79);
-          }
-
-          return backgroundColor;
-        }),
-
-        foregroundColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.pressed)) {
-            return Colors.white;
-          }
-
-          return color;
-        }),
-
-        textStyle: MaterialStateProperty.all(
-          GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-
   //action terima dan tolak
   Widget _actionArea(dynamic item) {
     final status = item["status"]?.toString().toLowerCase().trim() ?? "";
@@ -943,15 +804,7 @@ class DetailAdminView extends GetView<DetailAdminController> {
                 "Tahun Realisasi",
                 item["tahun_realisasi"]?.toString() ?? "-",
               ),
-              _keputusanInfo(
-                "Skor AHP",
-                item["skor_ahp"] != null
-                    ? double.tryParse(
-                            item["skor_ahp"].toString(),
-                          )?.toStringAsFixed(2) ??
-                          "-"
-                    : "-",
-              ),
+              _keputusanInfo("Skor AHP", _formatSkorAhp(item)),
             ],
           ),
 
@@ -1048,7 +901,11 @@ class DetailAdminView extends GetView<DetailAdminController> {
                     onTap: () {
                       Get.toNamed(
                         Routes.DETAIL_HASIL_MUSRENBANG,
-                        arguments: {"id": item["id"], "from": "admin"},
+                        arguments: {
+                          "id": item["id"],
+                          "from": "admin",
+                          "mode": "tunda",
+                        },
                       );
                     },
                   ),
@@ -1065,7 +922,11 @@ class DetailAdminView extends GetView<DetailAdminController> {
                     onTap: () {
                       Get.toNamed(
                         Routes.DETAIL_HASIL_MUSRENBANG,
-                        arguments: {"id": item["id"], "from": "admin"},
+                        arguments: {
+                          "id": item["id"],
+                          "from": "admin",
+                          "mode": "realisasi",
+                        },
                       );
                     },
                   ),
@@ -1202,6 +1063,33 @@ class DetailAdminView extends GetView<DetailAdminController> {
         ],
       ),
     );
+  }
+
+  //
+  String _formatSkorAhp(dynamic item) {
+    final hasil = AhpHelper.hitungTotalAhp100(item);
+
+    if (hasil > 0) {
+      return hasil.toStringAsFixed(2);
+    }
+
+    final skorDb = item["skor_ahp"]?.toString().trim() ?? "";
+
+    if (skorDb.isNotEmpty && skorDb != "null") {
+      final nilaiDb = double.tryParse(skorDb);
+
+      if (nilaiDb != null) {
+        if (nilaiDb <= 5) {
+          return (nilaiDb * 20).toStringAsFixed(2);
+        }
+
+        return nilaiDb.toStringAsFixed(2);
+      }
+
+      return skorDb;
+    }
+
+    return "-";
   }
 
   Widget _statusKeputusanBox({

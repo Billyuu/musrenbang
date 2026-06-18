@@ -230,17 +230,17 @@ class _SplashScreenViewState extends State<SplashScreenView> {
                         borderRadius: BorderRadius.circular(18),
                       ),
                     ),
-                   onPressed: () {
-  if (currentPage == splashData.length - 1) {
-    GetStorage().write("sudah_lihat_splash", true);
-    Get.offAllNamed(Routes.LOGIN);
-  } else {
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
-  }
-},
+                    onPressed: () {
+                      if (currentPage == splashData.length - 1) {
+                        GetStorage().write("sudah_lihat_splash", true);
+                        Get.offAllNamed(Routes.LOGIN);
+                      } else {
+                        _pageController.nextPage(
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    },
                     child: Text(
                       currentPage == splashData.length - 1
                           ? "Mulai Sekarang"

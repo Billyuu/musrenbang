@@ -445,7 +445,18 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
                     );
                   }
 
-                  final hasil = hasilController.hasilSesuaiKategoriPencarian;
+                  final hasil = List<Map<String, dynamic>>.from(
+                    hasilController.hasilSesuaiKategoriPencarian.map(
+                      (e) => Map<String, dynamic>.from(e),
+                    ),
+                  );
+
+                  hasil.sort((a, b) {
+                    final skorA = double.tryParse(_getSkorAHP(a)) ?? 0;
+                    final skorB = double.tryParse(_getSkorAHP(b)) ?? 0;
+
+                    return skorB.compareTo(skorA);
+                  });
 
                   if (hasil.isEmpty) {
                     return Expanded(
@@ -710,26 +721,28 @@ class HasilMusrenbangView extends GetView<HasilMusrenbangController> {
 
   //skor
   String _getSkorAHP(dynamic item) {
-    final skorDb = item["skor_ahp"]?.toString().trim() ?? "";
+  final hasil = AhpHelper.hitungTotalAhp100(item);
 
-    if (skorDb.isNotEmpty && skorDb != "null") {
-      final nilai = double.tryParse(skorDb);
-
-      if (nilai != null) {
-        if (nilai <= 5) {
-          return (nilai * 20).toStringAsFixed(2);
-        }
-
-        return nilai.toStringAsFixed(2);
-      }
-
-      return skorDb;
-    }
-
-    final hasil = AhpHelper.hitungTotalAhp100(item);
-
-    if (hasil <= 0) return "-";
-
+  if (hasil > 0) {
     return hasil.toStringAsFixed(2);
   }
+
+  final skorDb = item["skor_ahp"]?.toString().trim() ?? "";
+
+  if (skorDb.isNotEmpty && skorDb != "null") {
+    final nilai = double.tryParse(skorDb);
+
+    if (nilai != null) {
+      if (nilai <= 5) {
+        return (nilai * 20).toStringAsFixed(2);
+      }
+
+      return nilai.toStringAsFixed(2);
+    }
+
+    return skorDb;
+  }
+
+  return "-";
+}
 }

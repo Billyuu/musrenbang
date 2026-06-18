@@ -17,7 +17,7 @@ Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
 String getInitialRoute() {
   final box = GetStorage();
 
-  final sudahLihatSplash = box.read("sudah_lihat_splash") ?? true;
+  final sudahLihatSplash = box.read("sudah_lihat_splash") ?? false;
 
   final isLogin = box.read("is_login") ?? false;
 

@@ -745,34 +745,31 @@ class LaporanUsulanMusrenbangView
     );
   }
 
-  String _formatSkorItem(dynamic item) {
-    final skorDb = item["skor_ahp"]?.toString().trim() ?? "";
+ String _formatSkorItem(dynamic item) {
+  final hasil = AhpHelper.hitungTotalAhp100(item);
 
-    // Jika skor sudah tersimpan di database
-    if (skorDb.isNotEmpty && skorDb != "null") {
-      final nilaiDb = double.tryParse(skorDb);
-
-      if (nilaiDb != null) {
-        // Kalau skor lama masih skala 5, ubah ke skala 100
-        if (nilaiDb <= 5) {
-          return (nilaiDb * 20).toStringAsFixed(2);
-        }
-
-        return nilaiDb.toStringAsFixed(2);
-      }
-
-      return skorDb;
-    }
-
-    // Jika skor_ahp masih null, hitung langsung dari data usulan
-    final hasil = AhpHelper.hitungTotalAhp100(item);
-
-    if (hasil <= 0) {
-      return "-";
-    }
-
+  if (hasil > 0) {
     return hasil.toStringAsFixed(2);
   }
+
+  final skorDb = item["skor_ahp"]?.toString().trim() ?? "";
+
+  if (skorDb.isNotEmpty && skorDb != "null") {
+    final nilaiDb = double.tryParse(skorDb);
+
+    if (nilaiDb != null) {
+      if (nilaiDb <= 5) {
+        return (nilaiDb * 20).toStringAsFixed(2);
+      }
+
+      return nilaiDb.toStringAsFixed(2);
+    }
+
+    return skorDb;
+  }
+
+  return "-";
+}
 
   Widget _statusBadge(String status) {
     Color color;

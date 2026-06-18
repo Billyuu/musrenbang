@@ -70,20 +70,9 @@ class LaporanUsulanMusrenbangController extends GetxController {
     return dataUsulan.where((item) {
       final statusItem = item["status"]?.toString().toLowerCase().trim() ?? "";
 
-      final jenisItem =
-          item["jenis_usulan"]
-              ?.toString()
-              .toLowerCase()
-              .replaceAll(" ", "_")
-              .trim() ??
-          "fisik";
+     final jenisItem = mapJenis(formatJenis(item["jenis_usulan"]));
 
-      print("STATUS API: $statusItem");
-      print("STATUS FILTER: $statusFilter");
-      print("JENIS API: $jenisItem");
-      print("JENIS FILTER: $jenisFilter");
-
-      return statusItem == statusFilter && jenisItem == jenisFilter;
+return statusItem == statusFilter && jenisItem == jenisFilter;
     }).toList();
   }
 
@@ -104,14 +93,14 @@ class LaporanUsulanMusrenbangController extends GetxController {
   }
 
   String formatJenis(dynamic value) {
-    final jenis = value?.toString().toLowerCase().trim() ?? "fisik";
+  final jenis = value?.toString().toLowerCase().trim() ?? "fisik";
 
-    if (jenis == "non_fisik") {
-      return "Non Fisik";
-    }
-
-    return "Fisik";
+  if (jenis == "non_fisik" || jenis == "non fisik" || jenis == "nonfisik") {
+    return "Non Fisik";
   }
+
+  return "Fisik";
+}
 
   //pdf
   Future<void> cetakLaporan() async {

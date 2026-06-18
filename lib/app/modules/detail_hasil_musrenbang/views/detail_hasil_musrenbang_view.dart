@@ -244,7 +244,7 @@ class DetailHasilMusrenbangView
             "Usulan ini telah direalisasikan sebagai bagian dari pelaksanaan hasil Musrenbang Desa.\n\n"
             "Tahun Realisasi : ${_value(item, "tahun_realisasi")}",
         icon: Icons.verified_rounded,
-        color: Colors.green,
+        color: const Color(0xFF003E79),
       );
     }
 
@@ -253,7 +253,7 @@ class DetailHasilMusrenbangView
       subtitle:
           "Usulan ini telah ditetapkan dalam hasil Musrenbang dan menunggu proses realisasi sesuai tahun yang telah direncanakan.",
       icon: Icons.check_circle_rounded,
-      color: const Color(0xFF003E79),
+      color: Colors.green,
     );
   }
 
@@ -296,7 +296,7 @@ class DetailHasilMusrenbangView
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Text(
-                  "DISETUJUI",
+                  _labelStatus(item),
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 10,
@@ -345,8 +345,25 @@ class DetailHasilMusrenbangView
     );
   }
 
+  //status
+  String _labelStatus(dynamic item) {
+    final status = item["status"]?.toString().toLowerCase().trim() ?? "";
+
+    if (status == "ditunda") return "DITUNDA";
+    if (status == "direalisasikan") return "DIREALISASIKAN";
+    if (status == "disetujui") return "DISETUJUI";
+
+    return status.isNotEmpty ? status.toUpperCase() : "-";
+  }
+
   //skor
   String _getSkorAHP(dynamic item) {
+    final hasil = AhpHelper.hitungTotalAhp100(item);
+
+    if (hasil > 0) {
+      return hasil.toStringAsFixed(2);
+    }
+
     final skorDb = item["skor_ahp"]?.toString().trim() ?? "";
 
     if (skorDb.isNotEmpty && skorDb != "null") {
@@ -363,9 +380,7 @@ class DetailHasilMusrenbangView
       return skorDb;
     }
 
-    final hasil = AhpHelper.hitungTotalAhp100(item);
-
-    return hasil.toStringAsFixed(2);
+    return "-";
   }
 
   Widget _sectionCard({
